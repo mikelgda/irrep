@@ -30,24 +30,25 @@ from .__readfiles import record_abinit,WAVECARFILE
 class BandStructure():
 
 
-    def __init__(self,fWAV=None,fWFK=None,prefix=None,fPOS=None,Ecut=None,IBstart=None,IBend=None,kplist=None,spinor=None,code="vasp",EF=None,onlysym=False):
+    def __init__(self,fWAV=None,fWFK=None,prefix=None,fPOS=None,Ecut=None,IBstart=None,IBend=None,kplist=None,spinor=None,code="vasp",EF=None,onlysym=False,magnetic=None,magmom=None):
         code=code.lower()
+        self.magnetic=magnetic
         if code=="vasp":
-           self.__init_vasp(fWAV,fPOS,Ecut,IBstart,IBend,kplist,spinor,EF=EF,onlysym=onlysym)
+           self.__init_vasp(fWAV,fPOS,Ecut,IBstart,IBend,kplist,spinor,EF=EF,onlysym=onlysym,magmom=magmom)
         elif code=="abinit":
-           self.__init_abinit(fWFK,Ecut,IBstart,IBend,kplist,EF=EF,onlysym=onlysym)
+           self.__init_abinit(fWFK,Ecut,IBstart,IBend,kplist,EF=EF,onlysym=onlysym,magmom=magmom)
         elif code=="espresso":
            self.__init_espresso(prefix,Ecut,IBstart,IBend,kplist,EF=EF,onlysym=onlysym)
         elif code=="wannier90":
-           self.__init_wannier(prefix,Ecut,IBstart,IBend,kplist,EF=EF,onlysym=onlysym)
+           self.__init_wannier(prefix,Ecut,IBstart,IBend,kplist,EF=EF,onlysym=onlysym,magmom=magmom)
         else :
            raise RuntimeError("Unknown/unsupported code :{}".format(code))
           
 
-    def __init_vasp(self,fWAV,fPOS,Ecut=None,IBstart=None,IBend=None,kplist=None,spinor=None,EF=None,onlysym=False):
+    def __init_vasp(self,fWAV,fPOS,Ecut=None,IBstart=None,IBend=None,kplist=None,spinor=None,EF=None,onlysym=False,magmom=None):
         if spinor is None :
             raise RuntimeError("spinor should be specified in the command line for VASP bandstructure")
-        self.spacegroup=SpaceGroup(inPOSCAR=fPOS,spinor=spinor)
+        self.spacegroup=SpaceGroup(inPOSCAR=fPOS,spinor=spinor,magnetic=self.magnetic,magmom=magmom)
         self.spinor=spinor
         if onlysym: return
         self.efermi=(0. if EF is None else EF)
@@ -96,12 +97,12 @@ class BandStructure():
                          for ik in kplist]
 
 
-    def __init_abinit(self,WFKname,Ecut=None,IBstart=None,IBend=None,kplist=None,EF=None,onlysym=False):
+    def __init_abinit(self,WFKname,Ecut=None,IBstart=None,IBend=None,kplist=None,EF=None,onlysym=False,magmom=None):
 
         header=AbinitHeader(WFKname)
         usepaw=header.usepaw
         self.spinor=header.spinor
-        self.spacegroup=SpaceGroup(cell=(header.rprimd,header.xred,header.typat),spinor=self.spinor)
+        self.spacegroup=SpaceGroup(cell=(header.rprimd,header.xred,header.typat),spinor=self.spinor,magnetic=self.magnetic,magmom)
         if onlysym: return
         self.efermi=header.efermi*Hartree_eV if EF is None else EF
 #        self.spacegroup.show()
@@ -146,7 +147,7 @@ class BandStructure():
 
 
 
-    def __init_wannier(self,prefix,Ecut=None,IBstart=None,IBend=None,kplist=None,EF=None,onlysym=False):
+    def __init_wannier(self,prefix,Ecut=None,IBstart=None,IBend=None,kplist=None,EF=None,onlysym=False,magmom=None):
         
         if Ecut is None:
             raise RuntimeError("Ecut mandatory for Wannier90")
@@ -263,7 +264,7 @@ class BandStructure():
                                  )*2*np.pi/np.linalg.det(self.Lattice)
 
 
-        self.spacegroup=SpaceGroup(cell=(self.Lattice,xred,typat),spinor=self.spinor)
+        self.spacegroup=SpaceGroup(cell=(self.Lattice,xred,typat),spinor=self.spinor,magnetic=self.magnetic,magmom=magmom)
         if onlysym: return
         
         feig=prefix+".eig"

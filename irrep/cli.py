@@ -181,6 +181,9 @@ do not hesitate to contact the author:
 @click.option(
     "-writebands", flag_value=True, default=True, help="TODO: help to go here!"
 )
+@click.option(
+    "-magnetic",default='auto',help="No value to call FINDSYM, else write path to input.")
+@click.option("-magmom",type=str,help="Path to manual magnetic moment assignment.")
 def cli(
     ecut,
     fwav,
@@ -207,6 +210,8 @@ def cli(
     symmetries,
     writebands,
     suffix,
+    magnetic,
+    magmom
 ):
     """
     Defines the "irrep" command-line tool interface.
@@ -218,6 +223,8 @@ def cli(
     #     print("{}\t{}".format(k, v))
 
     # if supplied, convert refUC and shiftUC from comma-separated lists into arrays
+    if magnetic:
+        onlysym=False
     if refuc:
         refuc = np.array(refuc.split(","), dtype=float).reshape((3, 3))
     if shiftuc:
@@ -259,6 +266,8 @@ def cli(
         code=code,
         EF=ef,
         onlysym=onlysym,
+        magnetic=magnetic,
+        magmom=magmom
     )
     bandstr.spacegroup.show(refUC=refuc, shiftUC=shiftuc, symmetries=symmetries)
 

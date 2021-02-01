@@ -3,7 +3,8 @@ import numpy as np
 class FINDSYMData():
 
     def __init__(self,file='auto'):
-        self.__readfile(file)
+        self.rotations,self.translations,self.op_types=self.__readfile(file)
+        self.op_number=len(self.op_types)
         
     def __readfile(self,file='auto'):
         if file=='auto':
@@ -48,9 +49,7 @@ class FINDSYMData():
             
                 break
         lines.close()
-        self.rotations=np.array(rotations)
-        self.translations=np.array(translations)
-        self.op_types=np.array(op_type,dtype=int)
+        return np.array(rotations),np.array(translations),np.array(op_type,dtype=int)
     
     def __parse_matrix(self,string):
         def parse_term(s):

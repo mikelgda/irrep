@@ -185,7 +185,7 @@ class SpaceGroup():
     return lattice,positions,numbers
 
 
-  def _findsym(self,inPOSCAR,cell):
+  def _findsym(self,inPOSCAR,cell,magmom=None):
     if cell is None: cell=self.__cell_vasp(inPOSCAR=inPOSCAR)
 #    cell1=tuple( [cell.lattice,cell.positions,cell.numbers] )
 #    print (cell)
@@ -193,18 +193,28 @@ class SpaceGroup():
     print('\n ----------INFORMATION ABOUT THE UNIT CELL----------- \n')
     print('')
     print ('Primitive vectors : \n',cell[0],'\n Atomic positions: \n',cell[1],'\n Atom type indices: \n',cell[2])
-    symmetries = spglib.get_symmetry( cell  )
-#    print ("symmetriesreturned by spglib : ",symmetries)
-    symmetries = [ SymmetryOperation(rot,symmetries['translations'][i],cell[0],ind=i+1,spinor=self.spinor) 
-             for i,rot in enumerate(symmetries['rotations'])  ]
-    nsym=len(symmetries)
-    s=spglib.get_spacegroup(cell).split(" ")
+    if self.magnetic=='auto':
+        moments=np.loadtxt(magmom)
+        make_fs_input(cell[0],len(cell[2]),cell[2],cell[1],magmoments=moments)
+    if self.magnetic:
+        self.symdata=FINDSYMData(file=self.magnetic)
+        symmetries=[SymmetryOperation(rot,symdata.translations[i],cell[0],ind=i+1,spinor=self.spinor) for i,rot in enumerate(self.symdata.unitary_operations())]
+        return symmetries,self.symdata.name,self.symdata.sg,cell[0]
+    else:
+        symmetries = spglib.get_symmetry(cell)
+        #    print ("symmetriesreturned by spglib : ",symmetries)
+        symmetries = [ SymmetryOperation(rot,symmetries['translations'][i],cell[0],ind=i+1,spinor=self.spinor) 
+                    for i,rot in enumerate(symmetries['rotations'])  ]
+        s=spglib.get_spacegroup(cell).split(" ")
+        # nsym=len(symmetries)
     
-    return symmetries,s[0],int(s[1].strip("()")) ,cell[0]
+    
+        return symmetries,s[0],int(s[1].strip("()")) ,cell[0]
 
-  def __init__(self,inPOSCAR=None,cell=None,spinor=True,magnetic=False):
+  def __init__(self,inPOSCAR=None,cell=None,spinor=True,magnetic=None,magmom=None):
+    self.magnetic=magnetic
     self.spinor=spinor
-    self.symmetries,self.name,self.number,self.Lattice=self._findsym(inPOSCAR,cell)
+    self.symmetries,self.name,self.number,self.Lattice=self._findsym(inPOSCAR,cell,magmom=magmom)
     self.RecLattice=np.array([np.cross(self.Lattice[(i+1)%3],self.Lattice[(i+2)%3]) for i in range(3)] )*2*np.pi/np.linalg.det(self.Lattice)
     print ("\n Reciprocal lattice:\n",self.RecLattice)
 
@@ -212,10 +222,13 @@ class SpaceGroup():
     print('')
     print("\n ---------- INFORMATION ABOUT THE SPACE GROUP ---------- \n")
     print('')
-    print ("Space group # {0} has {1} symmetry operations  ".format(self.number,len(self.symmetries)))
+    if self.magnetic:
+        print("Space group # {0} has {1} symmetry operations. The unitary ones are ".format(self.number,self.symdata.op_number))
+    else:
+        print ("Space group # {0} has {1} symmetry operations  ".format(self.number,len(self.symmetries)))
     for symop in self.symmetries:
-     if symmetries is None or symop.ind in symmetries:
-       symop.show(refUC=refUC,shiftUC=shiftUC)
+        if symmetries is None or symop.ind in symmetries:
+            symop.show(refUC=refUC,shiftUC=shiftUC)
 
 
 #  def show2(self,refUC=None,shiftUC=np.zeros(3)):
