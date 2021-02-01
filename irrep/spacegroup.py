@@ -25,6 +25,7 @@ from irreptables import IrrepTable
 import scipy
 from scipy.optimize import minimize
 from .__aux import str_
+from .findsym import make_fs_input,FINDSYMData
 
 pauli_sigma=np.array([ [[0,1],[1,0]], [[0,-1j],[1j,0]], [[1,0],[0,-1]]  ])
 
@@ -201,7 +202,7 @@ class SpaceGroup():
     
     return symmetries,s[0],int(s[1].strip("()")) ,cell[0]
 
-  def __init__(self,inPOSCAR=None,cell=None,spinor=True):
+  def __init__(self,inPOSCAR=None,cell=None,spinor=True,magnetic=False):
     self.spinor=spinor
     self.symmetries,self.name,self.number,self.Lattice=self._findsym(inPOSCAR,cell)
     self.RecLattice=np.array([np.cross(self.Lattice[(i+1)%3],self.Lattice[(i+2)%3]) for i in range(3)] )*2*np.pi/np.linalg.det(self.Lattice)
