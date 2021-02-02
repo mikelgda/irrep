@@ -137,7 +137,7 @@ class Kpoint():
 
                     
     def Separate(self,symop,degen_thresh=1e-5,groupKramers=True):
-#   separates the bandstructure according to symmetry eigenvalues returns a dictionar of Kpoint objects eigval:Kpoint
+#   separates the bandstructure according to symmetry eigenvalues returns a dictionary of Kpoint objects eigval:Kpoint
         borders=np.hstack([ [0],np.where(self.Energy[1:]-self.Energy[:-1]>degen_thresh)[0]+1,[self.Nband] ])        
         S=symm_matrix(self.K,self.RecLattice,self.WF,self.ig,spinor=self.spinor,
                          A=symop.rotation,S=symop.spinor_rotation,T=symop.translation)

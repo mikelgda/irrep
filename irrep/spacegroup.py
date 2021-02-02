@@ -197,9 +197,10 @@ class SpaceGroup():
         moments=np.loadtxt(magmom)
         make_fs_input(cell[0],len(cell[2]),cell[2],cell[1],magmoments=moments)
     if self.magnetic:
-        self.symdata=FINDSYMData(file=self.magnetic)
-        symmetries=[SymmetryOperation(rot,symdata.translations[i],cell[0],ind=i+1,spinor=self.spinor) for i,rot in enumerate(self.symdata.unitary_operations())]
-        return symmetries,self.symdata.name,self.symdata.sg,cell[0]
+        symdata=FINDSYMData(file=self.magnetic)
+        symmetries=[SymmetryOperation(rot,symdata.translations[i],cell[0],ind=i+1,spinor=self.spinor) for i,rot in enumerate(symdata.rotations)]
+        #Recall that only the first half are unitary
+        return symmetries,symdata.name,symdata.sg,cell[0]
     else:
         symmetries = spglib.get_symmetry(cell)
         #    print ("symmetriesreturned by spglib : ",symmetries)
@@ -212,6 +213,7 @@ class SpaceGroup():
         return symmetries,s[0],int(s[1].strip("()")) ,cell[0]
 
   def __init__(self,inPOSCAR=None,cell=None,spinor=True,magnetic=None,magmom=None):
+
     self.magnetic=magnetic
     self.spinor=spinor
     self.symmetries,self.name,self.number,self.Lattice=self._findsym(inPOSCAR,cell,magmom=magmom)
@@ -222,10 +224,8 @@ class SpaceGroup():
     print('')
     print("\n ---------- INFORMATION ABOUT THE SPACE GROUP ---------- \n")
     print('')
-    if self.magnetic:
-        print("Space group # {0} has {1} symmetry operations. The unitary ones are ".format(self.number,self.symdata.op_number))
-    else:
-        print ("Space group # {0} has {1} symmetry operations  ".format(self.number,len(self.symmetries)))
+    print ("Space group # {0} has {1} symmetry operations  ".format(self.number,len(self.symmetries)))
+    
     for symop in self.symmetries:
         if symmetries is None or symop.ind in symmetries:
             symop.show(refUC=refUC,shiftUC=shiftUC)
