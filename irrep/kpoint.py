@@ -218,8 +218,8 @@ class Kpoint():
     
     def __init_vasp(self,WCF,ik,NBin,IBstart,IBend,Ecut,Ecut0):
         r=WCF.record(2+ik*(NBin+1))
-        #get the number of planewave coefficients. It should be even for spinor wavefunctions
-    #    print (r)
+        # get the number of planewave coefficients. It should be even for spinor wavefunctions
+        # print (r)
         npw=int(r[0])
         if self.spinor : 
             if  npw!=int(npw/2)*2 : raise RuntimeError ("odd number of coefs {0} for spinor wavefunctions".format(npw))

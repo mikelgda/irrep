@@ -360,6 +360,7 @@ class SpaceGroup():
         next(lines)
     unitName=next(lines)
     unitNum=int(next(lines))
+    lines.close()
     return unitName,unitNum,unitRot,unitShift
 
 

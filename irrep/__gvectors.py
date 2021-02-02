@@ -138,7 +138,7 @@ RecLattice -- rows are the vectors of the reciprocal lattice
 
 def symm_eigenvalues(K,RecLattice,WF,igall,A=np.eye(3),S=np.eye(2),T=np.zeros(3),spinor=True):
     npw1=igall.shape[1]
-    multZ=np.exp(-1.j*(2*np.pi*np.linalg.inv(A).dot(T).dot(igall[:3,:]+K[:,None])))
+    multZ=np.exp(-1.j*(2*np.pi*np.linalg.inv(A).dot(T).dot(igall[:3,:]+K[:,None])))#Phase due to rotation+translation
     igrot=transformed_g(K,igall,RecLattice,A)
     if spinor:
         return  np.dot(  WF[:,igrot].conj()*WF[:,:npw1]*S[0,0] + WF[:,igrot+npw1].conj()*WF[:,npw1:]*S[1,1]
