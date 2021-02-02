@@ -19,6 +19,7 @@
 from sys import argv,stdout
 import numpy as np
 from math import log,pi
+from numpy.core.fromnumeric import shape
 from scipy.linalg import expm
 import spglib
 from irreptables import IrrepTable
@@ -218,6 +219,8 @@ class SpaceGroup():
     self.spinor=spinor
     self.symmetries,self.name,self.number,self.Lattice=self._findsym(inPOSCAR,cell,magmom=magmom)
     self.RecLattice=np.array([np.cross(self.Lattice[(i+1)%3],self.Lattice[(i+2)%3]) for i in range(3)] )*2*np.pi/np.linalg.det(self.Lattice)
+    if magnetic:
+        self.unitName,self.unitNum,self.unitRot,self.unitShift=self.__load_MSG_info()
     print ("\n Reciprocal lattice:\n",self.RecLattice)
 
   def show(self,refUC=None,shiftUC=np.zeros(3),symmetries=None):
@@ -347,5 +350,19 @@ class SpaceGroup():
 #            irr.characters[i]
 #        return( { irr.name: np.array([irr.characters[i]*signs[j] for j,i in enumerate(ind)]) for irr in table.irreps if irr.kpname==kpname})
         
-       
+  def __load_MSG_info(self):
+    sgfile="group_"+self.number.replace(".",'_')+".dat"
+    lines=(l.strip() for l in open(os.path.join(__file__,"correptables","info",sgfile),'r'))
+    setting=next(lines).split()
+    unitRot=np.array(setting[:9],dtype=float).reshape((3,3))
+    unitShift=np.array(setting[9:],dtype=float)
+    for i in range(2):
+        next(lines)
+    unitName=next(lines)
+    unitNum=int(next(lines))
+    return unitName,unitNum,unitRot,unitShift
+
+
+
+
        
