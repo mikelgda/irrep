@@ -102,7 +102,7 @@ class BandStructure():
         header=AbinitHeader(WFKname)
         usepaw=header.usepaw
         self.spinor=header.spinor
-        self.spacegroup=SpaceGroup(cell=(header.rprimd,header.xred,header.typat),spinor=self.spinor,magnetic=self.magnetic,magmom)
+        self.spacegroup=SpaceGroup(cell=(header.rprimd,header.xred,header.typat),spinor=self.spinor,magnetic=self.magnetic,magmom=magmom)
         if onlysym: return
         self.efermi=header.efermi*Hartree_eV if EF is None else EF
 #        self.spacegroup.show()
