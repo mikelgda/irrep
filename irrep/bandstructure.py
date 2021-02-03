@@ -370,7 +370,7 @@ class BandStructure():
 #        print (myroot)
 #        exit()
 
-    def getNK():
+    def getNK(self):
        return len(self.kpoints)
 
     NK=property(getNK)
