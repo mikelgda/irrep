@@ -32,7 +32,7 @@ class BandStructure():
 
     def __init__(self,fWAV=None,fWFK=None,prefix=None,fPOS=None,Ecut=None,IBstart=None,IBend=None,kplist=None,spinor=None,code="vasp",EF=None,onlysym=False,magnetic=None,magmom=None):
         code=code.lower()
-        self.magnetic=magnetic
+        self.magnetic=magnetic.lower() 
         if code=="vasp":
            self.__init_vasp(fWAV,fPOS,Ecut,IBstart,IBend,kplist,spinor,EF=EF,onlysym=onlysym,magmom=magmom)
         elif code=="abinit":

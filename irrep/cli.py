@@ -182,7 +182,7 @@ do not hesitate to contact the author:
     "-writebands", flag_value=True, default=True, help="TODO: help to go here!"
 )
 @click.option(
-    "-magnetic",default='auto',help="No flag to call FINDSYM, else write path to input.")
+    "-magnetic",default=None,help="No flag to call FINDSYM, else write path to input.")
 @click.option("-magmom",type=str,help="Path to manual magnetic moment assignment.")
 def cli(
     ecut,
@@ -223,8 +223,7 @@ def cli(
     #     print("{}\t{}".format(k, v))
 
     # if supplied, convert refUC and shiftUC from comma-separated lists into arrays
-    if magnetic:
-        onlysym=False
+    
     if refuc:
         refuc = np.array(refuc.split(","), dtype=float).reshape((3, 3))
     if shiftuc:

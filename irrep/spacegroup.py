@@ -198,11 +198,13 @@ class SpaceGroup():
         moments=np.loadtxt(magmom)
         make_fs_input(cell[0],len(cell[2]),cell[2],cell[1],magmoments=moments)
     if self.magnetic:
+        print("Using FINDSYM")
         symdata=FINDSYMData(file=self.magnetic)
         symmetries=[SymmetryOperation(rot,symdata.translations[i],cell[0],ind=i+1,spinor=self.spinor) for i,rot in enumerate(symdata.rotations)]
         #Recall that only the first half are unitary
         return symmetries,symdata.name,symdata.sg,cell[0]
     else:
+        print("Using spglib")
         symmetries = spglib.get_symmetry(cell)
         #    print ("symmetriesreturned by spglib : ",symmetries)
         symmetries = [ SymmetryOperation(rot,symmetries['translations'][i],cell[0],ind=i+1,spinor=self.spinor) 
@@ -219,7 +221,7 @@ class SpaceGroup():
     self.spinor=spinor
     self.symmetries,self.name,self.number,self.Lattice=self._findsym(inPOSCAR,cell,magmom=magmom)
     self.RecLattice=np.array([np.cross(self.Lattice[(i+1)%3],self.Lattice[(i+2)%3]) for i in range(3)] )*2*np.pi/np.linalg.det(self.Lattice)
-    if magnetic:
+    if magnetic: #non-empty str as auto or findsym.txt will evaluate to True. None evaluates to False
         self.unitName,self.unitNum,self.unitRot,self.unitShift=self.__load_MSG_info()
     print ("\n Reciprocal lattice:\n",self.RecLattice)
 
@@ -351,10 +353,11 @@ class SpaceGroup():
 #        return( { irr.name: np.array([irr.characters[i]*signs[j] for j,i in enumerate(ind)]) for irr in table.irreps if irr.kpname==kpname})
         
   def __load_MSG_info(self):
+    import os
     def remove_tags(s):
         return s.replace('<i>','').replace('</i>','').replace('<sub>','_').replace('</sub>','')
     sgfile="group_"+self.number.replace(".",'_')+".dat"
-    lines=(l.strip() for l in open(os.path.join(__file__,"correptables","info",sgfile),'r'))
+    lines=(l.strip() for l in open(os.path.abspath(os.path.join(os.path.dirname(__file__),"..","irreptables","correptables","info",sgfile)),'r'))
     setting=next(lines).split()
     unitRot=np.array(setting[:9],dtype=float).reshape((3,3))
     unitShift=np.array(setting[9:],dtype=float)

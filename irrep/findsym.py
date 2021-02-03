@@ -9,8 +9,14 @@ class FINDSYMData():
     def __readfile(self,file='auto'):
         if file=='auto':
             import subprocess
-            fsout=subprocess.run(['findsym','findsym.in'],catpure_ouput=True)
-            lines=(l for l in fsout.stdout.decode('utf-8').split('\n'))
+            try:
+                fsout=subprocess.run(['findsym','findsym.in'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                lines=(l for l in fsout.stdout.decode('utf-8').split('\n'))
+            except Exception as e:
+                print("You do not have FINDSYM properly installed.")
+                print(e)
+                # exit()
+            
         else:  
             try:
                 lines=(l.strip() for l in open(file))
@@ -118,14 +124,15 @@ def make_fs_input(lattice,natoms,typeatoms,positions,magmoments=None,title="FIND
         # entered as 0.333.  
         
         fsout.write("!atomCount\n{0}\n".format(natoms))
-        fsout.write("!atomType\n{0}\n".format(' '.join(typeatoms)))
+        fsout.write("!atomType\n{0}\n".format(' '.join([str(x) for x in typeatoms])))
         fsout.write("!atomPosition\n")
         np.savetxt(fsout,positions,fmt="%.6f")
         # fsout.write("!atomOccupation\n")
         
         fsout.write("!atomMagneticMoment\n")
         if magmoments is not None:
-            np.savetxt(fsout,magmoments)
+            np.savetxt(fsout,magmoments,fmt="%.5f")
         else:
             np.savetxt(fsout,np.zeros((natoms,natoms),dtype=float),fmt="%.4f")
+        print("Created input for FINDSYM from ab-initio data.")
         
