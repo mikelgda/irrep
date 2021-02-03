@@ -425,6 +425,7 @@ class IrrepTable:
                     SG=self.number,
                     spinor="spin" if self.spinor else "scal",
                     root=os.path.dirname(__file__),
+                )
             logger.debug("reading from a standard irrep table <{0}>".format(name))
         else:
             logger.debug("reading from a user-defined irrep table <{0}>".format(name))
