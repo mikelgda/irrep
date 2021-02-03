@@ -290,7 +290,7 @@ class SpaceGroup():
        
   def get_irreps_from_table(self,refUC,shiftUC,kpname,K):
 #        self.show()
-        table=IrrepTable(self.number,self.spinor)
+        table=IrrepTable(self.number,self.spinor,magnetic=self.magnetic)
         if self.number!=table.number : raise RuntimeError("numbers of the symmetry groups do not match : {0} and {1}".format(self.number,SG.number) )
 #        if self.name!=table.name     : raise RuntimeError(  "names of the symmetry groups do not match : {0} and {1}".format(self.name,table.name) )
         ind=[]
@@ -351,6 +351,8 @@ class SpaceGroup():
 #        return( { irr.name: np.array([irr.characters[i]*signs[j] for j,i in enumerate(ind)]) for irr in table.irreps if irr.kpname==kpname})
         
   def __load_MSG_info(self):
+    def remove_tags(s):
+        return s.replace('<i>','').replace('</i>','').replace('<sub>','_').replace('</sub>','')
     sgfile="group_"+self.number.replace(".",'_')+".dat"
     lines=(l.strip() for l in open(os.path.join(__file__,"correptables","info",sgfile),'r'))
     setting=next(lines).split()
@@ -361,7 +363,7 @@ class SpaceGroup():
     unitName=next(lines)
     unitNum=int(next(lines))
     lines.close()
-    return unitName,unitNum,unitRot,unitShift
+    return remove_tags(unitName),unitNum,unitRot,unitShift
 
 
 

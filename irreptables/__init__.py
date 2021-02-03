@@ -299,7 +299,7 @@ class IrrepTable:
 
     """
 
-    def __init__(self, SGnumber, spinor, fromUser=True, name=None):
+    def __init__(self, SGnumber, spinor, fromUser=True, name=None,magnetic=None):
         """
 
         :param SGnumber:
@@ -307,6 +307,7 @@ class IrrepTable:
         :param fromUser:
         :param name:
         """
+        self.magnetic=magnetic
         if fromUser:
             self.__init__user(SGnumber, spinor, name)
             return
@@ -413,11 +414,17 @@ class IrrepTable:
         self.number = SG
         self.spinor = spinor
         if name is None:
-            name = "{root}/tables/irreps-SG={SG}-{spinor}.dat".format(
-                SG=self.number,
-                spinor="spin" if self.spinor else "scal",
-                root=os.path.dirname(__file__),
-            )
+            if self.magnetic:
+                name = "{root}/correptables/tables/irreps-SG={SG}-{spinor}.dat".format(
+                    SG=self.number.replace('.','_'),
+                    spinor="spin" if self.spinor else "scal",
+                    root=os.path.dirname(__file__),
+                )
+            else:
+                name = "{root}/tables/irreps-SG={SG}-{spinor}.dat".format(
+                    SG=self.number,
+                    spinor="spin" if self.spinor else "scal",
+                    root=os.path.dirname(__file__),
             logger.debug("reading from a standard irrep table <{0}>".format(name))
         else:
             logger.debug("reading from a user-defined irrep table <{0}>".format(name))

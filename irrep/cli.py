@@ -182,7 +182,7 @@ do not hesitate to contact the author:
     "-writebands", flag_value=True, default=True, help="TODO: help to go here!"
 )
 @click.option(
-    "-magnetic",default='auto',help="No value to call FINDSYM, else write path to input.")
+    "-magnetic",default='auto',help="No flag to call FINDSYM, else write path to input.")
 @click.option("-magmom",type=str,help="Path to manual magnetic moment assignment.")
 def cli(
     ecut,
