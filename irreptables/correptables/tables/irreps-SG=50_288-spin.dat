@@ -1,5 +1,6 @@
 SG=P_Iban
  name=50.288
+ nsym=8
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=P_Iccn
  name=56.376
+ nsym=8
  spinor=False
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0

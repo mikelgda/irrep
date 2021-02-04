@@ -1,5 +1,6 @@
 SG=P-4m2
  name=115.283
+ nsym=8
  spinor=False
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0

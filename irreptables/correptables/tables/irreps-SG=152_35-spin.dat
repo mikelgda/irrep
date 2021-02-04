@@ -1,5 +1,6 @@
 SG=P3_12'1
  name=152.35
+ nsym=3
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0                                1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

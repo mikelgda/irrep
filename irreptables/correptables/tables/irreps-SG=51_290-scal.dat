@@ -1,5 +1,6 @@
 SG=Pmma1'
  name=51.290
+ nsym=8
  spinor=False
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0

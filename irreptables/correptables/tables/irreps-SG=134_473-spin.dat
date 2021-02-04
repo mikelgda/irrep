@@ -1,5 +1,6 @@
 SG=P4_2/n'nm
  name=134.473
+ nsym=8
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

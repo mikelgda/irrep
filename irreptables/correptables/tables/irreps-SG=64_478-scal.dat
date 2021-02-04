@@ -1,5 +1,6 @@
 SG=C_cmca
  name=64.478
+ nsym=8
  spinor=False
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0

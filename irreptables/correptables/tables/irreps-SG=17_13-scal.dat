@@ -1,5 +1,6 @@
 SG=P_B222_1
  name=17.13
+ nsym=4
  spinor=False
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0

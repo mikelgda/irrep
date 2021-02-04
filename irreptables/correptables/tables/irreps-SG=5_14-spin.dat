@@ -1,5 +1,6 @@
 SG=C21'
  name=5.14
+ nsym=2
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0  1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

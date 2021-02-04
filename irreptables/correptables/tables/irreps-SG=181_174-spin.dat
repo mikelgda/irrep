@@ -1,5 +1,6 @@
 SG=P6_4221'
  name=181.174
+ nsym=12
  spinor=True
 symmetries=
           1 0 0   0 1 0   0 0 1   0 0 0                                 1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

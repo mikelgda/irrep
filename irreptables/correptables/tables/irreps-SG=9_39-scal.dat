@@ -1,5 +1,6 @@
 SG=Cc'
  name=9.39
+ nsym=1
  spinor=False
 symmetries=
  1 0 0   0 1 0   0 0 1   0 0 0

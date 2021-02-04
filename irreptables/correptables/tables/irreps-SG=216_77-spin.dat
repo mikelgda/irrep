@@ -1,5 +1,6 @@
 SG=F_S-43m
  name=216.77
+ nsym=24
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=P_I4/mbm
  name=127.398
+ nsym=16
  spinor=True
 symmetries=
                 1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

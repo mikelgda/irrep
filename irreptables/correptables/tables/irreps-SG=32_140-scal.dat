@@ -1,5 +1,6 @@
 SG=P_bba2
  name=32.140
+ nsym=4
  spinor=False
 symmetries=
               1 0 0   0 1 0   0 0 1   0 0 0

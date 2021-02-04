@@ -1,5 +1,6 @@
 SG=P-62c
  name=190.227
+ nsym=12
  spinor=True
 symmetries=
           1 0 0   0 1 0   0 0 1   0 0 0                                 1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

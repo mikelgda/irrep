@@ -1,5 +1,6 @@
 SG=P_c3_112
  name=151.32
+ nsym=6
  spinor=True
 symmetries=
           1 0 0   0 1 0   0 0 1   0 0 0                                 1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

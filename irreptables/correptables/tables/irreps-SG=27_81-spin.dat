@@ -1,5 +1,6 @@
 SG=Pc'c'2
  name=27.81
+ nsym=2
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0   1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

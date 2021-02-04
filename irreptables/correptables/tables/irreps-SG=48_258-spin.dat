@@ -1,5 +1,6 @@
 SG=Pnnn1'
  name=48.258
+ nsym=8
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

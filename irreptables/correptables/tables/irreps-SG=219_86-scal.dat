@@ -1,5 +1,6 @@
 SG=F-43c1'
  name=219.86
+ nsym=24
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

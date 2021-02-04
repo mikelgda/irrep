@@ -1,5 +1,6 @@
 SG=Pnna
  name=52.305
+ nsym=8
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

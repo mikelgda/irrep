@@ -1,5 +1,6 @@
 SG=P6_11'
  name=169.114
+ nsym=6
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0                                 1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

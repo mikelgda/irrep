@@ -1,5 +1,6 @@
 SG=P321
  name=150.25
+ nsym=6
  spinor=True
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0                                 1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

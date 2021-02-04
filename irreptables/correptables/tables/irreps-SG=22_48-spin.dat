@@ -1,5 +1,6 @@
 SG=F_S222
  name=22.48
+ nsym=4
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

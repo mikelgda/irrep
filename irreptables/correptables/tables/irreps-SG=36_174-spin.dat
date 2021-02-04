@@ -1,5 +1,6 @@
 SG=Cm'c2_1'
  name=36.174
+ nsym=2
  spinor=True
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0  1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

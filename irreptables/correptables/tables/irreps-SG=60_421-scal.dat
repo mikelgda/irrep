@@ -1,5 +1,6 @@
 SG=Pbcn'
  name=60.421
+ nsym=4
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

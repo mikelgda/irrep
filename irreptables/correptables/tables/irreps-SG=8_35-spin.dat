@@ -1,5 +1,6 @@
 SG=C_cm
  name=8.35
+ nsym=2
  spinor=True
 symmetries=
   1 0 0   0 1 0   0 0 1   0 0 0  1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

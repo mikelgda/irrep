@@ -1,5 +1,6 @@
 SG=Ccc'a'
  name=68.516
+ nsym=4
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

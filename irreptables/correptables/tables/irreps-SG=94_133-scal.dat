@@ -1,5 +1,6 @@
 SG=P_C4_22_12
  name=94.133
+ nsym=8
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

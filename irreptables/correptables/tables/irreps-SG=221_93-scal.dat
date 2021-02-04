@@ -1,5 +1,6 @@
 SG=Pm-3m1'
  name=221.93
+ nsym=48
  spinor=False
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0

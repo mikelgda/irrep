@@ -1,5 +1,6 @@
 SG=Fdd21'
  name=43.225
+ nsym=4
  spinor=False
 symmetries=
                     1 0 0   0 1 0   0 0 1   0 0 0

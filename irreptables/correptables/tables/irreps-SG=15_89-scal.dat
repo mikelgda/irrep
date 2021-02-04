@@ -1,5 +1,6 @@
 SG=C2'/c'
  name=15.89
+ nsym=2
  spinor=False
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0

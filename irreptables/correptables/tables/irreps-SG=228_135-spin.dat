@@ -1,5 +1,6 @@
 SG=Fd-3c1'
  name=228.135
+ nsym=48
  spinor=True
 symmetries=
                       1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

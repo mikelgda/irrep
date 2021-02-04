@@ -1,5 +1,6 @@
 SG=Im'm2'
  name=44.231
+ nsym=2
  spinor=False
 symmetries=
   1 0 0   0 1 0   0 0 1   0 0 0

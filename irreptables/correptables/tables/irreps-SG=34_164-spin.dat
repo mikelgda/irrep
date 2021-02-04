@@ -1,5 +1,6 @@
 SG=P_Inn2
  name=34.164
+ nsym=4
  spinor=True
 symmetries=
                     1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

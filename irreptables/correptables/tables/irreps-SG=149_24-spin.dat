@@ -1,5 +1,6 @@
 SG=P_c312
  name=149.24
+ nsym=6
  spinor=True
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0                                 1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

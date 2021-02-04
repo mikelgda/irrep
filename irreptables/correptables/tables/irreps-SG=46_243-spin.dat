@@ -1,5 +1,6 @@
 SG=Im'a2'
  name=46.243
+ nsym=2
  spinor=True
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0  1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=P32'1
  name=150.27
+ nsym=3
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

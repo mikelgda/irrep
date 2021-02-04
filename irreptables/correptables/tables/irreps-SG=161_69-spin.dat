@@ -1,5 +1,6 @@
 SG=R3c
  name=161.69
+ nsym=6
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0                                 1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=Ib'c'a
  name=73.551
+ nsym=4
  spinor=False
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0

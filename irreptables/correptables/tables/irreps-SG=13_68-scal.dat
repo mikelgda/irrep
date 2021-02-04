@@ -1,5 +1,6 @@
 SG=P2/c'
  name=13.68
+ nsym=2
  spinor=False
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0

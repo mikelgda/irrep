@@ -1,5 +1,6 @@
 SG=Pm'a2'
  name=28.89
+ nsym=2
  spinor=True
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0  1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

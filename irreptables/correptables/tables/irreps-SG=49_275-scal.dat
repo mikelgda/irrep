@@ -1,5 +1,6 @@
 SG=P_Cccm
  name=49.275
+ nsym=8
  spinor=False
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0

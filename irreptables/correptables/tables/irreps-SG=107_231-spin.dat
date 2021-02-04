@@ -1,5 +1,6 @@
 SG=I4m'm'
  name=107.231
+ nsym=4
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

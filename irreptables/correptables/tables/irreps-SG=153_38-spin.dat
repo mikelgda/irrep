@@ -1,5 +1,6 @@
 SG=P3_2121'
  name=153.38
+ nsym=6
  spinor=True
 symmetries=
           1 0 0   0 1 0   0 0 1   0 0 0                                 1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=P4_232
  name=208.44
+ nsym=24
  spinor=False
 symmetries=
                       1 0 0   0 1 0   0 0 1   0 0 0

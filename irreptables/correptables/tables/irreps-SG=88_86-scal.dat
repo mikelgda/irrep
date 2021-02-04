@@ -1,5 +1,6 @@
 SG=I_c4_1/a
  name=88.86
+ nsym=8
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

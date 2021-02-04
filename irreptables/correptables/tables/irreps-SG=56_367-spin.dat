@@ -1,5 +1,6 @@
 SG=Pc'cn
  name=56.367
+ nsym=4
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

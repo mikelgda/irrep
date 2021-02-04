@@ -1,5 +1,6 @@
 SG=Pm'mm
  name=47.251
+ nsym=4
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

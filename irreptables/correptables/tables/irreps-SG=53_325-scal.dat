@@ -1,5 +1,6 @@
 SG=Pmna'
  name=53.325
+ nsym=4
  spinor=False
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0

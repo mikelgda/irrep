@@ -1,5 +1,6 @@
 SG=Pn'ma
  name=62.443
+ nsym=4
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

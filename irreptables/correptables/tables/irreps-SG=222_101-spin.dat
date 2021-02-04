@@ -1,5 +1,6 @@
 SG=Pn-3n'
  name=222.101
+ nsym=24
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

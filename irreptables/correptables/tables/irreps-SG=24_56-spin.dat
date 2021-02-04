@@ -1,5 +1,6 @@
 SG=I_c2_12_12_1
  name=24.56
+ nsym=4
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

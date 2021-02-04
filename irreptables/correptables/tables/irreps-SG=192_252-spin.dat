@@ -1,5 +1,6 @@
 SG=P_c6/mcc
  name=192.252
+ nsym=24
  spinor=True
 symmetries=
           1 0 0   0 1 0   0 0 1   0 0 0                                 1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

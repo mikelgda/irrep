@@ -1,5 +1,6 @@
 SG=P_I432
  name=207.43
+ nsym=24
  spinor=True
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

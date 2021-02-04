@@ -1,5 +1,6 @@
 SG=P_C4/mbm
  name=127.397
+ nsym=16
  spinor=False
 symmetries=
                 1 0 0   0 1 0   0 0 1   0 0 0

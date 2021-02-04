@@ -1,5 +1,6 @@
 SG=Pb'cn'
  name=60.424
+ nsym=4
  spinor=False
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0

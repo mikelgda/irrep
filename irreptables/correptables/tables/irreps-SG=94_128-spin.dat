@@ -1,5 +1,6 @@
 SG=P4_22_121'
  name=94.128
+ nsym=8
  spinor=True
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

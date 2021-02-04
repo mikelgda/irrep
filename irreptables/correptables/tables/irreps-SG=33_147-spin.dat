@@ -1,5 +1,6 @@
 SG=Pna'2_1'
  name=33.147
+ nsym=2
  spinor=True
 symmetries=
                     1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

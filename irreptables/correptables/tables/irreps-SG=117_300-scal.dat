@@ -1,5 +1,6 @@
 SG=P-4b21'
  name=117.300
+ nsym=8
  spinor=False
 symmetries=
                 1 0 0   0 1 0   0 0 1   0 0 0

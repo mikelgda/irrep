@@ -1,5 +1,6 @@
 SG=Ia'-3'd
  name=230.147
+ nsym=24
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

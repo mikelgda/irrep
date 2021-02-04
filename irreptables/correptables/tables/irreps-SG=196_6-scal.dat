@@ -1,5 +1,6 @@
 SG=F_S23
  name=196.6
+ nsym=12
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

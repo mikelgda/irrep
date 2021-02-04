@@ -1,5 +1,6 @@
 SG=Pm-3
  name=200.14
+ nsym=24
  spinor=False
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0

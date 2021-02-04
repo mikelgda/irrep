@@ -1,5 +1,6 @@
 SG=P4_3321'
  name=212.60
+ nsym=24
  spinor=False
 symmetries=
                       1 0 0   0 1 0   0 0 1   0 0 0

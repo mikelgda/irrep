@@ -1,5 +1,6 @@
 SG=P4_3'22'
  name=95.137
+ nsym=4
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

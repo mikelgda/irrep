@@ -1,5 +1,6 @@
 SG=Ab'a'2
  name=41.215
+ nsym=2
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

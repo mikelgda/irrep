@@ -1,5 +1,6 @@
 SG=P_C2/c
  name=13.74
+ nsym=4
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0  1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

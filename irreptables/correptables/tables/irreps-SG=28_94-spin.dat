@@ -1,5 +1,6 @@
 SG=P_cma2
  name=28.94
+ nsym=4
  spinor=True
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

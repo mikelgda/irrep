@@ -1,5 +1,6 @@
 SG=P_Cnna
  name=52.319
+ nsym=8
  spinor=True
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

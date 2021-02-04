@@ -1,5 +1,6 @@
 SG=P4_1
  name=76.7
+ nsym=4
  spinor=False
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0

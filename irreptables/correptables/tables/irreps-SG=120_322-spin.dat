@@ -1,5 +1,6 @@
 SG=I-4c21'
  name=120.322
+ nsym=8
  spinor=True
 symmetries=
           1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

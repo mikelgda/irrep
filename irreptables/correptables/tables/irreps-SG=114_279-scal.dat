@@ -1,5 +1,6 @@
 SG=P-42_1'c'
  name=114.279
+ nsym=4
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

@@ -1,5 +1,6 @@
 SG=C2/m
  name=12.58
+ nsym=4
  spinor=True
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0  1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

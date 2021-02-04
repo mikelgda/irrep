@@ -1,5 +1,6 @@
 SG=P42_121'
  name=90.96
+ nsym=8
  spinor=False
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0

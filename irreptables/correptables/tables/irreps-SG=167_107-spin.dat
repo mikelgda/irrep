@@ -1,5 +1,6 @@
 SG=R-3c'
  name=167.107
+ nsym=6
  spinor=True
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0                                1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

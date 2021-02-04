@@ -1,5 +1,6 @@
 SG=P6_51'
  name=170.118
+ nsym=6
  spinor=False
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0

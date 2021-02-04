@@ -1,5 +1,6 @@
 SG=P_C222
  name=16.5
+ nsym=4
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

@@ -1,5 +1,6 @@
 SG=P4'32'
  name=207.42
+ nsym=12
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

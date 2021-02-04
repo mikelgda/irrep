@@ -1,5 +1,6 @@
 SG=I4'/m'cm'
  name=140.548
+ nsym=8
  spinor=False
 symmetries=
           1 0 0   0 1 0   0 0 1   0 0 0

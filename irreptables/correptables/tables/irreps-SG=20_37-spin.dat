@@ -1,5 +1,6 @@
 SG=C_A222_1
  name=20.37
+ nsym=4
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

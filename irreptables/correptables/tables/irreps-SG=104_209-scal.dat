@@ -1,5 +1,6 @@
 SG=P_C4nc
  name=104.209
+ nsym=8
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

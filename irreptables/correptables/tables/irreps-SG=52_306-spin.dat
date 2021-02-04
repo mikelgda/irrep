@@ -1,5 +1,6 @@
 SG=Pnna1'
  name=52.306
+ nsym=8
  spinor=True
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

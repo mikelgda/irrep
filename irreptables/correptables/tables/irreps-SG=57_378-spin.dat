@@ -1,5 +1,6 @@
 SG=Pbcm1'
  name=57.378
+ nsym=8
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

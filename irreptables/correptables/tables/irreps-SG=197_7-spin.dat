@@ -1,5 +1,6 @@
 SG=I23
  name=197.7
+ nsym=12
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

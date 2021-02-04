@@ -1,5 +1,6 @@
 SG=I_c4_1/acd
  name=142.570
+ nsym=16
  spinor=False
 symmetries=
                       1 0 0   0 1 0   0 0 1   0 0 0

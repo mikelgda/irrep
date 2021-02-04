@@ -1,5 +1,6 @@
 SG=P_c-42m
  name=111.256
+ nsym=8
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

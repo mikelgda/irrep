@@ -1,5 +1,6 @@
 SG=Fmm21'
  name=42.220
+ nsym=4
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

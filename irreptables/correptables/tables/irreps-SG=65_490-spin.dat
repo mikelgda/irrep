@@ -1,5 +1,6 @@
 SG=C_Ammm
  name=65.490
+ nsym=8
  spinor=True
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

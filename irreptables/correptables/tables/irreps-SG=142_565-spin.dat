@@ -1,5 +1,6 @@
 SG=I4_1'/acd'
  name=142.565
+ nsym=8
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=C222_1
  name=20.31
+ nsym=4
  spinor=False
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0

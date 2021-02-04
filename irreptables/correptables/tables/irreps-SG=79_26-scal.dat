@@ -1,5 +1,6 @@
 SG=I41'
  name=79.26
+ nsym=4
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

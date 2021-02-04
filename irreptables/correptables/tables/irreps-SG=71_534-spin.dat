@@ -1,5 +1,6 @@
 SG=Immm1'
  name=71.534
+ nsym=8
  spinor=True
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

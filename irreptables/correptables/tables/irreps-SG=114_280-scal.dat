@@ -1,5 +1,6 @@
 SG=P_c-42_1c
  name=114.280
+ nsym=8
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

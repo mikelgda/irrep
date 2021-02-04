@@ -1,5 +1,6 @@
 SG=P_C2_1/m
  name=11.57
+ nsym=4
  spinor=False
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0

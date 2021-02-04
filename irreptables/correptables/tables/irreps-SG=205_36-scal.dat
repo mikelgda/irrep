@@ -1,5 +1,6 @@
 SG=P_Ia-3
  name=205.36
+ nsym=24
  spinor=False
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0

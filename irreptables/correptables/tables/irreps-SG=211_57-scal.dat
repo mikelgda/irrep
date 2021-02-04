@@ -1,5 +1,6 @@
 SG=I4321'
  name=211.57
+ nsym=24
  spinor=False
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0

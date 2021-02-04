@@ -1,5 +1,6 @@
 SG=A_abm2
  name=39.200
+ nsym=4
  spinor=False
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0

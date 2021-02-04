@@ -1,5 +1,6 @@
 SG=P_I4_332
  name=212.62
+ nsym=24
  spinor=True
 symmetries=
                       1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=P3121'
  name=149.22
+ nsym=6
  spinor=False
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0

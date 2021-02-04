@@ -1,5 +1,6 @@
 SG=P4_2/mbc1'
  name=135.484
+ nsym=16
  spinor=False
 symmetries=
                       1 0 0   0 1 0   0 0 1   0 0 0

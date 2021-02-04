@@ -1,5 +1,6 @@
 SG=Iba21'
  name=45.236
+ nsym=4
  spinor=False
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0

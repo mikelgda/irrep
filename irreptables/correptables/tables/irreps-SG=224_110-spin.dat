@@ -1,5 +1,6 @@
 SG=Pn-3m
  name=224.110
+ nsym=48
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=P_C4/nmm
  name=129.421
+ nsym=16
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=Pm-31'
  name=200.15
+ nsym=24
  spinor=True
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

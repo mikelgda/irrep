@@ -1,5 +1,6 @@
 SG=Am'm'2
  name=38.191
+ nsym=2
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0   1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

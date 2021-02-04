@@ -1,5 +1,6 @@
 SG=P_c-6
  name=174.136
+ nsym=6
  spinor=False
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0

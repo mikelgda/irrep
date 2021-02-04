@@ -1,5 +1,6 @@
 SG=Cccm'
  name=66.494
+ nsym=4
  spinor=False
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0

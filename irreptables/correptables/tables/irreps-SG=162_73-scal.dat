@@ -1,5 +1,6 @@
 SG=P-31m
  name=162.73
+ nsym=12
  spinor=False
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0

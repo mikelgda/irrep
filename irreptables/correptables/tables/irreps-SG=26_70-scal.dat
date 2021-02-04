@@ -1,5 +1,6 @@
 SG=Pm'c'2_1
  name=26.70
+ nsym=2
  spinor=False
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0

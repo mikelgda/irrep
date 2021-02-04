@@ -1,5 +1,6 @@
 SG=Pm'm2'
  name=25.59
+ nsym=2
  spinor=True
 symmetries=
   1 0 0   0 1 0   0 0 1   0 0 0  1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

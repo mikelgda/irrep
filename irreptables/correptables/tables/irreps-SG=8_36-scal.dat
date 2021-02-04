@@ -1,5 +1,6 @@
 SG=C_am
  name=8.36
+ nsym=2
  spinor=False
 symmetries=
   1 0 0   0 1 0   0 0 1   0 0 0

@@ -1,5 +1,6 @@
 SG=P_C-4b2
  name=117.305
+ nsym=8
  spinor=True
 symmetries=
                 1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=R3c'
  name=161.71
+ nsym=3
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

@@ -1,5 +1,6 @@
 SG=Pnn21'
  name=34.157
+ nsym=4
  spinor=False
 symmetries=
                     1 0 0   0 1 0   0 0 1   0 0 0

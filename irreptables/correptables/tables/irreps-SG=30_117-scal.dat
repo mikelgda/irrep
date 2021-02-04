@@ -1,5 +1,6 @@
 SG=P_bnc2
  name=30.117
+ nsym=4
  spinor=False
 symmetries=
               1 0 0   0 1 0   0 0 1   0 0 0

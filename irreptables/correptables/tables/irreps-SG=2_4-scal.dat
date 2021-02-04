@@ -1,5 +1,6 @@
 SG=P-1
  name=2.4
+ nsym=2
  spinor=False
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0

@@ -1,5 +1,6 @@
 SG=F4_1'32'
  name=210.54
+ nsym=12
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

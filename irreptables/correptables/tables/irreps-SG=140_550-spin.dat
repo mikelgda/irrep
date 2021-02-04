@@ -1,5 +1,6 @@
 SG=I_c4/mcm
  name=140.550
+ nsym=16
  spinor=True
 symmetries=
           1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

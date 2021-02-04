@@ -1,5 +1,6 @@
 SG=P-31c1'
  name=163.80
+ nsym=12
  spinor=True
 symmetries=
           1 0 0   0 1 0   0 0 1   0 0 0                                 1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

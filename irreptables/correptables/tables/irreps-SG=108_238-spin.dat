@@ -1,5 +1,6 @@
 SG=I_c4cm
  name=108.238
+ nsym=8
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

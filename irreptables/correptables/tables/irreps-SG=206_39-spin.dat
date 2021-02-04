@@ -1,5 +1,6 @@
 SG=Ia'-3'
  name=206.39
+ nsym=12
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

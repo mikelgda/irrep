@@ -1,5 +1,6 @@
 SG=F4321'
  name=209.49
+ nsym=24
  spinor=True
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

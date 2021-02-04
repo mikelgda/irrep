@@ -1,5 +1,6 @@
 SG=I4/mmm
  name=139.531
+ nsym=16
  spinor=False
 symmetries=
     1 0 0   0 1 0   0 0 1   0 0 0

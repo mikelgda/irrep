@@ -1,5 +1,6 @@
 SG=Pa-3
  name=205.33
+ nsym=24
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

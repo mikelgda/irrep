@@ -1,5 +1,6 @@
 SG=P4_322
  name=95.135
+ nsym=8
  spinor=False
 symmetries=
           1 0 0   0 1 0   0 0 1   0 0 0

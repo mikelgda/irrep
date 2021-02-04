@@ -1,5 +1,6 @@
 SG=Pn'n'a'
  name=52.313
+ nsym=4
  spinor=True
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

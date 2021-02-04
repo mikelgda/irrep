@@ -1,5 +1,6 @@
 SG=I_ama2
  name=46.247
+ nsym=4
  spinor=True
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=Amm21'
  name=38.188
+ nsym=4
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

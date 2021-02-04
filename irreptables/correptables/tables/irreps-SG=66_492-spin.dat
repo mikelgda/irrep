@@ -1,5 +1,6 @@
 SG=Cccm1'
  name=66.492
+ nsym=8
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

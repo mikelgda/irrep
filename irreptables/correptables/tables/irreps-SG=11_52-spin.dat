@@ -1,5 +1,6 @@
 SG=P2_1'/m
  name=11.52
+ nsym=2
  spinor=True
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0  1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

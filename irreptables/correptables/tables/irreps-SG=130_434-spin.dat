@@ -1,5 +1,6 @@
 SG=P_I4/ncc
  name=130.434
+ nsym=16
  spinor=True
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

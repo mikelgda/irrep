@@ -1,5 +1,6 @@
 SG=P_I4_2/nbc
  name=133.470
+ nsym=16
  spinor=False
 symmetries=
                       1 0 0   0 1 0   0 0 1   0 0 0

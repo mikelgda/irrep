@@ -1,5 +1,6 @@
 SG=Cmm2
  name=35.165
+ nsym=4
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

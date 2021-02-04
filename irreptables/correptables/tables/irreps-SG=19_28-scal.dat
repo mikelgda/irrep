@@ -1,5 +1,6 @@
 SG=P_c2_12_12_1
  name=19.28
+ nsym=4
  spinor=False
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0

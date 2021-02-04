@@ -1,5 +1,6 @@
 SG=Im'-3'm
  name=229.142
+ nsym=24
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

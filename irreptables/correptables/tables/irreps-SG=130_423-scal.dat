@@ -1,5 +1,6 @@
 SG=P4/ncc
  name=130.423
+ nsym=16
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

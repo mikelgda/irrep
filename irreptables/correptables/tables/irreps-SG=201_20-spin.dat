@@ -1,5 +1,6 @@
 SG=Pn'-3'
  name=201.20
+ nsym=12
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

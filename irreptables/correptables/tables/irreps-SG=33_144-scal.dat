@@ -1,5 +1,6 @@
 SG=Pna2_1
  name=33.144
+ nsym=4
  spinor=False
 symmetries=
                     1 0 0   0 1 0   0 0 1   0 0 0

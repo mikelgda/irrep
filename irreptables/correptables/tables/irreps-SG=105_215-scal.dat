@@ -1,5 +1,6 @@
 SG=P4_2m'c'
  name=105.215
+ nsym=4
  spinor=False
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0

@@ -1,5 +1,6 @@
 SG=R_I3m
  name=160.68
+ nsym=6
  spinor=False
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0

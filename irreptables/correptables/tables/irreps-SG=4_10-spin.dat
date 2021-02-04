@@ -1,5 +1,6 @@
 SG=P_a2_1
  name=4.10
+ nsym=2
  spinor=True
 symmetries=
          1 0 0   0 1 0   0 0 1   0 0 0  1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

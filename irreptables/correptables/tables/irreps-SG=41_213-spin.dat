@@ -1,5 +1,6 @@
 SG=Ab'a2'
  name=41.213
+ nsym=2
  spinor=True
 symmetries=
               1 0 0   0 1 0   0 0 1   0 0 0  1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=P_ana2_1
  name=33.149
+ nsym=4
  spinor=True
 symmetries=
                     1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

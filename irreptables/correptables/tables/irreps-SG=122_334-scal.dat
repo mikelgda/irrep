@@ -1,5 +1,6 @@
 SG=I-42d1'
  name=122.334
+ nsym=8
  spinor=False
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0

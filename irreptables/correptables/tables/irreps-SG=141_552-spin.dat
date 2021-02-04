@@ -1,5 +1,6 @@
 SG=I4_1/amd1'
  name=141.552
+ nsym=16
  spinor=True
 symmetries=
                       1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

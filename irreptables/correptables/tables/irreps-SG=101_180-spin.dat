@@ -1,5 +1,6 @@
 SG=P4_2cm1'
  name=101.180
+ nsym=8
  spinor=True
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

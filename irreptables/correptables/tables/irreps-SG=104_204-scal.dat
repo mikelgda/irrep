@@ -1,5 +1,6 @@
 SG=P4nc1'
  name=104.204
+ nsym=8
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

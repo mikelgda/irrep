@@ -1,5 +1,6 @@
 SG=Ab'm'2
  name=39.199
+ nsym=2
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0   1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

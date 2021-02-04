@@ -1,5 +1,6 @@
 SG=Fd'd'd'
  name=70.531
+ nsym=4
  spinor=False
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0

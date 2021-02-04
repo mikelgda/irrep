@@ -1,5 +1,6 @@
 SG=Pm-3n1'
  name=223.105
+ nsym=48
  spinor=True
 symmetries=
                       1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

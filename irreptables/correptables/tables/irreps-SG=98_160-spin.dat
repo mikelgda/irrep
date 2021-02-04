@@ -1,5 +1,6 @@
 SG=I4_12'2'
  name=98.160
+ nsym=4
  spinor=True
 symmetries=
               1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=P6/mcc1'
  name=192.244
+ nsym=24
  spinor=False
 symmetries=
           1 0 0   0 1 0   0 0 1   0 0 0

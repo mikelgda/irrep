@@ -1,5 +1,6 @@
 SG=F_Sdd2
  name=43.228
+ nsym=4
  spinor=False
 symmetries=
                     1 0 0   0 1 0   0 0 1   0 0 0

@@ -1,5 +1,6 @@
 SG=Cm'm'm'
  name=65.487
+ nsym=4
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

@@ -1,5 +1,6 @@
 SG=Fd-3
  name=203.26
+ nsym=24
  spinor=True
 symmetries=
                1 0 0   0 1 0   0 0 1   0 0 0                                                                                                                            1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

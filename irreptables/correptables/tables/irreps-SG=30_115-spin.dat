@@ -1,5 +1,6 @@
 SG=Pn'c'2
  name=30.115
+ nsym=2
  spinor=True
 symmetries=
    1 0 0   0 1 0   0 0 1   0 0 0   1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

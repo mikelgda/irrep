@@ -1,5 +1,6 @@
 SG=I-43d1'
  name=220.90
+ nsym=24
  spinor=False
 symmetries=
                      1 0 0   0 1 0   0 0 1   0 0 0

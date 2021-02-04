@@ -1,5 +1,6 @@
 SG=P_C4_2nm
  name=102.193
+ nsym=8
  spinor=True
 symmetries=
                     1 0 0   0 1 0   0 0 1   0 0 0     1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0

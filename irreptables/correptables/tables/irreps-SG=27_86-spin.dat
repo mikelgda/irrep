@@ -1,5 +1,6 @@
 SG=P_Icc2
  name=27.86
+ nsym=4
  spinor=True
 symmetries=
         1 0 0   0 1 0   0 0 1   0 0 0    1.0 0.0 0.0 1.0    0.0 0.0 0.0 0.0
