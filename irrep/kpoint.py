@@ -460,7 +460,7 @@ class Kpoint():
         else:
             print ("inversion is #",isyminv)
             NBANDINV=int(round(sum(1-self.symmetries[sym[isyminv]].real)/2))
-            if self.spinor:
+            if self.spinor and not self.SG.magnetic:
                 print ("number of inversions-odd Kramers pairs : ",int(NBANDINV/2))
             else:     
                 print ("number of inversions-odd states : ",NBANDINV)

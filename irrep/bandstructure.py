@@ -411,7 +411,7 @@ class BandStructure():
                 Up=min(Up,up)
                 Low=max(Low,low)
                 
-        if self.spinor and not (self.magnetic):
+        if (self.spinor and not (self.magnetic)):
             print ("number of inversions-odd Kramers pairs IN THE LISTED KPOINTS: ",int(NBANDINV/2),"  Z4= ",int(NBANDINV/2)%4)
         else:     
             print ("number of inversions-odd states : ",NBANDINV)
