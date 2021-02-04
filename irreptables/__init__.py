@@ -470,3 +470,5 @@ class IrrepTable:
                 except Exception as err:
                     logger.debug("error while reading irrep <{0}>".format(l), err)
                     pass
+        print("TABLE LOADED")
+        self.show()
