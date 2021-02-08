@@ -200,7 +200,7 @@ class SpaceGroup():
     if self.magnetic:
         print("Using FINDSYM")
         symdata=FINDSYMData(file=self.magnetic)
-        symmetries=[SymmetryOperation(rot,symdata.translations[i],cell[0],ind=i+1,spinor=self.spinor) for i,rot in enumerate(symdata.rotations)]
+        symmetries=[SymmetryOperation(rot,symdata.unitary_operations[1][i],cell[0],ind=i+1,spinor=self.spinor) for i,rot in enumerate(symdata.unitary_operations[0])]
         #Recall that only the first half are unitary
         return symmetries,symdata.name,symdata.sg,cell[0]
     else:

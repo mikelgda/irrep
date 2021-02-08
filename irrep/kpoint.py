@@ -436,8 +436,6 @@ class Kpoint():
                  ("{0:+.5f}i".format(irr[ir].imag) if abs(irr[ir].imag)>1e-4 else "") +")" for ir in irr if abs(irr[ir])>1e-3 ) 
                        for irr in irreps]
 #            irreps=[ "None" ]*(len(borders)-1)
-        print("irreps")
-        print(irreps)
         irreplen=max(len(irr) for irr in irreps)
         if irreplen%2==1 :irreplen+=1
         s2=" "*int(irreplen/2-3)
