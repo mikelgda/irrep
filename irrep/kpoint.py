@@ -426,7 +426,6 @@ class Kpoint():
         else:
             try:
                 irreps=[{ir: np.array([irreptable[ir][sym.ind] for sym in self.symmetries ] ).dot(ch.conj())/len(ch) for ir in irreptable} for ch in char]
-                print(irreps)
             except KeyError as ke:
                 print (ke)
                 print ("irreptable:",irreptable)
