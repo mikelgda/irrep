@@ -300,7 +300,7 @@ class BandStructure():
 
 
 
-    def __init_espresso(self,prefix,Ecut=None,IBstart=None,IBend=None,kplist=None,EF=None,onlysym=False):
+    def __init_espresso(self,prefix,Ecut=None,IBstart=None,IBend=None,kplist=None,EF=None,onlysym=False,magmom=None):
         import xml.etree.ElementTree as ET
         mytree = ET.parse(prefix+'.save/data-file-schema.xml')
         myroot = mytree.getroot()
@@ -323,7 +323,7 @@ class BandStructure():
             xcart.append(at.text.split())
         xred=(np.array(xcart,dtype=float) * BOHR).dot(np.linalg.inv(self.Lattice))
 #        print ("xred=",xred)
-        self.spacegroup=SpaceGroup(cell=(self.Lattice,xred,typat),spinor=self.spinor)
+        self.spacegroup=SpaceGroup(cell=(self.Lattice,xred,typat),spinor=self.spinor,magmom=magmom)
         if onlysym: return
         Ecut0=float(inp.find('basis').find('ecutwfc').text)*Hartree_eV
 
