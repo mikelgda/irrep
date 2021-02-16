@@ -202,6 +202,8 @@ class SpaceGroup():
         symdata=FINDSYMData(file=self.magnetic)
         urots,utrans=symdata.unitary_operations()
         symmetries=[SymmetryOperation(rot,utrans[i],cell[0],ind=i+1,spinor=self.spinor) for i,rot in enumerate(urots)]
+        self.ref_rot=np.transpose(symdata.basis_change)
+        self.ref_shift=symdata.origin
         #Recall that only the first half are unitary
         return symmetries,symdata.name,symdata.sg,cell[0]
     else:
@@ -230,7 +232,7 @@ class SpaceGroup():
     print('')
     print("\n ---------- INFORMATION ABOUT THE SPACE GROUP ---------- \n")
     print('')
-    print ("Space group # {0} has {1} symmetry operations  ".format(self.number,len(self.symmetries)))
+    print ("Space group # {0} has {1} {2}symmetry operations  ".format(self.number,len(self.symmetries),"unitary " if self.magnetic else ''))
     
     for symop in self.symmetries:
         if symmetries is None or symop.ind in symmetries:

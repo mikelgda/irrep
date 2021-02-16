@@ -249,9 +249,6 @@ def cli(
         print(err)
         preline = ""
 
-    if (refuc is not None) and (shiftuc is None):
-        shiftuc = np.zeros(3)
-
     bandstr = BandStructure(
         fWAV=fwav,
         fWFK=fwfk,
@@ -268,6 +265,12 @@ def cli(
         magnetic=magnetic,
         magmom=magmom
     )
+    if magnetic:
+        refuc=bandstr.spacegroup.ref_rot
+        shiftuc=-bandstr.spacegroup.ref_shift
+    else:
+        if (refuc is not None) and (shiftuc is None):
+            shiftuc = np.zeros(3)
     bandstr.spacegroup.show(refUC=refuc, shiftUC=shiftuc, symmetries=symmetries)
 
     if onlysym:

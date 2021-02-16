@@ -92,15 +92,25 @@ class FINDSYMData():
         
     
     def unitary_operations(self,calcbasis=True):
+        # print("vanilla operations")
+        # for rot,trans in zip(self.rotations[self.op_types==1],self.translations[self.op_types==1]):
+        #     print(rot)
+        #     print(trans)
+        # print('##############################################################')
         if calcbasis:
-            calcrot=np.array([self.__rotation_refUC(rot) for rot in self.rotations[self.op_types==1]])
+            # print("transformed operations:")
+            calcrot=np.array([self.__rotation_refUC(rot) for rot in self.rotations[self.op_types==1]],dtype=int)
             calctrans= np.array([self.__translation_refUC(rot,trans) for rot,trans in zip(self.rotations[self.op_types==1],self.translations[self.op_types==1])])
+            # for rot,trans in zip(calcrot,calctrans):
+            #     print(rot)
+            #     print(trans)
+            # print('########################################################')
             return (calcrot,calctrans)
         else:
             return (self.rotations[self.op_types==-1],self.translations[self.op_types==-1])
     def antiunitary_operations(self,calcbasis=True):
         if calcbasis:
-            calcrot=np.array([self.__rotation_refUC(rot) for rot in self.rotations[self.op_types==-1]])
+            calcrot=np.array([self.__rotation_refUC(rot) for rot in self.rotations[self.op_types==-1]],dtype=int)
             calctrans= np.array([self.__translation_refUC(rot,trans) for rot,trans in zip(self.rotations[self.op_types==-1],self.translations[self.op_types==-1])])
             return (calcrot,calctrans)
         else:
@@ -113,7 +123,7 @@ class FINDSYMData():
         # Ra= Mca Rc Mac
         Ra=self.basis_change.dot(np.dot(rotation,Mac)) #Rotation in calculation basis
         
-        return Ra
+        return Ra.astype(int)
 
     def __translation_refUC(self,rotation,translation):
         #self.origin is the shift from calc to std -> tac
