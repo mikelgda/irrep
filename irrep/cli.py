@@ -267,8 +267,9 @@ def cli(
     )
     if magnetic:
         refuc=bandstr.spacegroup.ref_rot
-        shiftuc=-bandstr.spacegroup.ref_shift
+        shiftuc=bandstr.spacegroup.ref_shift
         print("Your refUC from FINDSYM is:\n",refuc)
+        print("Translation tac from calculation to reference cell:\n",shiftuc)
         print("Inverse:\n",np.linalg.inv(refuc))
     else:
         if (refuc is not None) and (shiftuc is None):

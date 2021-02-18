@@ -200,10 +200,10 @@ class SpaceGroup():
     if self.magnetic:
         print("Using FINDSYM")
         symdata=FINDSYMData(file=self.magnetic)
-        urots,utrans=symdata.unitary_operations()
+        urots,utrans=symdata.unitary_operations(calcbasis=True)
         symmetries=[SymmetryOperation(rot,utrans[i],cell[0],ind=i+1,spinor=self.spinor) for i,rot in enumerate(urots)]
         self.ref_rot=np.transpose(symdata.basis_change)
-        self.ref_shift=symdata.origin
+        self.ref_shift=-symdata.shift #shift was tac in calculation coord. Then tca=-tac
         #Recall that only the first half are unitary
         return symmetries,symdata.name,symdata.sg,cell[0]
     else:

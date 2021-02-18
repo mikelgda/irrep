@@ -37,9 +37,15 @@ class FINDSYMData():
                 self.sg=line[2]
                 self.name=line[3]
             if "Origin at" in line:
-                self.origin=np.array(line.split()[2:],dtype=float)
+                #Origin of conventional given in calculation basis, tac.
+                #Used to pass to spacegroup and define shiftUC, which must be in calculation basis (shiftuc=-self.shift)
+                self.shift=np.array(line.split()[2:],dtype=float)
             if "Vectors" in line:
+                #Change of coordinates from conventional to calculation Mca
                 self.basis_change=np.transpose(np.array([next(lines).split() for i in range(3)],dtype=float))
+                #Change origin shift tac from calc basis coordinates to conventional basis coordinates
+                #Used to change ops from conventional ouput of FINDSYM to actual calculation cell
+                self.origin= np.dot(np.linalg.inv(self.basis_change),self.shift)
                 while 'operation.id' not in next(lines):
                     continue
             if "magn_operation.xyz" in line:
@@ -98,21 +104,23 @@ class FINDSYMData():
         #     print(trans)
         # print('##############################################################')
         if calcbasis:
-            # print("transformed operations:")
             calcrot=np.array([self.__rotation_refUC(rot) for rot in self.rotations[self.op_types==1]],dtype=int)
             calctrans= np.array([self.__translation_refUC(rot,trans) for rot,trans in zip(self.rotations[self.op_types==1],self.translations[self.op_types==1])])
+            # print("transformed operations:")
             # for rot,trans in zip(calcrot,calctrans):
             #     print(rot)
             #     print(trans)
             # print('########################################################')
             return (calcrot,calctrans)
         else:
-            return (self.rotations[self.op_types==-1],self.translations[self.op_types==-1])
+            print("rotations:\n",self.rotations[self.op_types==1])
+            print("translations:\n",self.translations[self.op_types==1])
+            return (self.rotations[self.op_types==1],self.translations[self.op_types==1])
     def antiunitary_operations(self,calcbasis=True):
         if calcbasis:
             calcrot=np.array([self.__rotation_refUC(rot) for rot in self.rotations[self.op_types==-1]],dtype=int)
             calctrans= np.array([self.__translation_refUC(rot,trans) for rot,trans in zip(self.rotations[self.op_types==-1],self.translations[self.op_types==-1])])
-            return (calcrot,calctrans)
+            return (calcrot,calctrans%1)
         else:
             return (self.rotations[self.op_types==-1],self.translations[self.op_types==-1])
 
@@ -126,10 +134,10 @@ class FINDSYMData():
         return Ra.astype(int)
 
     def __translation_refUC(self,rotation,translation):
-        #self.origin is the shift from calc to std -> tac
+        #self.origin is the shift from calc to std in std coordinates -> tac
         #a shift induces v-> v+Rc tca - tca = v-Rc tac +tac
         #Then change to calc basis: Mca (v-Rc tac +tac)
-        return self.basis_change.dot(translation+self.origin-rotation.dot(self.origin))
+        return self.basis_change.dot(translation+self.origin-rotation.dot(self.origin))%1
 
 def make_fs_input(lattice,natoms,typeatoms,positions,magmoments=None,title="FINDSYM input",lattol=None,atpostol=None,occtol=None,magtol=None,centering="P"):
     with open("findsym.in",'w') as fsout:
