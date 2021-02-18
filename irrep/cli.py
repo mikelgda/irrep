@@ -268,6 +268,8 @@ def cli(
     if magnetic:
         refuc=bandstr.spacegroup.ref_rot
         shiftuc=-bandstr.spacegroup.ref_shift
+        print("Your refUC from FINDSYM is:\n",refuc)
+        print("Inverse:\n",np.linalg.inv(refuc))
     else:
         if (refuc is not None) and (shiftuc is None):
             shiftuc = np.zeros(3)
