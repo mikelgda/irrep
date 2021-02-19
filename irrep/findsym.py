@@ -36,11 +36,11 @@ class FINDSYMData():
                 line=line.split()
                 self.sg=line[2]
                 self.name=line[3]
-            if "Origin at" in line:
+            elif "Origin at" in line:
                 #Origin of conventional given in calculation basis, tac.
                 #Used to pass to spacegroup and define shiftUC, which must be in calculation basis (shiftuc=-self.shift)
                 self.shift=np.array(line.split()[2:],dtype=float)
-            if "Vectors" in line:
+            elif "Vectors" in line:
                 #Change of coordinates from conventional to calculation Mca
                 self.basis_change=np.transpose(np.array([next(lines).split() for i in range(3)],dtype=float))
                 #Change origin shift tac from calc basis coordinates to conventional basis coordinates
@@ -48,7 +48,8 @@ class FINDSYMData():
                 self.origin= np.dot(np.linalg.inv(self.basis_change),self.shift)
                 while 'operation.id' not in next(lines):
                     continue
-            if "magn_operation.xyz" in line:
+            elif "magn_operation.xyz" in line:
+                print("operations")
                 line=next(lines)
                 while 'x' in line:
                     line=line[2:].split(',')
@@ -59,6 +60,20 @@ class FINDSYMData():
             
                     line=next(lines)
             
+                
+            elif "magn_centering.xyz" in line:
+                line=next(lines)
+                while 'x' in line:
+                    line=line[2:].split(',')
+                    if line[-1]=='+1':
+                        line=next(lines)
+                        continue
+                    else:
+                        operation=self.__parse_matrix(line)
+                        rotations.append(operation[0])
+                        translations.append(operation[1])
+                        op_type.append(operation[2])
+                    line=next(lines)
                 break
         lines.close()
         return np.array(rotations),np.array(translations),np.array(op_type,dtype=int)

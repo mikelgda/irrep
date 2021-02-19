@@ -204,7 +204,11 @@ class SpaceGroup():
         symmetries=[SymmetryOperation(rot,utrans[i],cell[0],ind=i+1,spinor=self.spinor) for i,rot in enumerate(urots)]
         self.ref_rot=np.transpose(symdata.basis_change)
         self.ref_shift=-symdata.shift #shift was tac in calculation coord. Then tca=-tac
-        #Recall that only the first half are unitary
+        if -1 in symdata.op_types:
+            aurots,autrans=symdata.antiunitary_operations(calcbasis=True)
+            self.au_symmetries=[SymmetryOperation(rot,autrans[i],cell[0],ind=i+1,spinor=self.spinor) for i,rot in enumerate(aurots)]
+        else:
+            self.au_symmetries=None
         return symmetries,symdata.name,symdata.sg,cell[0]
     else:
         print("Using spglib")
@@ -237,6 +241,11 @@ class SpaceGroup():
     for symop in self.symmetries:
         if symmetries is None or symop.ind in symmetries:
             symop.show(refUC=refUC,shiftUC=shiftUC)
+    if self.au_symmetries:
+        print("\n\nThe space group has also the following antiunitary operations or centerings (for type IV):")
+        for symop in self.au_symmetries:
+            if symmetries is None or symop.ind in symmetries:
+                symop.show(refUC=refUC,shiftUC=shiftUC)
 
 
 #  def show2(self,refUC=None,shiftUC=np.zeros(3)):
