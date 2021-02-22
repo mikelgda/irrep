@@ -113,19 +113,9 @@ class FINDSYMData():
         
     
     def unitary_operations(self,calcbasis=True):
-        # print("vanilla operations")
-        # for rot,trans in zip(self.rotations[self.op_types==1],self.translations[self.op_types==1]):
-        #     print(rot)
-        #     print(trans)
-        # print('##############################################################')
         if calcbasis:
             calcrot=np.array([self.__rotation_refUC(rot) for rot in self.rotations[self.op_types==1]],dtype=int)
             calctrans= np.array([self.__translation_refUC(rot,trans) for rot,trans in zip(self.rotations[self.op_types==1],self.translations[self.op_types==1])])
-            # print("transformed operations:")
-            # for rot,trans in zip(calcrot,calctrans):
-            #     print(rot)
-            #     print(trans)
-            # print('########################################################')
             return (calcrot,calctrans)
         else:
             print("rotations:\n",self.rotations[self.op_types==1])
