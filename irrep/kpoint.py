@@ -470,10 +470,14 @@ class Kpoint():
         firrep=open("irreps.dat","a")
         for e,ir  in zip(E,irreps):
            for irrep in ir.split(","):
+             irrep=irrep.strip(" ")
              try:
-               weight=abs(compstr(irrep.split("(")[1].strip(")")))
+               weight=abs(compstr(irrep.split("(")[-1].strip(")")))
                if weight>0.3:
-                  firrep.write(preline + " {0:10s} ".format(irrep.split("(")[0] )+"  {0:10.5f}\n".format(e-efermi)  ) 
+                  if irrep[1]!="(":
+                    firrep.write(preline + " {0:10s} ".format(irrep.split("(")[0] )+"  {0:10.5f}\n".format(e-efermi)  ) 
+                  else:
+                    firrep.write(preline + " {0:10s} ".format("-("+irrep.split("(")[1] )+"  {0:10.5f}\n".format(e-efermi)  )
              except IndexError :
                pass
 
