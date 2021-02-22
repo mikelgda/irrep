@@ -24,6 +24,7 @@ from .__readfiles import AbinitHeader,Hartree_eV
 from .kpoint import Kpoint
 from .__aux import str2bool,BOHR
 import functools
+import os
 
 from .__readfiles import record_abinit,WAVECARFILE
 
@@ -395,6 +396,8 @@ class BandStructure():
         GAP=np.Inf
         Low=-np.Inf
         Up=np.inf
+        if os.path.exists('irreps.dat'):
+            os.remove('irreps.dat')
         if kpnames is not None and refUC is not None:
             for kpname,KP in zip(kpnames,self.kpoints):
                 irreps=self.spacegroup.get_irreps_from_table(refUC,shiftUC,kpname,KP.K)
