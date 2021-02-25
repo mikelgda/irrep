@@ -1,17 +1,35 @@
 import numpy as np
 
 class FINDSYMData():
+    """
+    This class handles the acquisition of data from a FINDSYM output file. When supplied with 'auto' as intialization string
+    it attempts to call FINDSYM locally. This requires that the program, along with the ISOTROPY suite, be downloaded on your computer
+    and properly installed by setting your path environment variable.
+    """
 
     def __init__(self,file='auto'):
+        """
+        Fields:
+            -rotations: rotation matrices (3x3) set in the standard setting
+            -translations: non-symmorphic translations associated to the rotations in the same setting
+            -op_types: vector encoding the type of operation: unitary(+1) or antiunitary (-1)
+            Set in __readfile:
+                -basis_change: Change of coordinates from conventional to calculation Mca
+                -shift: Origin of conventional given in calculation basis, tac.
+                -origin: Change origin shift tac from calc basis coordinates to conventional basis coordinates
+        """
         self.rotations,self.translations,self.op_types=self.__readfile(file)
         self.op_number=len(self.op_types)
         
     def __readfile(self,file='auto'):
+        """
+        """
         if file=='auto':
             import subprocess
             try:
                 fsout=subprocess.run(['findsym','findsym.in'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
                 lines=(l for l in fsout.stdout.decode('utf-8').split('\n'))
+                #Note that it captures the output into lines.
             except Exception as e:
                 print("You do not have FINDSYM properly installed.")
                 print(e)
@@ -62,6 +80,7 @@ class FINDSYMData():
             
                 
             elif "magn_centering.xyz" in line:
+                #Only for type IV Shubnikov space groups
                 line=next(lines)
                 while 'x' in line:
                     line=line[2:].split(',')
@@ -79,6 +98,10 @@ class FINDSYMData():
         return np.array(rotations),np.array(translations),np.array(op_type,dtype=int)
     
     def __parse_matrix(self,string):
+        """
+        Auxiliary matrix to find the rotation and translations associated to an expression of the type
+        'x+tx,y+ty,z+tz'.
+        """
         def parse_term(s):
             row=[0,0,0]
             t,i,sign=0,0,1
@@ -113,6 +136,10 @@ class FINDSYMData():
         
     
     def unitary_operations(self,calcbasis=True):
+        """
+        Returns the set of unitary operations. Calcbasis determines whether the operations from FINDSYM are transformed
+        from the output in the standard cell to the cell in the calculation (True by default).
+        """
         if calcbasis:
             calcrot=np.array([self.__rotation_refUC(rot) for rot in self.rotations[self.op_types==1]],dtype=int)
             calctrans= np.array([self.__translation_refUC(rot,trans) for rot,trans in zip(self.rotations[self.op_types==1],self.translations[self.op_types==1])])
@@ -122,6 +149,11 @@ class FINDSYMData():
             print("translations:\n",self.translations[self.op_types==1])
             return (self.rotations[self.op_types==1],self.translations[self.op_types==1])
     def antiunitary_operations(self,calcbasis=True):
+        """
+        Returns the set of antiunitary operations. Calcbasis determines wheter the operations from FINDSYM are transformed
+        from the output in the standard cell to the cell in the calculation (True by default). Not used in actual irrep calculations.
+        Currently only used to provide additional information of space group operations when non-unitary operations are present.
+        """
         if calcbasis:
             calcrot=np.array([self.__rotation_refUC(rot) for rot in self.rotations[self.op_types==-1]],dtype=int)
             calctrans= np.array([self.__translation_refUC(rot,trans) for rot,trans in zip(self.rotations[self.op_types==-1],self.translations[self.op_types==-1])])
@@ -131,6 +163,9 @@ class FINDSYMData():
 
 
     def __rotation_refUC(self,rotation):
+        """
+        Auxiliary function to transform from the standard setting to the calculation setting.
+        """
         # self.basis_change is the change of coordinates from std to calculation -> Mca
         Mac=np.linalg.inv(self.basis_change) #Change of basis from calc to std -> Mac
         # Ra= Mca Rc Mac
@@ -139,12 +174,19 @@ class FINDSYMData():
         return Ra.astype(int)
 
     def __translation_refUC(self,rotation,translation):
+        """
+        Auxiliary function to transform from the standard setting to the calculation setting.
+        """
         #self.origin is the shift from calc to std in std coordinates -> tac
         #a shift induces v-> v+Rc tca - tca = v-Rc tac +tac
         #Then change to calc basis: Mca (v-Rc tac +tac)
         return self.basis_change.dot(translation+self.origin-rotation.dot(self.origin))%1
 
 def make_fs_input(lattice,natoms,typeatoms,positions,magmoments=None,title="FINDSYM input",lattol=None,atpostol=None,occtol=None,magtol=None,centering="P"):
+    """
+    Function that takes the input of the lattice read from Spacegroup class (lattice, type of atoms, magnetic moments, etc.)
+    and creates an input file for local use of FINDSYM.
+    """
     with open("findsym.in",'w') as fsout:
         fsout.write("!title\n{0}\n".format(title))
         if lattol:

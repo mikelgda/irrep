@@ -266,11 +266,12 @@ def cli(
         magmom=magmom
     )
     if magnetic:
+        #When FINDSYM is used, reference unit cell transformation is provided.
+        #Therefore we override every other assignment.
         refuc=bandstr.spacegroup.ref_rot
         shiftuc=bandstr.spacegroup.ref_shift
         print("Your refUC from FINDSYM is:\n",refuc)
         print("Translation tac from calculation to reference cell:\n",shiftuc)
-        print("Inverse:\n",np.linalg.inv(refuc))
     else:
         if (refuc is not None) and (shiftuc is None):
             shiftuc = np.zeros(3)

@@ -475,6 +475,7 @@ class Kpoint():
                weight=abs(compstr(irrep.split("(")[-1].strip(")")))
                if weight>0.3:
                   if irrep[1]!="(":
+                    #Some correp names are of the form (A)R+ for example.
                     firrep.write(preline + " {0:10s} ".format(irrep.split("(")[0] )+"  {0:10.5f}\n".format(e-efermi)  ) 
                   else:
                     firrep.write(preline + " {0:10s} ".format("-("+irrep.split("(")[1] )+"  {0:10.5f}\n".format(e-efermi)  )
