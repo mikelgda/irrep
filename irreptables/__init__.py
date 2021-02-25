@@ -471,11 +471,44 @@ class IrrepTable:
                     logger.debug("error while reading irrep <{0}>".format(l), err)
                     pass
 class EBRTable:
+    """
+    Class designed to read EBR tables and decompose a given symmetry information vector from a bands calculation, after identifying the irreps.
+    The constructor must be provided the number of the space group in string format ,e.g., 61.433.
+    """
     def __init__(self,sg) -> None:
+        """
+        Fields:
+            -kpoints: list [magnetic,unitary] where magnetic are the maximal k-vecs in the magnetic setting and 
+                      unitary the corresponding k-vecs in the std setting of the unitary subgroup (can coincide).
+            -irreps: list [names,dimensions] where names contains the names of the small irreps at maximal k-vectors
+                     and dimensions the corresponding dimensions of these small irreps.
+            -siteirrs: list of strings with the information corresponding to the irreps of the site-symmetry group from which
+                       the EBR is generated. Example: "2a A 2 1" means an orbital transforming as the 2D irrep A of the site-symmetry
+                       group of the Wyckoff position 2a, produces an EBR which is not decomposable (1, otherwise 0).
+            -table: matrix of (number of EBRs) x (number of small irreps) which contains for each row the number of times a small irrep appears,
+                    ordered according to the "irreps" field
+            -smithform: list [U,D,V] that gives the Smith normal form of the matrix table.tranpose()=A such that A=inv(U) @ D @ inv(V).
+        """
         self.sg=sg
         self.kpoints,self.irreps,self.siteirrs,self.table,self.smithform=self.__read_file()
 
     def __read_file(self):
+        """
+        Auxiliary function to read the EBR table file. The file structure is as follows (space-separated if not stated otherwise)
+                k-vecs in magnetic setting
+                Equivalent k-vecs in unitary setting
+                list of small irrep names
+                dimensions of small irreps
+                site-symmetry group irreps from which EBRs are induced,comma separated
+                [matrix of small irreps for each EBR (for each row)]
+                \\n
+                [matrix U in Smith decomposition A=UDV]
+                \\n
+                [matrix D]
+                \\n
+                [matrix V]
+
+        """
         def tokenize(lines):
             chunk = []
             nl=len(lines)
@@ -498,6 +531,22 @@ class EBRTable:
         sitesym=[ind for ind in lines[4].strip().split(',')]
         matrices=[np.loadtxt(chunk,dtype=int) for chunk in tokenize(lines[5:])]
         return kpoints,irreps,sitesym,matrices[0],np.array(matrices[1:])
+    def small_irreps(self):
+        """
+        Return the name of the small irreps only
+        """
+        return self.irreps[0]
+    def smith_form(self):
+        """
+        returns the Smith decomposition of the matrix self.table.transpose()
+        """
+        return self.smithform
+    def ebr_matrix(self):
+        """
+        Returns the matrix involved in the diophantine equation v=An where n is the vector of numbers of EBRs in which the symmetry-data
+        vector v is decomposed.
+        """
+        return np.transpose(self.table)
 
         
         
