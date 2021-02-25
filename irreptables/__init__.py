@@ -470,3 +470,34 @@ class IrrepTable:
                 except Exception as err:
                     logger.debug("error while reading irrep <{0}>".format(l), err)
                     pass
+class EBRTable:
+    def __init__(self,sg) -> None:
+        self.sg=sg
+        self.kpoints,self.irreps,self.siteirrs,self.table,self.smithform=self.__read_file()
+
+    def __read_file(self):
+        def tokenize(lines):
+            chunk = []
+            nl=len(lines)
+            for i in range(nl):
+                if lines[i]=='\n':
+                    yield chunk
+                    chunk=[]
+                    continue
+                chunk.append(lines[i])
+                if i==nl-1:
+                    yield chunk
+        
+        name = "{root}/ebrs/{SG}.txt".format(
+                    SG=self.sg,
+                    root=os.path.dirname(__file__))
+        with open(name,'r') as infile:
+            lines=infile.readlines()
+        kpoints=[l.strip().split(' ') for l in lines[:2]]
+        irreps=[l.strip().split(' ') for l in lines[2:4]]
+        sitesym=[ind for ind in lines[4].strip().split(',')]
+        matrices=[np.loadtxt(chunk,dtype=int) for chunk in tokenize(lines[5:])]
+        return kpoints,irreps,sitesym,matrices[0],np.array(matrices[1:])
+
+        
+        
