@@ -499,7 +499,7 @@ class EBRTable:
                 Equivalent k-vecs in unitary setting
                 list of small irrep names
                 dimensions of small irreps
-                site-symmetry group irreps from which EBRs are induced,comma separated
+                site-symmetry group irreps from which EBRs are induced,comma-separated
                 [matrix of small irreps for each EBR (for each row)]
                 \\n
                 [matrix U in Smith decomposition A=UDV]
@@ -526,11 +526,11 @@ class EBRTable:
                     root=os.path.dirname(__file__))
         with open(name,'r') as infile:
             lines=infile.readlines()
-        kpoints=[l.strip().split(' ') for l in lines[:2]]
-        irreps=[l.strip().split(' ') for l in lines[2:4]]
+        kpoints=[l.strip().split() for l in lines[:2]]
+        irreps=[l.strip().split() for l in lines[2:4]]
         sitesym=[ind for ind in lines[4].strip().split(',')]
         matrices=[np.loadtxt(chunk,dtype=int) for chunk in tokenize(lines[5:])]
-        return kpoints,irreps,sitesym,matrices[0],np.array(matrices[1:])
+        return kpoints,irreps,sitesym,matrices[0],matrices[1:]
     def small_irreps(self):
         """
         Return the name of the small irreps only

@@ -16,6 +16,7 @@
 ##################################################################
 
 
+from irreptables import EBRTable
 import numpy as np
 import numpy.linalg as la
 import copy
@@ -567,5 +568,37 @@ class BandStructure():
         k[k>breakTHRESH]=0.
         K[1:]=np.cumsum(k)
         return K
+    
+    def ebr_decomposition(self):
+        """
+        Decomposes the band structure symmetry data from the calculated irreps into EBRs. This requires the file
+        'irreps.dat' to be created by write_characters(), which is loaded and used to decompose the symmetry vector.
+        It indicates the EBR decomposition and analyzes the topological nature of the bands based on whether the 
+        decomposition involves positive integers (trivial) or negative integers/rational numbers (topological). 
+        """
+        ebrs=EBRTable(self.spacegroup.number)
+        U,D,V=ebrs.smith_form()
+        with open('irreps.dat','r') as irrfile:
+            irrs=[line.split()[0] for line in irrfile.readlines()]
+            irrs=[line.strip('-') if line[0]=='-' else line for line in irrs]
+        irrindex={key:index for (index,key) in enumerate(ebrs.irreps[0])}
+        B=np.zeros(len(irrindex),dtype=int)
+        for irr in irrs:
+            B[irrindex[irr]]+=1
+        #pinv handles the 0 values in of D
+        n=V@np.linalg.pinv(D)@U@B
+        induced=np.array(ebrs.siteirrs)
+        print("The calculated band structure has the following EBR decomposition:")
+        for (multi,siteirr) in zip(n[n!=0],induced[n!=0]):
+            siteirr=siteirr.split()
+            print("Wyckoff position: {0}  Site-symmetry group: {1} Irrep: {2}({3})  Multiplicity: {4}".format(siteirr[0],siteirr[1],siteirr[2],siteirr[3],multi))
+        topological=np.mod(n[n!=0],n[n!=0].round()).any()
+        weak=n[n<0].any()
+        print('\n')
+        if topological:
+            print("The EBR decomposition shows that the material is a {0} topological material".format("weak" if weak else "robust"))
+        else:
+            print("The EBR decomposition shows that the material is trivial.")
+
 
 
