@@ -521,7 +521,7 @@ class EBRTable:
                 if i==nl-1:
                     yield chunk
         
-        name = "{root}/ebrs/{SG}.txt".format(
+        name = "{root}/ebrs/group_{SG}.txt".format(
                     SG=self.sg,
                     root=os.path.dirname(__file__))
         with open(name,'r') as infile:

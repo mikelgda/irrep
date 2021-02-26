@@ -184,6 +184,9 @@ do not hesitate to contact the author:
 @click.option(
     "-magnetic",default=None,help="No flag to call FINDSYM, else write path to input.")
 @click.option("-magmom",type=str,help="Path to manual magnetic moment assignment.")
+
+@click.option("-ebrs",flag_value=True,default=False, help="Set flag to calculate EBR decomposition. Not compatible with '-onlysym'.")
+
 def cli(
     ecut,
     fwav,
@@ -211,7 +214,8 @@ def cli(
     writebands,
     suffix,
     magnetic,
-    magmom
+    magmom,
+    ebrs
 ):
     """
     Defines the "irrep" command-line tool interface.
@@ -393,3 +397,5 @@ def cli(
             with open(fname, "w") as f:
                 f.write(sub.write_bands())
             sub.write_trace_all(degenthresh, fname=fname1)
+    if ebrs:
+        bandstr.ebr_decomposition()
