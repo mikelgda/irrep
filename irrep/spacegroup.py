@@ -195,6 +195,7 @@ class SpaceGroup():
     print('')
     print ('Primitive vectors : \n',cell[0],'\n Atomic positions: \n',cell[1],'\n Atom type indices: \n',cell[2])
     if self.magnetic=='auto':
+        #Creates input file for local FINDSYM
         moments=np.loadtxt(magmom)
         make_fs_input(cell[0],len(cell[2]),cell[2],cell[1],magmoments=moments)
     if self.magnetic:
@@ -205,6 +206,7 @@ class SpaceGroup():
         self.ref_rot=np.transpose(symdata.basis_change)
         self.ref_shift=-symdata.shift #shift was tac in calculation coord. Then tca=-tac
         if -1 in symdata.op_types:
+            #Executes when there are antiunitary symmetries
             aurots,autrans=symdata.antiunitary_operations(calcbasis=True)
             self.au_symmetries=[SymmetryOperation(rot,autrans[i],cell[0],ind=i+1,spinor=self.spinor) for i,rot in enumerate(aurots)]
         else:
