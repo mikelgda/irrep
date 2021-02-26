@@ -490,47 +490,31 @@ class EBRTable:
             -smithform: list [U,D,V] that gives the Smith normal form of the matrix table.tranpose()=A such that A=inv(U) @ D @ inv(V).
         """
         self.sg=sg
-        self.kpoints,self.irreps,self.siteirrs,self.table,self.smithform=self.__read_file()
-
-    def __read_file(self):
-        """
-        Auxiliary function to read the EBR table file. The file structure is as follows (space-separated if not stated otherwise)
-                k-vecs in magnetic setting
-                Equivalent k-vecs in unitary setting
-                list of small irrep names
-                dimensions of small irreps
-                site-symmetry group irreps from which EBRs are induced,comma-separated
-                [matrix of small irreps for each EBR (for each row)]
-                \\n
-                [matrix U in Smith decomposition A=UDV]
-                \\n
-                [matrix D]
-                \\n
-                [matrix V]
-
-        """
-        def tokenize(lines):
-            chunk = []
-            nl=len(lines)
-            for i in range(nl):
-                if lines[i]=='\n':
-                    yield chunk
-                    chunk=[]
-                    continue
-                chunk.append(lines[i])
-                if i==nl-1:
-                    yield chunk
-        
         name = "{root}/ebrs/group_{SG}.txt".format(
-                    SG=self.sg,
-                    root=os.path.dirname(__file__))
+            SG=sg,
+            root=os.path.dirname(__file__))
         with open(name,'r') as infile:
             lines=infile.readlines()
-        kpoints=[l.strip().split() for l in lines[:2]]
-        irreps=[l.strip().split() for l in lines[2:4]]
-        sitesym=[ind for ind in lines[4].strip().split(',')]
-        matrices=[np.loadtxt(chunk,dtype=int) for chunk in tokenize(lines[5:])]
-        return kpoints,irreps,sitesym,matrices[0],matrices[1:]
+        self.kpoints=[l.strip().split() for l in lines[:2]]
+        self.irreps=[l.strip().split() for l in lines[2:4]]
+        self.siteirreps=[ind for ind in lines[4].strip().split(';')]
+        matrices=[np.loadtxt(chunk,dtype=int) for chunk in self.__tokenize(lines[5:])]
+        self.table=matrices[0]
+        self.smithform=matrices[1:]
+
+    def __tokenize(self,lines):
+        chunk = []
+        nl=len(lines)
+        for i in range(nl):
+            if lines[i]=='\n':
+                yield chunk
+                chunk=[]
+                continue
+            chunk.append(lines[i])
+            if i==nl-1:
+                yield chunk
+        
+ 
     def small_irreps(self):
         """
         Return the name of the small irreps only

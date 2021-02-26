@@ -13,16 +13,11 @@ class FINDSYMData():
             -rotations: rotation matrices (3x3) set in the standard setting
             -translations: non-symmorphic translations associated to the rotations in the same setting
             -op_types: vector encoding the type of operation: unitary(+1) or antiunitary (-1)
-            Set in __readfile:
-                -basis_change: Change of coordinates from conventional to calculation Mca
-                -shift: Origin of conventional given in calculation basis, tac.
-                -origin: Change origin shift tac from calc basis coordinates to conventional basis coordinates
-        """
-        self.rotations,self.translations,self.op_types=self.__readfile(file)
-        self.op_number=len(self.op_types)
-        
-    def __readfile(self,file='auto'):
-        """
+            -basis_change: Change of coordinates from conventional to calculation Mca
+            -shift: Origin of conventional given in calculation basis, tac.
+            -origin: Change origin shift tac from calc basis coordinates to conventional basis coordinates
+            -sg: Space group number
+            -name: nomenclature in BNS setting
         """
         if file=='auto':
             import subprocess
@@ -95,8 +90,11 @@ class FINDSYMData():
                     line=next(lines)
                 break
         lines.close()
-        return np.array(rotations),np.array(translations),np.array(op_type,dtype=int)
-    
+        self.rotations=np.array(rotations)
+        self.translations=np.array(translations)
+        self.op_types=np.array(op_type,dtype=int)
+        self.op_number=len(self.op_types)
+        
     def __parse_matrix(self,string):
         """
         Auxiliary matrix to find the rotation and translations associated to an expression of the type

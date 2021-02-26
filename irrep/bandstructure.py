@@ -587,7 +587,7 @@ class BandStructure():
             B[irrindex[irr]]+=1
         #pinv handles the 0 values in of D
         n=V@np.linalg.pinv(D)@U@B
-        induced=np.array(ebrs.siteirrs)
+        induced=np.array(ebrs.siteirreps)
         print("The calculated band structure has the following EBR decomposition:")
         for (multi,siteirr) in zip(n[n!=0],induced[n!=0]):
             siteirr=siteirr.split()
