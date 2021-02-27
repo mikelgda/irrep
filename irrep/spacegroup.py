@@ -219,6 +219,7 @@ class SpaceGroup():
         symmetries = [ SymmetryOperation(rot,symmetries['translations'][i],cell[0],ind=i+1,spinor=self.spinor) 
                     for i,rot in enumerate(symmetries['rotations'])  ]
         s=spglib.get_spacegroup(cell).split(" ")
+        self.au_symmetries=None
         # nsym=len(symmetries)
     
     
