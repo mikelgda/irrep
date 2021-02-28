@@ -595,7 +595,7 @@ class BandStructure():
         topological=np.mod(n[n!=0],n[n!=0].round()).any()
         weak=n[n<0].any()
         print('\n')
-        if topological:
+        if topological or weak:
             print("The EBR decomposition shows that the material is a {0} topological material".format("weak" if weak else "robust"))
         else:
             print("The EBR decomposition shows that the material is trivial.")
