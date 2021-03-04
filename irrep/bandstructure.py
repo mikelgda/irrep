@@ -325,7 +325,7 @@ class BandStructure():
             xcart.append(at.text.split())
         xred=(np.array(xcart,dtype=float) * BOHR).dot(np.linalg.inv(self.Lattice))
 #        print ("xred=",xred)
-        self.spacegroup=SpaceGroup(cell=(self.Lattice,xred,typat),spinor=self.spinor,magmom=magmom)
+        self.spacegroup=SpaceGroup(cell=(self.Lattice,xred,typat),spinor=self.spinor,magnetic=self.magnetic,magmom=magmom)
         if onlysym: return
         Ecut0=float(inp.find('basis').find('ecutwfc').text)*Hartree_eV
 

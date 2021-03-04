@@ -470,12 +470,14 @@ class IrrepTable:
                 except Exception as err:
                     logger.debug("error while reading irrep <{0}>".format(l), err)
                     pass
+
+
 class EBRTable:
     """
     Class designed to read EBR tables and decompose a given symmetry information vector from a bands calculation, after identifying the irreps.
     The constructor must be provided the number of the space group in string format ,e.g., 61.433.
     """
-    def __init__(self,sg) -> None:
+    def __init__(self, sg) -> None:
         """
         Fields:
             -kpoints: list [magnetic,unitary] where magnetic are the maximal k-vecs in the magnetic setting and 
@@ -489,42 +491,43 @@ class EBRTable:
                     ordered according to the "irreps" field
             -smithform: list [U,D,V] that gives the Smith normal form of the matrix table.tranpose()=A such that A=inv(U) @ D @ inv(V).
         """
-        self.sg=sg
+        self.sg = str(sg)
         name = "{root}/ebrs/group_{SG}.txt".format(
             SG=sg,
             root=os.path.dirname(__file__))
-        with open(name,'r') as infile:
-            lines=infile.readlines()
-        self.kpoints=[l.strip().split() for l in lines[:2]]
-        self.irreps=[l.strip().split() for l in lines[2:4]]
-        self.siteirreps=[ind for ind in lines[4].strip().split(';')]
-        matrices=[np.loadtxt(chunk,dtype=int) for chunk in self.__tokenize(lines[5:])]
-        self.table=matrices[0]
-        self.smithform=matrices[1:]
+        with open(name, 'r') as infile:
+            lines = infile.readlines()
+        self.kpoints = [l.strip().split() for l in lines[:2]]
+        self.irreps = [l.strip().split() for l in lines[2:4]]
+        self.siteirreps = [ind for ind in lines[4].strip().split(';')]
+        matrices = [np.loadtxt(chunk, dtype=int) for chunk in self.__tokenize(lines[5:])]
+        self.table = matrices[0]
+        self.smithform = matrices[1:]
 
-    def __tokenize(self,lines):
+    def __tokenize(self, lines):
         chunk = []
-        nl=len(lines)
+        nl = len(lines)
         for i in range(nl):
-            if lines[i]=='\n':
+            if lines[i] == '\n':
                 yield chunk
-                chunk=[]
+                chunk = []
                 continue
             chunk.append(lines[i])
-            if i==nl-1:
+            if i == nl-1:
                 yield chunk
         
- 
     def small_irreps(self):
         """
         Return the name of the small irreps only
         """
         return self.irreps[0]
+
     def smith_form(self):
         """
         returns the Smith decomposition of the matrix self.table.transpose()
         """
         return self.smithform
+
     def ebr_matrix(self):
         """
         Returns the matrix involved in the diophantine equation v=An where n is the vector of numbers of EBRs in which the symmetry-data
