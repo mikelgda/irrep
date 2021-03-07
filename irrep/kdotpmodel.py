@@ -1,14 +1,16 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class KdotPModel:
-    def __init__(self, symgroup, kpoint, kpname, rep, h, user_defined = None):
+    def __init__(self, symgroup, kpoint, kpname, rep, h, p, user_defined = None):
         self.symgroup = symgroup
         self.kpoint = kpoint
         self.kpname = kpname
         self.rep = rep
-        self.h = h
+        self.hamiltonian = h
+        self.parameters = p
         
         if user_defined:
             self.opnames, self.matrices = self._load_custom(user_defined)
@@ -61,6 +63,14 @@ class KdotPModel:
             mats.append(chunk)
         
         return opnames, np.array(mats, dtype = complex)
+    
+    def plot_line(self, line = 'z', kstart = (0,0,-1), kend = (0,0,1), npoints = 100):
+        
+        kline = np.linspace(kstart,kend,npoints)
+        energies = np.array([np.sort(np.linalg.eigvals(self.hamiltonian(kpoint,self.parameters))) for kpoint in kline])
+        
+        plt.plot(energies,color = 'red')
+            
         
         
         
