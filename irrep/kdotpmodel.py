@@ -141,7 +141,7 @@ class KdotPModel:
         return np.array(traces)
     
     def _compute_trace(self,vecs,operation):
-        return np.trace(np.transpose(vecs) @ operation @ vecs)
+        return np.trace( vecs @ operation @ np.transpose(vecs))
             
 
             
