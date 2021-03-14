@@ -596,7 +596,7 @@ class BandStructure():
         weak=n[n<0].any()
         print('\n')
         if topological or weak:
-            print("The EBR decomposition shows that the material is a {0} topological material".format("weak" if weak else "robust"))
+            print("The EBR decomposition shows that the material is a {0} topological material".format("weak" if weak else "stable"))
         else:
             print("The EBR decomposition shows that the material is trivial.")
 
