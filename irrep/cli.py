@@ -187,6 +187,7 @@ do not hesitate to contact the author:
 
 @click.option("-ebrs",flag_value=True,default=False, help="Set flag to calculate EBR decomposition. Not compatible with '-onlysym'.")
 
+@click.option("-autoThresh",flag_value=True,default=False, help="Try to dynamically adjust the degeneracy thershold.")
 def cli(
     ecut,
     fwav,
@@ -215,7 +216,8 @@ def cli(
     suffix,
     magnetic,
     magmom,
-    ebrs
+    ebrs,
+    autothresh
 ):
     """
     Defines the "irrep" command-line tool interface.
@@ -362,6 +364,7 @@ def cli(
                 kpnames=kpnames,
                 preline=preline,
                 plotFile=plotfile,
+                thresh_adjust=autothresh
             )
 
     if plotbands:

@@ -399,42 +399,57 @@ class Kpoint():
 
 
 
-    def write_characters(self,degen_thresh=1e-8,irreptable=None,symmetries=None,preline="",efermi=0.,plotFile=None,kpl=""):
+    def write_characters(self,degen_thresh=1e-8,irreptable=None,symmetries=None,preline="",efermi=0.,plotFile=None,kpl="",thresh_adjust=False):
         if symmetries is None:
             sym={s.ind:s for s in self.symmetries}
         else :
             sym={s.ind:s for s in self.symmetries if s.ind in symmetries}
         
-        
-        char=np.vstack([self.symmetries[sym[i]] for i in sorted(sym) ])
-        borders=np.hstack([ [0],np.where(self.Energy[1:]-self.Energy[:-1]>degen_thresh)[0]+1,[self.Nband] ])
-        Nirrep= np.linalg.norm(char.sum(axis=1))**2/char.shape[0]
-        if abs(Nirrep-round(Nirrep))>1e-2:
-             print ("WARNING - non-integer number of irreps : {0}".format(Nirrep))
-        Nirrep=int(round(Nirrep))
-        char =  np.array([char[:,start:end].sum(axis=1) for start,end  in zip(borders,borders[1:])])
-        
-#        print(" char ",char.shape,"\n",char)
-        writeimaginary=np.abs(char.imag).max()>1e-4
+        thresh = degen_thresh
+        decomposed = False
+        while not decomposed:
 
-        s1=" "*4 if writeimaginary else ""
+            char=np.vstack([self.symmetries[sym[i]] for i in sorted(sym) ])
+            borders=np.hstack([ [0],np.where(self.Energy[1:]-self.Energy[:-1]>thresh)[0]+1,[self.Nband] ])
+            Nirrep= np.linalg.norm(char.sum(axis=1))**2/char.shape[0]
+            if abs(Nirrep-round(Nirrep))>1e-2:
+                print ("WARNING - non-integer number of irreps : {0}".format(Nirrep))
+            Nirrep=int(round(Nirrep))
+            char =  np.array([char[:,start:end].sum(axis=1) for start,end  in zip(borders,borders[1:])])
+            
+    #        print(" char ",char.shape,"\n",char)
+            writeimaginary=np.abs(char.imag).max()>1e-4
 
-        E    =  np.array([self.Energy[start:end].mean() for start,end  in zip(borders,borders[1:])])
-        dim  =  np.array([end-start for start,end  in zip(borders,borders[1:])])
-        if irreptable is None:
-            irreps=[ "None" ]*(len(borders)-1)
-        else:
-            try:
-                irreps=[{ir: np.array([irreptable[ir][sym.ind] for sym in self.symmetries ] ).dot(ch.conj())/len(ch) for ir in irreptable} for ch in char]
-            except KeyError as ke:
-                print (ke)
-                print ("irreptable:",irreptable)
-                print ([sym.ind for sym in self.symmetries])
-                raise ke
-            irreps=[", ".join(ir+"({0:.5}".format(irr[ir].real) + 
-                 ("{0:+.5f}i".format(irr[ir].imag) if abs(irr[ir].imag)>1e-4 else "") +")" for ir in irr if abs(irr[ir])>1e-3 ) 
-                       for irr in irreps]
-#            irreps=[ "None" ]*(len(borders)-1)
+            s1=" "*4 if writeimaginary else ""
+
+            E    =  np.array([self.Energy[start:end].mean() for start,end  in zip(borders,borders[1:])])
+            dim  =  np.array([end-start for start,end  in zip(borders,borders[1:])])
+
+            if irreptable is None:
+                irreps=[ "None" ]*(len(borders)-1)
+            else:
+                try:
+                    #Handle degenracies that are not enforced
+                    irreps=[{ir: np.array([irreptable[ir][sym.ind] for sym in self.symmetries ] ).dot(ch.conj())/len(ch) for ir in irreptable} for ch in char]
+                    if thresh_adjust:
+                        decomposed = self.__detect_degeneracy(irreps,E)
+                        thresh = thresh * 10
+                        if not decomposed:
+                            print("ENERGY THRESHOLD SET TO {} (original {})".format(thresh,degen_thresh))
+                        if thresh >= 1e-1:
+                            print("THRESHOLD TOO HIGH")
+                            decomposed = True
+                    else:
+                        decomposed = True
+                except KeyError as ke:
+                    print (ke)
+                    print ("irreptable:",irreptable)
+                    print ([sym.ind for sym in self.symmetries])
+                    raise ke
+                irreps=[", ".join(ir+"({0:.5}".format(irr[ir].real) + 
+                    ("{0:+.5f}i".format(irr[ir].imag) if abs(irr[ir].imag)>1e-4 else "") +")" for ir in irr if abs(irr[ir])>1e-3 ) 
+                        for irr in irreps]
+    #            irreps=[ "None" ]*(len(borders)-1)
         irreplen=max(len(irr) for irr in irreps)
         if irreplen%2==1 :irreplen+=1
         s2=" "*int(irreplen/2-3)
@@ -475,7 +490,7 @@ class Kpoint():
                weight=abs(compstr(irrep.split("(")[-1].strip(")")))
                if weight>0.3:
                   if irrep[1]!="(":
-                    #Some correp names are of the form (A)R+ for example.
+                    #Some correp names are of the form (A)R+, for example.
                     firrep.write(preline + " {0:10s} ".format(irrep.split("(")[0] )+"  {0:10.5f}\n".format(e-efermi)  ) 
                   else:
                     firrep.write(preline + " {0:10s} ".format("-("+irrep.split("(")[1] )+"  {0:10.5f}\n".format(e-efermi)  )
@@ -484,7 +499,18 @@ class Kpoint():
 
         return NBANDINV,self.Energy[-1],self.upper
 
-
+    def __detect_degeneracy(self,irreps,E):
+        thresh = 0.001
+        while thresh <= 1:
+            for i in range(len(E)):
+                for key in irreps[i]:
+                    multi = irreps[i][key].real
+                    if not np.isclose(np.round(multi),multi,atol=thresh,rtol=0):
+                        print("KEY {} multi {}".format(key,multi))
+                        if thresh >= 0.1:
+                            return False
+            thresh *= 10
+        return True
 
     def write_trace(self,degen_thresh=1e-8,symmetries=None,efermi=0.):
         if symmetries is None:

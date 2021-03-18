@@ -34,7 +34,7 @@ class BandStructure():
 
     def __init__(self,fWAV=None,fWFK=None,prefix=None,fPOS=None,Ecut=None,IBstart=None,IBend=None,kplist=None,spinor=None,code="vasp",EF=None,onlysym=False,magnetic=None,magmom=None):
         code=code.lower()
-        self.magnetic=magnetic.lower() if magnetic else magnetic
+        self.magnetic=magnetic.lower() if magnetic else None
 
         print("Spinor: ",spinor)
         if code=="vasp":
@@ -384,7 +384,7 @@ class BandStructure():
 
 
 
-    def write_characters(self,degen_thresh=0,refUC=None,shiftUC=np.zeros(3),kpnames=None,symmetries=None,preline="",plotFile=None):
+    def write_characters(self,degen_thresh=0,refUC=None,shiftUC=np.zeros(3),kpnames=None,symmetries=None,preline="",plotFile=None,thresh_adjust=False):
 #        if refUC is not None:
 #        self.spacegroup.show(refUC=refUC,shiftUC=shiftUC)
 #        self.spacegroup.show2(refUC=refUC)
@@ -402,14 +402,14 @@ class BandStructure():
         if kpnames is not None and refUC is not None:
             for kpname,KP in zip(kpnames,self.kpoints):
                 irreps=self.spacegroup.get_irreps_from_table(refUC,shiftUC,kpname,KP.K)
-                ninv,low,up=KP.write_characters(degen_thresh,irreptable=irreps,symmetries=symmetries,preline=preline,efermi=self.efermi)
+                ninv,low,up=KP.write_characters(degen_thresh,irreptable=irreps,symmetries=symmetries,preline=preline,efermi=self.efermi,thresh_adjust=thresh_adjust)
                 NBANDINV+=ninv
                 GAP=min(GAP,up-low)
                 Up=min(Up,up)
                 Low=max(Low,low)
         else:
             for KP,kpl in zip(self.kpoints,kpline):
-                ninv,low,up=KP.write_characters(degen_thresh,symmetries=symmetries,preline=preline,efermi=self.efermi,plotFile=pFile,kpl=kpl)
+                ninv,low,up=KP.write_characters(degen_thresh,symmetries=symmetries,preline=preline,efermi=self.efermi,plotFile=pFile,kpl=kpl,magnetic=self.magnetic)
                 NBANDINV+=ninv
                 GAP=min(GAP,up-low)
                 Up=min(Up,up)
