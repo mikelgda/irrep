@@ -262,6 +262,12 @@ do not hesitate to contact the author:
           "Default: 1e-5"
           )
 )
+
+@click.option(
+    "-magmom",
+    default=None,
+    help="Path to magnetic moments file. One row per atom, three coordinates in Cartesian."
+)
 def cli(
     ecut,
     fwav,
@@ -290,7 +296,8 @@ def cli(
     config,
     searchcell,
     correct_ecut0,
-    trans_thresh
+    trans_thresh,
+    magmom
 ):
     """
     Defines the "irrep" command-line tool interface.
@@ -346,6 +353,18 @@ def cli(
         preline = ""
     json_data = {}
 
+    if magmom is not None:
+        try:
+            magnetic_moments = np.loadtxt(magmom)
+        except FileNotFoundError as e:
+            print(f"The magnetic moments file was not found: {magmom}")
+            raise e
+        except ValueError as e:
+            print(f"Error reading magnetic moments file {magmom}")
+            raise e
+    else:
+        magnetic_moments = None
+
     bandstr = BandStructure(
         fWAV=fwav,
         fWFK=fwfk,
@@ -362,7 +381,8 @@ def cli(
         refUC = refuc,
         shiftUC = shiftuc,
         search_cell = searchcell,
-        _correct_Ecut0=correct_ecut0
+        _correct_Ecut0=correct_ecut0,
+        magnetic_moments=magnetic_moments
     )
 
     json_data ["spacegroup"] = bandstr.spacegroup.show(symmetries=symmetries)

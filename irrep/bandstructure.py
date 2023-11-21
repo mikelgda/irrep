@@ -135,32 +135,37 @@ class BandStructure:
         search_cell = False,
         trans_thresh=1e-5,
         _correct_Ecut0 = 0.,
+        magnetic_moments=None
     ):
         code = code.lower()
 
         if spin_channel is not None:
             spin_channel=spin_channel.lower()
-        if spin_channel=='down' : spin_channel='dw'
+        if spin_channel=='down': 
+            spin_channel='dw'
         
         if code == "vasp":
             self.__init_vasp(
                 fWAV, fPOS, Ecut, IBstart, IBend, kplist, spinor, EF=EF, onlysym=onlysym, refUC=refUC, shiftUC=shiftUC, search_cell=search_cell,
-                _correct_Ecut0=_correct_Ecut0, trans_thresh=trans_thresh
+                _correct_Ecut0=_correct_Ecut0, trans_thresh=trans_thresh, magnetic_moments=magnetic_moments
             )
         elif code == "abinit":
             self.__init_abinit(
-                fWFK, Ecut, IBstart, IBend, kplist, EF=EF, onlysym=onlysym, refUC=refUC, shiftUC=shiftUC, search_cell=search_cell, trans_thresh=trans_thresh
+                fWFK, Ecut, IBstart, IBend, kplist, EF=EF, onlysym=onlysym, refUC=refUC, shiftUC=shiftUC, search_cell=search_cell, trans_thresh=trans_thresh,
+                magnetic_moments=magnetic_moments
             )
         elif code == "espresso":
             self.__init_espresso(
-                prefix, Ecut, IBstart, IBend, kplist, EF=EF, onlysym=onlysym, spin_channel=spin_channel, refUC=refUC, shiftUC=shiftUC, search_cell=search_cell, trans_thresh=trans_thresh
+                prefix, Ecut, IBstart, IBend, kplist, EF=EF, onlysym=onlysym, spin_channel=spin_channel, refUC=refUC, shiftUC=shiftUC, search_cell=search_cell, trans_thresh=trans_thresh,
+                magnetic_moments=magnetic_moments
             )
         elif code == "wannier90":
             self.__init_wannier(
-                prefix, Ecut, IBstart, IBend, kplist, EF=EF, onlysym=onlysym, refUC=refUC, shiftUC=shiftUC, search_cell=search_cell, trans_thresh=trans_thresh
+                prefix, Ecut, IBstart, IBend, kplist, EF=EF, onlysym=onlysym, refUC=refUC, shiftUC=shiftUC, search_cell=search_cell, trans_thresh=trans_thresh,
+                magnetic_moments=magnetic_moments
             )
         else:
-            raise RuntimeError("Unknown/unsupported code :{}".format(code))
+            raise RuntimeError(f"Unknown/unsupported code :{code}")
 
     def __init_vasp(
         self,
@@ -178,6 +183,7 @@ class BandStructure:
         search_cell=False,
         trans_thresh=1e-5,
         _correct_Ecut0=0.,
+        magnetic_moments=None
     ):
         """
         Initialization for vasp. Read data and save it in attributes.
@@ -227,7 +233,8 @@ class BandStructure:
                 refUC=refUC,
                 shiftUC=shiftUC,
                 search_cell=search_cell,
-                trans_thresh=trans_thresh
+                trans_thresh=trans_thresh,
+                magnetic_moments=magnetic_moments
                 )
         self.spinor = spinor
         if onlysym:
@@ -240,7 +247,7 @@ class BandStructure:
             try:
                 self.efermi = float(EF)
                 msg = ""
-            except:
+            except Exception:
                 raise RuntimeError(
                         ("Invalid value for keyword EF. It must be "
                          "a number or 'auto'")
@@ -330,7 +337,8 @@ class BandStructure:
         refUC=None,
         shiftUC=None,
         search_cell = False,
-        trans_thresh=1e-5
+        trans_thresh=1e-5,
+        magnetic_moments=None
     ):
         """
         Initialization for abinit. Read data and store it in attributes.
@@ -373,7 +381,8 @@ class BandStructure:
             refUC=refUC,
             shiftUC=shiftUC,
             search_cell=search_cell,
-            trans_thresh=trans_thresh
+            trans_thresh=trans_thresh,
+            magnetic_moments=magnetic_moments
         )
         if onlysym:
             return
@@ -470,6 +479,7 @@ class BandStructure:
         shiftUC=None,
         search_cell = False,
         trans_thresh=1e-5,
+        magnetic_moments=None
     ):
         """
         Initialization for wannier90. Read data and store it in attibutes.
@@ -731,7 +741,8 @@ class BandStructure:
             refUC=refUC,
             shiftUC=shiftUC,
             search_cell=search_cell,
-            trans_thresh=trans_thresh
+            trans_thresh=trans_thresh,
+            magnetic_moments=magnetic_moments
         )
         if onlysym:
             return
@@ -795,7 +806,9 @@ class BandStructure:
         refUC=None,
         shiftUC=None,
         search_cell = False,
-        trans_thresh=1e-5
+        trans_thresh=1e-5,
+        magnetic_moments=None
+
     ):
         """
         Initialization for Quantum Espresso. Read data and store in attributes.
@@ -869,8 +882,10 @@ class BandStructure:
             refUC=refUC,
             shiftUC=shiftUC,
             search_cell=search_cell,
-            trans_thresh=trans_thresh
+            trans_thresh=trans_thresh,
+            magnetic_moments=magnetic_moments
         )
+        print("created spacegroup")
         if onlysym:
             return
         Ecut0 = float(inp.find("basis").find("ecutwfc").text) * Hartree_eV
@@ -932,13 +947,13 @@ class BandStructure:
                                float(bandstr.find("fermi_energy").text) 
                                * Hartree_eV
                                )
-            except:
+            except Exception:
                 print("WARNING : fermi-energy not found. Setting it as zero")
                 self.efermi = 0.0
         else:
             try:
                 self.efermi = float(EF)
-            except:
+            except Exception:
                 raise RuntimeError(
                         ("Invalid value for keyword EF. It must be "
                          "a number or 'auto'")
@@ -984,7 +999,7 @@ class BandStructure:
     #        print (myroot)
     #        exit()
 
-    def getNK():
+    def getNK(self):
         """Getter for `self.kpoints`."""
         return len(self.kpoints)
 
@@ -1037,7 +1052,7 @@ class BandStructure:
         json_data[ "kpoints_line"] = kpline
         try:
             pFile = open(plotFile, "w")
-        except BaseException:
+        except Exception:
             pFile = None
         NBANDINV = 0
         GAP = np.Inf
@@ -1337,7 +1352,7 @@ class BandStructure:
             x.overlap(y)
             for x, y in zip(self.kpoints, self.kpoints[1:] + [self.kpoints[0]])
         ]
-        nmax = np.min([o.shape for o in overlaps])
+        #nmax = np.min([o.shape for o in overlaps])
         wilson = functools.reduce(
             np.dot,
             [functools.reduce(np.dot, np.linalg.svd(O)[0:3:2]) for O in overlaps],

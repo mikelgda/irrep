@@ -82,7 +82,7 @@ class SymmetryOperation():
         to that in tables.
     """
 
-    def __init__(self, rot, trans, Lattice, ind=-1, spinor=True):
+    def __init__(self, rot, trans, Lattice, ind=-1, spinor=True, time_reversal=False):
         self.ind = ind
         self.rotation = rot
         self.Lattice = Lattice
@@ -98,6 +98,7 @@ class SymmetryOperation():
         self.spinor_rotation = expm(-0.5j * self.angle *
                                     np.einsum('i,ijk->jk', self.axis, pauli_sigma))
         self.sign = 1  # May be changed later externally
+        self.time_reversal = time_reversal
 
     def get_angle_str(self):
         """
@@ -522,7 +523,8 @@ class SpaceGroup():
             Each element is a number identifying the atomic species of an ion.
         """
         fpos = (l.strip() for l in open(inPOSCAR))
-        title = next(fpos)
+        #title = next(fpos)
+        next(fpos)
         lattice = float(
             next(fpos)) * np.array([next(fpos).split() for i in range(3)], dtype=float)
         try:
@@ -560,7 +562,7 @@ class SpaceGroup():
             positions = positions.dot(np.linalg.inv(lattice))
         return lattice, positions, numbers
 
-    def _findsym(self, inPOSCAR, cell):
+    def _findsym(self, inPOSCAR, cell, magnetic_moments):
         """
         Finds the space-group and constructs a list of symmetry operations
         
@@ -612,25 +614,48 @@ class SpaceGroup():
             cell[1],
             '\n Atom type indices: \n',
             cell[2])
-        dataset = spglib.get_symmetry_dataset(cell)
-        symmetries = [
-            SymmetryOperation(
-                rot,
-                dataset['translations'][i],
+        if magnetic_moments is None:
+            dataset = spglib.get_symmetry_dataset(cell)
+            symmetries = [
+                SymmetryOperation(
+                    rot,
+                    dataset['translations'][i],
+                    cell[0],
+                    ind=i + 1,
+                    spinor=self.spinor,
+                    time_reversal=False) for i,
+                rot in enumerate(
+                    dataset['rotations'])]
+            return (symmetries, 
+                    dataset['international'],
+                    dataset['number'], 
+                    cell[0], 
+                    dataset['transformation_matrix'],
+                    dataset['origin_shift']
+                    )
+        else:
+            dataset = spglib.get_magnetic_symmetry_dataset((*cell, magnetic_moments))
+            symmetries = [
+                SymmetryOperation(
+                    rot,
+                    dataset['translations'][i],
+                    cell[0],
+                    ind=i + 1,
+                    spinor=self.spinor,
+                    time_reversal=dataset["time_reversals"][i]) for i,
+                rot in enumerate(
+                    dataset['rotations'])]
+            
+            return (
+                symmetries,
+                "magnetic",
+                dataset["uni_number"],
                 cell[0],
-                ind=i + 1,
-                spinor=self.spinor) for i,
-            rot in enumerate(
-                dataset['rotations'])]
-        nsym = len(symmetries)
+                dataset["transformation_matrix"],
+                dataset["origin_shift"]
+            )
+        #nsym = len(symmetries)
 
-        return (symmetries, 
-                dataset['international'],
-                dataset['number'], 
-                cell[0], 
-                dataset['transformation_matrix'],
-                dataset['origin_shift']
-                )
 
     def __init__(
             self,
@@ -640,22 +665,38 @@ class SpaceGroup():
             refUC=None,
             shiftUC=None,
             search_cell=False,
-            trans_thresh=1e-5
+            trans_thresh=1e-5,
+            magnetic_moments=None
             ):
         self.spinor = spinor
-        (self.symmetries, 
+        (symmetries, 
          self.name, 
          self.number, 
          self.Lattice, 
          refUC_tmp, 
-         shiftUC_tmp) = self._findsym(inPOSCAR, cell)
+         shiftUC_tmp) = self._findsym(inPOSCAR, cell, magnetic_moments)
         self.RecLattice = np.array([np.cross(self.Lattice[(i + 1) %
                                                           3], self.Lattice[(i + 2) %
                                                                            3]) for i in range(3)]) * 2 * np.pi / np.linalg.det(self.Lattice)
         print(" Reciprocal lattice:\n", self.RecLattice)
 
+        time_reversals = [sym.time_reversal for sym in symmetries]
+        self.magnetic = any(time_reversals)
+        if self.magnetic:
+            self.symmetries = list(filter(lambda x: x.time_reversal is False, symmetries))
+            self.au_symmetries = list(filter(lambda x: x.time_reversal is True, symmetries))
+        else:
+            self.symmetries = symmetries
+            self.au_symmetries = []
+        
+        irr_table = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
+        self.name = irr_table.name
+
+        print("MAGNETIC:", self.magnetic)
+
         # Determine refUC and shiftUC according to entries in CLI
-        self.symmetries_tables = IrrepTable(self.number, self.spinor).symmetries
+        self.symmetries_tables = irr_table.symmetries
+        print("table symmetries:", len(self.symmetries_tables))
         self.refUC, self.shiftUC = self.determine_basis_transf(
                                             refUC_cli=refUC, 
                                             shiftUC_cli=shiftUC,
@@ -664,6 +705,7 @@ class SpaceGroup():
                                             search_cell=search_cell,
                                             trans_thresh=trans_thresh
                                             )
+        print("determined basis transform")
 
         # Check matching of symmetries in refUC. If user set transf.
         # in the CLI and symmetries don't match, raise a warning.
@@ -747,15 +789,21 @@ class SpaceGroup():
                      "spinor": self.spinor,
                      "num_symmetries": len(self.symmetries),
                      "cells_match": not write_ref,
-                     "symmetries": {}
+                     "symmetries": {},
+                     "au_symmetries": {}
                      }
 
         for symop in self.symmetries:
             if symmetries is None or symop.ind in symmetries:
                 json_data["symmetries"][symop.ind]=symop.show(refUC=self.refUC, shiftUC=self.shiftUC)
-
-        return json_data
-
+        
+        if self.magnetic is True:
+            print("")
+            print("The space group also has the following antiunitary symmetries:")
+            print("")   
+            for symop in self.au_symmetries:
+                if symmetries is None or symop.ind in symmetries:
+                    json_data["au_symmetries"][symop.ind] = symop.show(refUC=self.refUC, shiftUC=self.shiftUC)
 
 #  def show2(self,refUC=None,shiftUC=np.zeros(3)):
 #    print('')
