@@ -686,8 +686,10 @@ class SpaceGroup():
         time_reversals = [sym.time_reversal for sym in symmetries]
         self.magnetic = any(time_reversals)
         if self.magnetic:
-            self.symmetries = list(filter(lambda x: x.time_reversal is False, symmetries))
-            self.au_symmetries = list(filter(lambda x: x.time_reversal is True, symmetries))
+            self.symmetries = list(filter(lambda x: not x.time_reversal, symmetries))
+            self.au_symmetries = list(filter(lambda x: x.time_reversal,  symmetries))
+            print("SYMMETRIES", len(self.symmetries))
+            print("AU SYMMETRIES", len(self.au_symmetries))
         else:
             self.symmetries = symmetries
             self.au_symmetries = []
@@ -696,6 +698,7 @@ class SpaceGroup():
         self.name = irr_table.name
 
         print("MAGNETIC:", self.magnetic)
+        print(self.number)
 
         # Determine refUC and shiftUC according to entries in CLI
         self.symmetries_tables = irr_table.symmetries
@@ -709,6 +712,8 @@ class SpaceGroup():
                                             trans_thresh=trans_thresh
                                             )
         print("determined basis transform")
+        print(self.refUC)
+        print(self.shiftUC)
 
         # Check matching of symmetries in refUC. If user set transf.
         # in the CLI and symmetries don't match, raise a warning.
@@ -718,6 +723,7 @@ class SpaceGroup():
             ind, dt, signs = self.match_symmetries(signs=self.spinor,
                                                    trans_thresh=trans_thresh
                                                    )
+            print("IND", ind)
             # Sort symmetries like in tables
             args = np.argsort(ind)
             for i,i_ind in enumerate(args):
@@ -1238,6 +1244,7 @@ class SpaceGroup():
         ind = []
         dt = []
         errtxt = ""
+        print("MATCH SYMMETRIES")
         for j, sym in enumerate(self.symmetries):
             R = sym.rotation_refUC(refUC)
             t = sym.translation_refUC(refUC, shiftUC)

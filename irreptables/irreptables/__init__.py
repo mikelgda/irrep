@@ -60,23 +60,18 @@ class SymopTable:
         # len is > 13 everytime there is spin
         line_length = len(numbers)
         if line_length > 13:
-            print("spin")
             self.S = (
                 np.array(numbers[12:16], dtype=float)
                 * np.exp(1j * np.pi * np.array(numbers[16:20], dtype=float))
             ).reshape(2, 2)
         else:
-            print("not spin")
             self.S = np.eye(2)
         
         if line_length == 13:
-            print("scalar and TR")
             self.time_reversal = False if int(numbers[12]) == 1 else True
         elif line_length == 21:
-            print("spinor and TR")
             self.time_reversal = False if int(numbers[20]) == 1 else True
         else:
-            print("not TR")
             self.time_reversal = False
 
     def str(self, spinor=True):
@@ -355,7 +350,6 @@ class IrrepTable:
             logger.debug("reading from a standard irrep table <{0}>".format(name))
         else:
             logger.debug("reading from a user-defined irrep table <{0}>".format(name))
-        print("read from", name)
 
         lines = open(name).readlines()[-1::-1]
         while len(lines) > 0:
