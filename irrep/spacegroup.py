@@ -300,16 +300,17 @@ class SymmetryOperation():
         else: 
             json_data ["rotation_matrix_refUC"]=self.rotation
 
+        matrix = np.transpose(np.linalg.inv(self.rotation)) * (-1 if self.time_reversal else 1)
         kstring = "gk = [" + ", ".join(
-                    [parse_row_transform(r) for r in np.transpose(np.linalg.inv(self.rotation))]
+                    [parse_row_transform(r) for r in matrix]
                     ) + "]"
 
-        if write_ref:
-            kstring += "  |   refUC:  gk = ["+", ".join(
-                    [parse_row_transform(r) for r in np.transpose(np.linalg.inv(R))]
-                    )+ "]"
-                
 
+        if write_ref:
+            matrix = np.transpose(np.linalg.inv(R)) * (-1 if self.time_reversal else 1)
+            kstring += "  |   refUC:  gk = ["+", ".join(
+                    [parse_row_transform(r) for r in matrix]
+                    )+ "]"
 
 
         print("\n".join(rotstr))
@@ -688,8 +689,6 @@ class SpaceGroup():
         if self.magnetic:
             self.symmetries = list(filter(lambda x: not x.time_reversal, symmetries))
             self.au_symmetries = list(filter(lambda x: x.time_reversal,  symmetries))
-            print("SYMMETRIES", len(self.symmetries))
-            print("AU SYMMETRIES", len(self.au_symmetries))
         else:
             self.symmetries = symmetries
             self.au_symmetries = []
@@ -697,12 +696,9 @@ class SpaceGroup():
         irr_table = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
         self.name = irr_table.name
 
-        print("MAGNETIC:", self.magnetic)
-        print(self.number)
 
         # Determine refUC and shiftUC according to entries in CLI
         self.symmetries_tables = irr_table.symmetries
-        print("table symmetries:", len(self.symmetries_tables))
         self.refUC, self.shiftUC = self.determine_basis_transf(
                                             refUC_cli=refUC, 
                                             shiftUC_cli=shiftUC,
@@ -711,9 +707,6 @@ class SpaceGroup():
                                             search_cell=search_cell,
                                             trans_thresh=trans_thresh
                                             )
-        print("determined basis transform")
-        print(self.refUC)
-        print(self.shiftUC)
 
         # Check matching of symmetries in refUC. If user set transf.
         # in the CLI and symmetries don't match, raise a warning.
@@ -723,7 +716,6 @@ class SpaceGroup():
             ind, dt, signs = self.match_symmetries(signs=self.spinor,
                                                    trans_thresh=trans_thresh
                                                    )
-            print("IND", ind)
             # Sort symmetries like in tables
             args = np.argsort(ind)
             for i,i_ind in enumerate(args):
@@ -998,7 +990,7 @@ class SpaceGroup():
             given in parameter `kpname`.
         """
         #        self.show()
-        table = IrrepTable(self.number, self.spinor)
+        table = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
         tab = {}
         for irr in table.irreps:
             if irr.kpname == kpname:
@@ -1244,7 +1236,6 @@ class SpaceGroup():
         ind = []
         dt = []
         errtxt = ""
-        print("MATCH SYMMETRIES")
         for j, sym in enumerate(self.symmetries):
             R = sym.rotation_refUC(refUC)
             t = sym.translation_refUC(refUC, shiftUC)

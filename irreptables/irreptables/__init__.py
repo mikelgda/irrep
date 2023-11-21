@@ -375,8 +375,8 @@ class IrrepTable:
                         logger.debug(err)
                         pass
                 break
-        self.symmetries = list(filter(lambda x: x.time_reversal is False, symmetries))
-        self.au_symmetries = list(filter(lambda x: x.time_reversal is True, symmetries))
+        self.symmetries = list(filter(lambda x: not x.time_reversal, symmetries))
+        self.au_symmetries = list(filter(lambda x: x.time_reversal, symmetries))
 
         logger.debug("symmetries are:\n" + "\n".join(s.str() for s in self.symmetries))
 
