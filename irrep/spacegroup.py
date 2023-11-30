@@ -402,7 +402,7 @@ class SymmetryOperation():
         return ("   ".join(" ".join(str(x) for x in r) for r in R) + "     " + " ".join(str_(x) for x in t) + ("      " + \
                 "    ".join("  ".join(str_(x) for x in X) for X in (np.abs(S.reshape(-1)), np.angle(S.reshape(-1)) / np.pi))))
 
-    def str2(self, refUC=np.eye(3), shiftUC=np.zeros(3)):
+    def str2(self, refUC=np.eye(3), shiftUC=np.zeros(3), write_tr=False):
         """
         Print matrix of a symmetry operation in the format: 
         {{R|t}}-> R11,R12,...,R23,R33,t1,t2,t3 and, when SOC was included, the 
@@ -435,8 +435,13 @@ class SymmetryOperation():
         t = self.translation
 #        np.savetxt(stdout,np.hstack( (R,t[:,None])),fmt="%8.5f" )
         S = self.spinor_rotation
-        return ("   ".join(" ".join("{0:2d}".format(x) for x in r) for r in R) + "     " + " ".join("{0:10.6f}".format(x) for x in t) + (
-            ("      " + "    ".join("  ".join("{0:10.6f}".format(x) for x in (X.real, X.imag)) for X in S.reshape(-1))) if S is not None else "") + "\n")
+        tr = -1 if self.time_reversal else 1
+        if write_tr:
+            return ("   ".join(" ".join("{0:2d}".format(x) for x in r) for r in R) + "     " + " ".join("{0:10.6f}".format(x) for x in t) + (
+                ("      " + "    ".join("  ".join("{0:10.6f}".format(x) for x in (X.real, X.imag)) for X in S.reshape(-1))) if S is not None else "") + " " +str(tr) + "\n")
+        else:
+           return ("   ".join(" ".join("{0:2d}".format(x) for x in r) for r in R) + "     " + " ".join("{0:10.6f}".format(x) for x in t) + (
+                ("      " + "    ".join("  ".join("{0:10.6f}".format(x) for x in (X.real, X.imag)) for X in S.reshape(-1))) if S is not None else "") + "\n") 
 
 
 class SpaceGroup():
@@ -699,6 +704,7 @@ class SpaceGroup():
 
         # Determine refUC and shiftUC according to entries in CLI
         self.symmetries_tables = irr_table.symmetries
+        self.au_symmetries_tables = irr_table.au_symmetries
         self.refUC, self.shiftUC = self.determine_basis_transf(
                                             refUC_cli=refUC, 
                                             shiftUC_cli=shiftUC,
@@ -739,6 +745,38 @@ class SpaceGroup():
                        "tables. If you want to achieve the same cell as in "
                        "tables, try not specifying refUC and shiftUC."))
                 pass
+        # Do the same with magnetic operations
+        if self.magnetic:
+            try:
+                ind, dt, signs = self.match_symmetries(signs=self.spinor,
+                                                    trans_thresh=trans_thresh,
+                                                    au_symmetries=True
+                                                    )
+                # Sort symmetries like in tables
+                args = np.argsort(ind)
+                for i,i_ind in enumerate(args):
+                    self.au_symmetries[i_ind].ind = i+1
+                    self.au_symmetries[i_ind].sign = signs[i_ind]
+                    self.au_symmetries.append(self.au_symmetries[i_ind])
+                self.au_symmetries = self.au_symmetries[i+1:]
+            except RuntimeError:
+                if search_cell:  # symmetries must match to identify irreps
+                    raise RuntimeError((
+                        "refUC and shiftUC don't transform the cellto one where "
+                        "symmetries are identical to those read from tables. "
+                        "Try without specifying refUC and shiftUC."
+                        ))
+                elif refUC is not None or shiftUC is not None:
+                    # User specified refUC or shiftUC in CLI. He/She may
+                    # want the traces in a cell that is not neither the
+                    # one in tables nor the DFT one
+                    print(("WARNING: refUC and shiftUC don't transform the cell to "
+                        "one where symmetries are identical to those read from "
+                        "tables. If you want to achieve the same cell as in "
+                        "tables, try not specifying refUC and shiftUC."))
+                    pass
+        
+
 
         # Print transformation and basis vectors in both settings
         refUC_print = self.refUC.T  # print following convention in paper
@@ -831,9 +869,12 @@ class SpaceGroup():
         """
         res = (" {0} \n"  # Number of Symmetry operations
                # In the following lines, one symmetry operation for each operation of the point group n"""
-               ).format(len(self.symmetries))
+               ).format(len(self.symmetries) + len(self.au_symmetries))
+        write_tr = self.magnetic
         for symop in self.symmetries:
-            res += symop.str2(refUC=self.refUC, shiftUC=self.shiftUC)
+            res += symop.str2(refUC=self.refUC, shiftUC=self.shiftUC, write_tr=write_tr)
+        for symop in self.au_symmetries:
+            res += symop.str2(refUC=self.refUC, shiftUC=self.shiftUC, write_tr=write_tr)
         return(res)
 
     def str(self):
@@ -1185,7 +1226,8 @@ class SpaceGroup():
             refUC=None,
             shiftUC=None,
             signs=False,
-            trans_thresh=1e-5
+            trans_thresh=1e-5,
+            au_symmetries=False
             ):
         """
         Matches symmetry operations of two lists. Translational parts 
@@ -1235,12 +1277,18 @@ class SpaceGroup():
             shiftUC = self.shiftUC
         ind = []
         dt = []
+        if au_symmetries:
+            symmetries = self.au_symmetries
+            symmetries_tables = self.au_symmetries_tables
+        else:
+            symmetries = self.symmetries
+            symmetries_tables = self.symmetries_tables
         errtxt = ""
-        for j, sym in enumerate(self.symmetries):
+        for j, sym in enumerate(symmetries):
             R = sym.rotation_refUC(refUC)
             t = sym.translation_refUC(refUC, shiftUC)
             found = False
-            for i, sym2 in enumerate(self.symmetries_tables):
+            for i, sym2 in enumerate(symmetries_tables):
                 t1 = refUC.dot(sym2.t - t) % 1
                 #t1 = np.dot(sym2.t - t, refUC) % 1
                 t1[1 - t1 < trans_thresh] = 0
@@ -1282,14 +1330,14 @@ class SpaceGroup():
                      "rotational part. \nR(found) = \n{} \nt(found) = {}"
                      .format(R, t))
 
-        if (len(set(ind)) != len(self.symmetries)):
+        if (len(set(ind)) != len(symmetries)):
             raise RuntimeError(
                 "Error in matching symmetries detected by spglib with the \
                  symmetries in the tables. Try to modify the refUC and shiftUC \
                  parameters")
         if signs:
-            S1 = [sym.spinor_rotation for sym in self.symmetries]
-            S2 = [self.symmetries_tables[i].S for i in ind]
+            S1 = [sym.spinor_rotation for sym in symmetries]
+            S2 = [symmetries_tables[i].S for i in ind]
             signs_array = self.__match_spinor_rotations(S1, S2)
         else:
             signs_array = np.ones(len(ind), dtype=int)
