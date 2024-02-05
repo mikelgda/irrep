@@ -22,6 +22,7 @@ from scipy.linalg import expm
 import spglib
 from irreptables import IrrepTable
 from scipy.optimize import minimize
+import os
 from .utility import str_
 
 pauli_sigma = np.array(
@@ -654,11 +655,17 @@ class SpaceGroup():
                     time_reversal=dataset["time_reversals"][i]) for i,
                 rot in enumerate(
                     dataset['rotations'])]
+
+            uni_number = dataset["uni_number"]
+            root = os.path.dirname(__file__)
+
+            with open(root + "/msg_numbers.data", 'r') as f:
+                self.bns_number = f.readlines()[uni_number].strip()
             
             return (
                 symmetries,
                 "magnetic",
-                dataset["uni_number"],
+                uni_number,
                 cell[0],
                 dataset["transformation_matrix"],
                 dataset["origin_shift"]
@@ -813,7 +820,7 @@ class SpaceGroup():
         print('')
         print("Space group {0} (# {1}) has {2} symmetry operations  ".format(
             self.name,
-            self.number, 
+            self.bns_number if self.magnetic else self.number, 
             len(self.symmetries))
             )
 
