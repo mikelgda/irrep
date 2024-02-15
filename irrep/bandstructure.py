@@ -222,6 +222,9 @@ class BandStructure:
         _correct_Ecut0 : float
             if you get an error like ' computed ncnt=*** != input nplane=*** ', 
             try to set this parameter to a small positive or negative value (usually of order +- 1e-7)
+        magnetic_moments : array, default=None
+            Nx3 array of magnetic moments in cartesian coordinates where N is
+            the number of atoms in the unit cell.
         """
         if spinor is None:
             raise RuntimeError(
@@ -255,7 +258,7 @@ class BandStructure:
         print("Efermi = {:.4f} eV".format(self.efermi) + msg)
         WCF = WAVECARFILE(fWAV)
         # RECLENGTH=3 # the length of a record in WAVECAR. It is defined in the
-        # first record, so let it be 3 fo far"
+        # first record, so let it be 3 so far"
         WCF.rl, ispin, iprec = [int(x) for x in WCF.record(0)]
         if iprec != 45200:
             raise RuntimeError("double precision WAVECAR is not supported")
@@ -370,6 +373,9 @@ class BandStructure:
             It is `True` if kpnames was specified in CLI.
         trans_thresh : float, default=1e-5
             Threshold to compare translational parts of symmetries.
+        magnetic_moments : array, default=None
+            Nx3 array of magnetic moments in cartesian coordinates where N is
+            the number of atoms in the unit cell.
         """
 
         header = AbinitHeader(WFKname)
@@ -512,6 +518,9 @@ class BandStructure:
             It is `True` if kpnames was specified in CLI.
         trans_thresh : float, default=1e-5
             Threshold to compare translational parts of symmetries.
+        magnetic_moments : array, default=None
+            Nx3 array of magnetic moments in cartesian coordinates where N is
+            the number of atoms in the unit cell.
         """
         if Ecut is None:
             raise RuntimeError("Ecut mandatory for Wannier90")
@@ -843,6 +852,9 @@ class BandStructure:
             It is `True` if kpnames was specified in CLI.
         trans_thresh : float, default=1e-5
             Threshold to compare translational parts of symmetries.
+        magnetic_moments : array, default=None
+            Nx3 array of magnetic moments in cartesian coordinates where N is
+            the number of atoms in the unit cell.
         """
         import xml.etree.ElementTree as ET
 
@@ -897,7 +909,7 @@ class BandStructure:
             spinpol=True
             print ("spin-polarised bandstructure composed of {} up and {} dw states".format(NBin_dw,NBin_up))
             NBin_dw+NBin_up
-        except AttributeError as err: 
+        except AttributeError: 
             spinpol=False
             NBin=int(bandstr.find('nbnd').text)
 

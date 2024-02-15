@@ -50,6 +50,8 @@ class SymopTable:
         Direct coordinates of the translation vector.
     S : array, shape=(2,2)
         SU(2) matrix describing the transformation of spinor components.
+    time_reversal : bool
+        Indicates if the operation is combined with time-reversal.
     '''
 
     def __init__(self, line):
@@ -322,7 +324,10 @@ class IrrepTable:
        Number of symmetry operations in the "point-group" of the space-group. 
     symmetries : list
         Each component is an instance of class `SymopTable` corresponding to a 
-        symmetry operation in the "point-group" of the space-group.
+        unitary symmetry operation in the "point-group" of the space-group.
+    symmetries : list
+        Each component is an instance of class `SymopTable` corresponding to a 
+        antiunitary symmetry operation in the "point-group" of the space-group.
     NK : int
         Number of maximal k-points in the Brillouin zone.
     irreps : list

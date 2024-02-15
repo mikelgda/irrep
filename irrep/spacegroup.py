@@ -81,6 +81,8 @@ class SymmetryOperation():
     sign : float
         Factor needed to match the matrix for the rotation of spinors 
         to that in tables.
+    time_reversal : bool
+        Indicates if the operation is combined with time-reversal.
     """
 
     def __init__(self, rot, trans, Lattice, ind=-1, spinor=True, time_reversal=False):
@@ -483,15 +485,23 @@ class SpaceGroup():
         `True` if wave-functions are spinors (SOC), `False` if they are scalars.
     symmetries : list
         Each element is an instance of class `SymmetryOperation` corresponding 
-        to a symmetry in the point group of the space-group.
+        to a unitary symmetry in the point group of the space-group.
+    symmetries : list
+        Each element is an instance of class `SymmetryOperation` corresponding 
+        to a antiunitary symmetry in the point group of the space-group.
     symmetries_tables : list
         Attribute `symmetries` of class `IrrepTable`. Each component is an 
-        instance of class `SymopTable` corresponding to a symmetry operation
+        instance of class `SymopTable` corresponding to a unitary symmetry operation
+        in the "point-group" of the space-group.
+    au_symmetries_tables : list
+        Attribute `symmetries` of class `IrrepTable`. Each component is an 
+        instance of class `SymopTable` corresponding to a antiunitary symmetry operation
         in the "point-group" of the space-group.
     name : str 
-        Symbol of the space-group in Hermann-Mauguin notation. 
+        Symbol of the space-group in Hermann-Mauguin notation.
     number : int 
-        Number of the space-group.
+        Number of the space-group. For magnetic space groups this corresponds 
+        to the internal number of spglib
     Lattice : array, shape=(3,3) 
         Each row contains cartesian coordinates of a basis vector forming the 
         unit-cell in real space.
@@ -586,6 +596,9 @@ class SpaceGroup():
             atomic species of an ion. See `cell` parameter of function 
             `get_symmetry` in 
             `Spglib <https://spglib.github.io/spglib/python-spglib.html#get-symmetry>`_.
+        magnetic_moments : array or None
+            Nx3 array of magnetic moments in Cartesian coordinates where N is 
+            the number of atoms in the unit cell. None means no magnetism.
         
         Returns
         -------
@@ -593,7 +606,8 @@ class SpaceGroup():
             Each element is an instance of class `SymmetryOperation` corresponding 
             to a symmetry in the point group of the space-group.
         str
-            Symbol of the space-group in Hermann-Mauguin notation. 
+            Symbol of the space-group in Hermann-Mauguin notation or "magnetic"
+            for magnetic space groups.
         int
             Number of the space-group.
         array
@@ -660,12 +674,12 @@ class SpaceGroup():
             root = os.path.dirname(__file__)
 
             with open(root + "/msg_numbers.data", 'r') as f:
-                self.bns_number = f.readlines()[uni_number].strip()
+                bns_number, name = f.readlines()[uni_number].strip().split(" ")
             
             return (
                 symmetries,
-                "magnetic",
-                uni_number,
+                name,
+                bns_number,
                 cell[0],
                 dataset["transformation_matrix"],
                 dataset["origin_shift"]
@@ -706,8 +720,6 @@ class SpaceGroup():
             self.au_symmetries = []
         
         irr_table = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
-        self.name = irr_table.name
-
 
         # Determine refUC and shiftUC according to entries in CLI
         self.symmetries_tables = irr_table.symmetries
@@ -820,7 +832,7 @@ class SpaceGroup():
         print('')
         print("Space group {0} (# {1}) has {2} symmetry operations  ".format(
             self.name,
-            self.bns_number if self.magnetic else self.number, 
+            self.number, 
             len(self.symmetries))
             )
 
