@@ -96,7 +96,8 @@ def calc_gvectors(
     for N in range(nplanemax):
         flag = True
         if N % 10 == 0:
-            print(N, len(igall))
+            # print(N, len(igall))
+            pass
         # if len(igall) >= nplane / (2 if spinor else 1):
         #     break
         if len(igall) >= nplane / 2:    # Only enters if vasp

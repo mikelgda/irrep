@@ -655,7 +655,6 @@ class SpaceGroup():
                     dataset['origin_shift']
                     )
         else:
-            print("MAGNETIC DATASET")
             dataset = spglib.get_magnetic_symmetry_dataset((*cell, magnetic_moments))
             if dataset is None:
                 raise ValueError("No magnetic space group could be detected!")
@@ -830,10 +829,11 @@ class SpaceGroup():
         print('')
         print("\n ---------- INFORMATION ABOUT THE SPACE GROUP ---------- \n")
         print('')
-        print("Space group {0} (# {1}) has {2} symmetry operations  ".format(
+        print("Space group {0} (# {1}) has {2}{3}symmetry operations  ".format(
             self.name,
             self.number, 
-            len(self.symmetries))
+            len(self.symmetries),
+            " unitary " if self.magnetic else " "),
             )
 
         if (not np.allclose(self.refUC, np.eye(3)) or

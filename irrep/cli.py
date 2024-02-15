@@ -349,7 +349,7 @@ def cli(
         print(fwfk.split("/")[0].split("-"))
         preline = " ".join(s.split("_")[1] for s in fwfk.split("/")[0].split("-")[:3])
     except Exception as err:
-        print(err)
+        # print(err)
         preline = ""
     json_data = {}
 
@@ -467,7 +467,7 @@ def cli(
 
     if plotbands:
         json_data["characters_and_irreps"] = {}
-        print("plotbands = True --> writing bands")
+        print("\nSaving bands for plotting (plotbands == True)")
         for k, sub in subbands.items():
             if isymsep is not None:
                 print(

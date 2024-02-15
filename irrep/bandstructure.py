@@ -255,7 +255,7 @@ class BandStructure:
                         ("Invalid value for keyword EF. It must be "
                          "a number or 'auto'")
                         )
-        print("Efermi = {:.4f} eV".format(self.efermi) + msg)
+        print("\nEfermi = {:.4f} eV".format(self.efermi) + msg)
         WCF = WAVECARFILE(fWAV)
         # RECLENGTH=3 # the length of a record in WAVECAR. It is defined in the
         # first record, so let it be 3 so far"
@@ -298,7 +298,7 @@ class BandStructure:
         )
 
         print(
-            "WAVECAR contains {0} k-points and {1} bands.\n Saving {2} bands starting from {3} in the output".format(
+            "WAVECAR contains {0} k-points and {1} bands.\nSaving {2} bands starting from {3} in the output".format(
                 NK, NBin, NBout, IBstart + 1
             )
         )
