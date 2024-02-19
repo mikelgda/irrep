@@ -51,6 +51,8 @@ def is_S4z(sym, t=(0,0,0)):
         np.isclose(sym.translation, t).all()
     )
 
+################ INDICATORS #################
+
 #############################################
 
 def eta4I_2_4(kpoints, occ):
@@ -493,3 +495,65 @@ def z2_81_33(kpoints, occ):
     
 
     return int(total / 2) % 2
+
+#############################################
+
+def z4m0plus_84_51(kpoints, occ):
+    index_points = np.array([
+        [0,   0,   0    ], # GM
+        [0.5, 0.5, 0    ], # M
+    ])
+    calc_points = np.array([kp.K for kp in kpoints])
+
+    phases = np.array([-0.25, 0.25, -0.75, 0.75])
+    j_vals = np.exp(1j * np.pi * phases)
+    total = 0
+    for q in index_points:
+        loc = np.where(np.isclose(calc_points, q).all(1))[0]
+        if len(loc) == 0:
+            raise Exception(f"{q=} was not found in the calculation but it is"
+                            " needed for the delta2m index of group 10.42.")
+        kp = kpoints[loc[0]]
+        for sym in kp.symmetries.keys():
+            if is_C4z(sym, t=(0,0,0.5)):
+                c4z = sym
+            elif is_mirror(sym, 2):
+                mz = sym
+        c4z_vals = kp.symmetries[c4z]
+        mz_vals = kp.symmetries[mz].imag.round()
+
+        for phase, j_val in zip(phases, j_vals):
+            j_mask = np.isclose(c4z_vals, j_val)
+            total += phase * (mz_vals[:occ][j_mask] == 1).sum()
+
+    loc = np.where(np.isclose(calc_points, [0, 0.5, 0]).all(1))[0]
+    if len(loc) == 0:
+        raise Exception("X=(0,1/2,0) was not found in the calculation but it is"
+                        " needed for the z4m0plus index of group 84.51.")
+    kp = kpoints[loc[0]]
+    for sym in kp.symmetries.keys():
+        if is_C4z(sym, t=(0,0,0.5)):
+            c4z = sym
+        elif is_mirror(sym, 2):
+            mz = sym
+    c4z_vals = kp.symmetries[c4z]
+    mz_vals = kp.symmetries[mz].imag.round()
+
+    j_mask = np.isclose(c4z_vals, np.exp(-0.25j * np.pi))
+    total += (mz_vals[:occ][j_mask] == 1).sum()
+
+    j_mask = np.isclose(c4z_vals, np.exp(0.25j * np.pi))
+    total -= (mz_vals[:occ][j_mask] == 1).sum()
+
+    return total % 4
+
+def delta2m_84_51(kpoints, occ):
+    return delta2m_10_42(kpoints, occ)
+
+#############################################
+
+
+
+
+
+
