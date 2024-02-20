@@ -58,6 +58,13 @@ def is_C3z(sym, t=(0,0,0)):
         np.isclose(sym.translation, t).all()
     )
 
+def is_C6z(sym, t=(0,0,0)):
+    return (
+        np.isclose(sym.axis, (0,0,1)).all() and
+        np.isclose(sym.angle, 2 * np.pi / 6) and
+        np.isclose(sym.translation, t).all()
+    )
+
 TRIM_POINTS = np.array([
         [0. , 0. , 0. ],
         [0.5, 0. , 0. ],
@@ -511,25 +518,239 @@ def z2_81_33(kpoints, occ):
     ])
     calc_points = np.array([kp.K for kp in kpoints])
 
-    phases = np.array([-0.25, 0.75])
-    j_vals = np.exp(phases * 1j* np.pi)
+    counts_C2 = count_states(
+        kpoints,
+        index_points,
+        is_C2,
+        [np.exp(-1j * np.pi * 0.5)],
+        occ,
+        calc_points=calc_points,
+        axis=2
 
-    total = 0
-    for q in index_points:
-        loc = np.where(np.isclose(calc_points, q).all(1))[0]
-        if len(loc) == 0:
-            raise Exception(f"{q=} was not found in the calculation.")
-        kp = kpoints[loc[0]]
-        for sym in kp.symmetries.keys():
-            if is_S4z(sym):
-                s4z = sym
-        s4z_vals = kp.symmetries[s4z]
-        for sign, j_val in zip([1, -1], j_vals):
-            j_mask = np.isclose(s4z_vals, j_val)
-            total += sign * (j_mask[:occ]).sum()
-    
+    )[0]
 
-    return int(total / 2) % 2
+    counts_S4 = count_states(
+        kpoints,
+        index_points,
+        is_S4z,
+        [np.exp(-0.5j * np.pi * (-1.5))],
+        occ,
+        calc_points=calc_points,
+    )[0]
+
+    return int(
+        (counts_C2 - counts_S4) * 0.5
+    ) % 2
+
+#############################################
+
+def delta4m_83_43(kpoints, occ):
+    index_points1 = np.array([
+        [0,   0,   0.5], # Z
+        [0.5, 0.5, 0.5]  # A
+    ])
+    index_points2 = np.array([
+        [0,   0,   0], # GM
+        [0.5, 0.5, 0]  # M
+    ])
+    R = np.array([[0, 0.5, 0.5]])
+    X = np.array([[0, 0.5, 0  ]])
+
+    calc_points = np.array([kp.K for kp in kpoints])
+
+    counts_ZA_C2 = filter_count_states(
+        kpoints,
+        index_points1,
+        is_C2,
+        np.exp(-1j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+    counts_ZA_C4 = filter_count_states(
+        kpoints,
+        index_points1,
+        is_C4z,
+        np.exp(-0.5j * np.pi * np.array([1.5, -1.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_GMM_C2 = filter_count_states(
+        kpoints,
+        index_points2,
+        is_C2,
+        np.exp(-1j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([-1j, -1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+    counts_GMM_C4 = filter_count_states(
+        kpoints,
+        index_points2,
+        is_C4z,
+        np.exp(-0.5j * np.pi * np.array([1.5, -1.5])),
+        is_mirror,
+        np.array([-1j, -1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_R = filter_count_states(
+        kpoints,
+        R,
+        is_C2,
+        np.exp(-1j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+    counts_X = filter_count_states(
+        kpoints,
+        X,
+        is_C2,
+        np.exp(-1j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([-1j, -1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+
+    counts_ZA = -(
+        -0.5 * counts_ZA_C2[0] + 0.5 * counts_ZA_C2[1] - 1.5 * counts_ZA_C4[0] +
+         1.5 * counts_ZA_C4[1]
+    )
+    counts_GMM = (
+        -0.5 * counts_GMM_C2[0] + 0.5 * counts_GMM_C2[1] - 1.5 * counts_GMM_C4[0] +
+         1.5 * counts_GMM_C4[1]
+    )
+
+    return int(
+        counts_ZA + counts_GMM + counts_R[0] - counts_R[1] - counts_X[0] + counts_X[1]
+    ) % 4
+
+#############################################
+
+def z4mpiplus_84_43(kpoints, occ):
+    index_points = np.array([
+        [0,   0,   0.5], # Z
+        [0.5, 0.5, 0.5]  # A
+    ])
+    R = np.array([[0, 0.5, 0.5]])
+
+    calc_points = np.array([kp.K for kp in kpoints])
+
+    counts_ZA_C2 = filter_count_states(
+        kpoints,
+        index_points,
+        is_C2,
+        np.exp(-1j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+    counts_ZA_C4 = filter_count_states(
+        kpoints,
+        index_points,
+        is_C4z,
+        np.exp(-0.5j * np.pi * np.array([1.5, -1.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_R = filter_count_states(
+        kpoints,
+        R,
+        is_C2,
+        np.exp(-1j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+
+    counts_ZA = (
+        -0.5 * counts_ZA_C2[0] + 0.5 * counts_ZA_C2[1] - 1.5 * counts_ZA_C4[0] +
+         1.5 * counts_ZA_C4[1]
+    )
+    return int(
+        counts_ZA + counts_R[0] - counts_R[1]
+    )  % 4
+
+#############################################
+
+def z4mpiplus_84_43(kpoints, occ):
+    index_points = np.array([
+        [0,   0,   0.5], # Z
+        [0.5, 0.5, 0.5]  # A
+    ])
+    R = np.array([[0, 0.5, 0.5]])
+
+    calc_points = np.array([kp.K for kp in kpoints])
+
+    counts_ZA_C2 = filter_count_states(
+        kpoints,
+        index_points,
+        is_C2,
+        np.exp(-1j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+    counts_ZA_C4 = filter_count_states(
+        kpoints,
+        index_points,
+        is_C4z,
+        np.exp(-0.5j * np.pi * np.array([1.5, -1.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_R = filter_count_states(
+        kpoints,
+        R,
+        is_C2,
+        np.exp(-1j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+
+    counts_ZA = (
+        -0.5 * counts_ZA_C2[0] + 0.5 * counts_ZA_C2[1] - 1.5 * counts_ZA_C4[0] +
+         1.5 * counts_ZA_C4[1]
+    )
+    return int(
+        counts_ZA + counts_R[0] - counts_R[1]
+    )  % 4
 
 #############################################
 
@@ -538,47 +759,56 @@ def z4m0plus_84_51(kpoints, occ):
         [0,   0,   0    ], # GM
         [0.5, 0.5, 0    ], # M
     ])
+    X = np.array([[0, 0.5, 0]])
     calc_points = np.array([kp.K for kp in kpoints])
 
-    phases = np.array([-0.25, 0.25, -0.75, 0.75])
-    j_vals = np.exp(1j * np.pi * phases)
-    total = 0
-    for q in index_points:
-        loc = np.where(np.isclose(calc_points, q).all(1))[0]
-        if len(loc) == 0:
-            raise Exception(f"{q=} was not found in the calculation.")
-        kp = kpoints[loc[0]]
-        for sym in kp.symmetries.keys():
-            if is_C4z(sym, t=(0,0,0.5)):
-                c4z = sym
-            elif is_mirror(sym, 2):
-                mz = sym
-        c4z_vals = kp.symmetries[c4z]
-        mz_vals = kp.symmetries[mz].imag.round()
+    counts_GMM_C2 = filter_count_states(
+        kpoints,
+        index_points,
+        is_C2,
+        np.exp(-1j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+    counts_GMM_C4 = filter_count_states(
+        kpoints,
+        index_points,
+        is_C4z,
+        np.exp(-0.5j * np.pi * np.array([1.5, -1.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"t":(0,0,0.5)},
+        args_count={"axis": 2}
+    )
+    counts_R = filter_count_states(
+        kpoints,
+        X,
+        is_C2,
+        np.exp(-1j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
 
-        for phase, j_val in zip(phases, j_vals):
-            j_mask = np.isclose(c4z_vals, j_val)
-            total += phase * (mz_vals[:occ][j_mask] == 1).sum()
+    counts_GMM = (
+        -0.5 * counts_GMM_C2[0] + 0.5 * counts_GMM_C2[1] - 1.5 * counts_GMM_C4[0] +
+         1.5 * counts_GMM_C4[1]
+    )
 
-    loc = np.where(np.isclose(calc_points, [0, 0.5, 0]).all(1))[0]
-    if len(loc) == 0:
-        raise Exception("X=(0,1/2,0) was not found in the calculation.")
-    kp = kpoints[loc[0]]
-    for sym in kp.symmetries.keys():
-        if is_C4z(sym, t=(0,0,0.5)):
-            c4z = sym
-        elif is_mirror(sym, 2):
-            mz = sym
-    c4z_vals = kp.symmetries[c4z]
-    mz_vals = kp.symmetries[mz].imag.round()
+    return int(
+        counts_GMM + counts_R[0] - counts_R[1]
+    ) % 4
 
-    j_mask = np.isclose(c4z_vals, np.exp(-0.25j * np.pi))
-    total += (mz_vals[:occ][j_mask] == 1).sum()
 
-    j_mask = np.isclose(c4z_vals, np.exp(0.25j * np.pi))
-    total -= (mz_vals[:occ][j_mask] == 1).sum()
-
-    return total % 4
 
 def delta2m_84_51(kpoints, occ):
     return delta2m_10_42(kpoints, occ)
@@ -586,8 +816,7 @@ def delta2m_84_51(kpoints, occ):
 #############################################
 
 def z8_83_44_123_339(kpoints, occ):
-    def njpm(jvals, ivals):
-
+    def njpm(jval, ival):
         index_points1 = np.array([
             [0,   0,   0  ], # GM
             [0.5, 0.5, 0  ], # M
@@ -597,52 +826,36 @@ def z8_83_44_123_339(kpoints, occ):
             [0, 0.5, 0  ], # X
             [0, 0.5, 0.5] # R
         ])
-        jvals = np.array(jvals)
-        ivals = np.array(ivals)
-        totals = np.zeros(len(jvals))
-        jvals = np.zeros(-2j * np.pi * jvals * 0.25)
-        for q in index_points1:
-            loc = np.where(np.isclose(calc_points, q).all(1))[0]
-            if len(loc) == 0:
-                raise Exception(f"{q=} was not found in the calculation.")
-            kp = kpoints[loc[0]]
-            for sym in kp.symmetries.keys():
-                if is_C4z(sym):
-                    c4z = sym
-                elif is_inversion(sym):
-                    inv = sym
-            c4z_vals = kp.symmetries[c4z]
-            inv_vals = kp.symmetries[inv].real.round()
 
-            for i, (jval, ival) in enumerate(zip(jvals, ivals)):
-                j_mask = np.isclose(c4z_vals, jval)
-                totals[i] += (inv_vals[j_mask][:occ] == ival).sum()
-        
-        for q in index_points2:
-            loc = np.where(np.isclose(calc_points, q).all(1))[0]
-            if len(loc) == 0:
-                raise Exception(f"{q=} was not found in the calculation.")
-            kp = kpoints[loc[0]]
-            for sym in kp.symmetries.keys():
-                if is_C2(sym, 2):
-                    c2z = sym
-                elif is_inversion(sym):
-                    inv = sym
-            c2z_vals = kp.symmetries[c2z]
-            inv_vals = kp.symmetries[inv].real.round()
+        counts1 = filter_count_states(
+            kpoints,
+            index_points1,
+            is_C4z,
+            [np.exp(-0.5j * np.pi * jval)],
+            is_inversion,
+            [ival],
+            occ,
+            calc_points=calc_points
+        )[0]
+        counts2 = filter_count_states(
+            kpoints,
+            index_points2,
+            is_C2,
+            [np.exp(-0.5j * np.pi * 0.5)], # correct?
+            is_inversion,
+            [ival],
+            occ,
+            calc_points=calc_points,
+            args_filter={"axis": 2}
+        )[0]
 
-            jval = np.exp(-0.25j * np.pi)
-            for i in enumerate(ivals):
-                j_mask = np.isclose(c2z_vals, jval)
-                totals[i] += (inv_vals[j_mask][:occ] == ival).sum()
-
-        return totals
+        return counts1 + counts2
 
     calc_points = np.array([kp.K for kp in kpoints])
 
-    counts = njpm([3/2, 3/2, 1/2, 1/2], [1, -1, 1, -1])
-
-    return int(3 * counts[0] / 2 - 3 * counts[1] / 2 - 0.5 * counts[2] + 0.5 * counts[3]) % 8
+    return int(
+        1.5 * njpm(1.5, 1) - 1.5 * njpm(1.5, -1) - 0.5 * njpm(0.5, 1) + 0.5 * njpm(0.5, -1)
+    ) % 8
     
 #############################################
 
@@ -652,34 +865,483 @@ def z3R_147_13(kpoints, occ):
         [ 1/3,   1/3, 0.5], # H
         [-1/3, -1/3, 0.5 ] # HA
     ])
-    calc_points = np.array([kp.K for kp in kpoints])
 
-    jvals = np.exp(
-        -2j * np.pi * np.array([-0.5, 3/2]) / 3
+    counts = count_states(
+        kpoints,
+        index_points,
+        is_C3z,
+        np.exp(-2 * np.pi / 3 * np.array([-0.5, 1.5])),
+        occ
     )
-    total = 0
-    for q in index_points:
-            loc = np.where(np.isclose(calc_points, q).all(1))[0]
-            if len(loc) == 0:
-                raise Exception(f"{q=} was not found in the calculation.")
-            kp = kpoints[loc[0]]
-            for sym in kp.symmetries.keys():
-                if is_C3z(sym):
-                    c3z = sym
-            c3z_vals = kp.symmetries[c3z]
 
-            for sign, jval in zip([1, -1], jvals):
-                j_mask = np.isclose(c3z_vals, jval)
-                total += sign * (j_mask[:occ]).sum()
-
-    return total % 3
+    return (
+        counts[0] - counts[1]
+    ) % 3
     
 #############################################
 
 def z6R_168_109(kpoints, occ):
-    index_points = np.array([
-        [0,   0,   0.5], # A
-        [1/3, 1/3, 0.5], # H
-        [0.5, 0,   0.5] # L
+    A = np.array([[0,   0,   0.5]])
+    H = np.array([[1/3, 1/3, 0.5]])
+    L = np.array([[0.5, 0 ,  0.5]])
+    calc_points = np.array([kp.K for kp in kpoints])
+    
+    counts_A = count_states(
+        kpoints,
+        A,
+        is_C6z,
+        np.exp(-1j * np.pi / 3 * np.array([0.5, -0.5, 1.5, -1.5, 2.5, -2.5])),
+        occ,
+        calc_points=calc_points
+    )
+    counts_H = count_states(
+        kpoints,
+        H,
+        is_C3z,
+        np.exp(-2j * np.pi / 3 * np.array([0.5, -0.5, 1.5])),
+        occ,
+        calc_points=calc_points
+    )
+    counts_L = count_states(
+        kpoints,
+        L,
+        is_C2,
+        np.exp(-2j * np.pi / 3 * np.array([0.5, -0.5])),
+        occ,
+        calc_points=calc_points,
+        axis=2
+    )
+
+    return int(
+        (np.array(-0.5, 0.5, -1.5, 1.5, -2.5, 2.5) * counts_A +
+         np.array(-1, 1) * counts_H + np.array(1.5, -1.5) * counts_L).sum()
+    ) % 6
+
+#############################################
+
+def delta3m_174_133(kpoints, occ):
+    index_points1 = np.array([
+        [ 0,    0,    0.5], # A
+        [ 1/3,  1/3,  0.5], # H
+        [-1/3, -1/3, -0.5]  # HA
     ])
+    index_points2 = np.array([
+        [ 0,    0,   0], # GM
+        [ 1/3,  1/3, 0], # K
+        [-1/3, -1/3, 0]  # KA
+    ])
+    calc_points = np.array([kp.K for kp in kpoints])
+
+    counts1 = filter_count_states(
+        kpoints,
+        index_points1,
+        is_C3z,
+        np.exp(-2j * np.pi / 3 * np.array([-0.5, 1.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts2 = filter_count_states(
+        kpoints,
+        index_points2,
+        is_C3z,
+        np.exp(-2j * np.pi / 3 * np.array([-0.5, 1.5])),
+        is_mirror,
+        np.array([-1j, -1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+
+    return (
+        np.array([1, -1]) * counts1 - np.array([1, -1]) * counts2
+    ).sum() % 3
+
+#############################################
+
+def z3mpiplus_174_133(kpoints, occ):
+    index_points = np.array([
+        [ 0,    0,    0.5], # A
+        [ 1/3,  1/3,  0.5], # H
+        [-1/3, -1/3, -0.5]  # HA
+    ])
+
+    counts = filter_count_states(
+        kpoints,
+        index_points,
+        is_C3z,
+        np.exp(-2j * np.pi / 3 * np.array([-0.5, 1.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        args_count={"axis": 2}
+    )
+
+    return (
+        counts[0] - counts[1]
+    ) % 3
+
+#############################################
+
+def z3mpiminus_174_133(kpoints, occ):
+    index_points = np.array([
+        [ 0,    0,    0.5], # A
+        [ 1/3,  1/3,  0.5], # H
+        [-1/3, -1/3, -0.5]  # HA
+    ])
+
+    counts = filter_count_states(
+        kpoints,
+        index_points,
+        is_C3z,
+        np.exp(-2j * np.pi / 3 * np.array([-0.5, 1.5])),
+        is_mirror,
+        np.array([-1j, -1j]),
+        occ,
+        args_count={"axis": 2}
+    )
+
+    return (
+        counts[0] - counts[1]
+    ) % 3
+
+#############################################
+
+def delta6m_175_137(kpoints, occ):
+    
+    A =  np.array([[0, 0, 0.5]])
+    H =  np.array([[1/3, 1/3, 0.5]])
+    L =  np.array([[0.5, 0, 0.5]])
+    GM = np.array([[0, 0, 0]])
+    K =  np.array([[1/3, 1/3, 0]])
+    M =  np.array([[0.5, 0, 0]])
+    calc_points = np.array([kp.K for kp in kpoints])
+
+    counts_A = filter_count_states(
+        kpoints,
+        A,
+        is_C6z,
+        np.exp(-1j * np.pi / 3 * np.array([0.5, -0.5, 1.5, -1.5, 2.5, -2.5])),
+        is_mirror,
+        np.array([1j, 1j, 1j, 1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_H = filter_count_states(
+        kpoints,
+        H,
+        is_C3z,
+        np.exp(-2j * np.pi / 3 * np.array([0.5, -0.5, 1.5])),
+        is_mirror,
+        np.array([1j, 1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_L = filter_count_states(
+        kpoints,
+        L,
+        is_C2,
+        np.exp(-0.5j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+    counts_GM = filter_count_states(
+        kpoints,
+        GM,
+        is_C6z,
+        np.exp(-1j * np.pi / 3 * np.array([0.5, -0.5, 1.5, -1.5, 2.5, -2.5])),
+        is_mirror,
+        np.array([-1j, -1j, -1j, -1j, -1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_K = filter_count_states(
+        kpoints,
+        K,
+        is_C3z,
+        np.exp(-2j * np.pi / 3 * np.array([0.5, -0.5, 1.5])),
+        is_mirror,
+        np.array([-1j, -1j, -1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_M = filter_count_states(
+        kpoints,
+        M,
+        is_C2,
+        np.exp(-0.5j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([-1j, -1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+
+    return int(
+        (np.array([-0.5, 0.5, -1.5, 1.5, -2.5, 2.5]) * counts_A).sum() +
+        (np.array([-1, 1, 3]) * counts_H).sum() +
+        (np.array([1.5, -1.5]) * counts_L).sum() +
+        (np.array([0.5, -0.5, 1.5, -1.5]) * counts_GM).sum() +
+        (np.array([1, -1, -3]) * counts_K).sum() +
+        (np.array([-1.5, 1.5]) * counts_M).sum() 
+    ) % 6
+    
+##################def delta6m_175_137(kpoints, occ):
+def z6mpiplus_175_137(kpoints, occ):    
+    A =  np.array([[0, 0, 0.5]])
+    H =  np.array([[1/3, 1/3, 0.5]])
+    L =  np.array([[0.5, 0, 0.5]])
+    calc_points = np.array([kp.K for kp in kpoints])
+
+    counts_A = filter_count_states(
+        kpoints,
+        A,
+        is_C6z,
+        np.exp(-1j * np.pi / 3 * np.array([0.5, -0.5, 1.5, -1.5, 2.5, -2.5])),
+        is_mirror,
+        np.array([1j, 1j, 1j, 1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_H = filter_count_states(
+        kpoints,
+        H,
+        is_C3z,
+        np.exp(-2j * np.pi / 3 * np.array([0.5, -0.5, 1.5])),
+        is_mirror,
+        np.array([1j, 1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_L = filter_count_states(
+        kpoints,
+        L,
+        is_C2,
+        np.exp(-0.5j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+
+    return int(
+        (np.array([-0.5, 0.5, -1.5, 1.5, -2.5, 2.5]) * counts_A).sum() +
+        (np.array([-1, 1, 3]) * counts_H).sum() +
+        (np.array([1.5, -1.5]) * counts_L).sum() 
+    ) % 6
+
+#############################################
+
+def z6mpiminus_175_137(kpoints, occ):    
+    A =  np.array([[0, 0, 0.5]])
+    H =  np.array([[1/3, 1/3, 0.5]])
+    L =  np.array([[0.5, 0, 0.5]])
+    calc_points = np.array([kp.K for kp in kpoints])
+
+    counts_A = filter_count_states(
+        kpoints,
+        A,
+        is_C6z,
+        np.exp(-1j * np.pi / 3 * np.array([0.5, -0.5, 1.5, -1.5, 2.5, -2.5])),
+        is_mirror,
+        np.array([-1j, -1j, -1j, -1j, -1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_H = filter_count_states(
+        kpoints,
+        H,
+        is_C3z,
+        np.exp(-2j * np.pi / 3 * np.array([0.5, -0.5, 1.5])),
+        is_mirror,
+        np.array([-1j, -1j, -1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_L = filter_count_states(
+        kpoints,
+        L,
+        is_C2,
+        np.exp(-0.5j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([-1j, -1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+
+    return int(
+        (np.array([-0.5, 0.5, -1.5, 1.5, -2.5, 2.5]) * counts_A).sum() +
+        (np.array([-1, 1, 3]) * counts_H).sum() +
+        (np.array([1.5, -1.5]) * counts_L).sum() 
+    ) % 6
+
+#############################################
+
+def z6m0plus_176_143(kpoints, occ):
+    GM = np.array([[0, 0, 0]])
+    K = np.array([[1/3, 1/3, 0]])
+    M = np.array([[0.5, 0, 0]])
+    calc_points = np.array([kp.K for kp in kpoints])
+
+    counts_GM = filter_count_states(
+        kpoints,
+        GM,
+        is_C6z,
+        np.exp(-1j * np.pi / 3 * np.array([0.5, -0.5, 1.5, -1.5, 2.5, -2.5])),
+        is_mirror,
+        np.array([1j, 1j, 1j, 1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_K = filter_count_states(
+        kpoints,
+        K,
+        is_C3z,
+        np.exp(-2j * np.pi / 3 * np.array([0.5, -0.5, 1.5])),
+        is_mirror,
+        np.array([1j, 1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_count={"axis": 2}
+    )
+    counts_M = filter_count_states(
+        kpoints,
+        M,
+        is_C2,
+        np.exp(-0.5j * np.pi * np.array([0.5, -0.5])),
+        is_mirror,
+        np.array([1j, 1j]),
+        occ,
+        calc_points=calc_points,
+        args_filter={"axis": 2},
+        args_count={"axis": 2}
+    )
+
+    return int(
+        (np.array([-0.5, 0.5, -1.5, 1.5, -2.5, 2.5]) * counts_GM).sum() +
+        (np.array([-1, 1, 3])* counts_K).sum() +
+        (np.array([1.5, -1.5]) * counts_M).sum()
+    ) % 6
+
+#############################################
+
+def z12_191_233(kpoints, occ):
+
+    delta = delta6m_175_137(kpoints, occ)
+
+    return delta + 3 * (delta - z4_2_5_47_249_83_45(kpoints, occ)) % 12
+
+#############################################
+
+def z12prime_176_144(kpoints, occ):
+
+    z6 = z6m0plus_176_143(kpoints, occ)
+
+    return(
+        z6 + 3 * (z6 - z4_2_5_47_249_83_45(kpoints, occ)) % 12
+    )
+
+#############################################
+
+def z4Rprime_103_199(kpoints, occ):
+    index_points = np.array([
+        [0,   0,   0.5], # Z
+        [0.5, 0.5, 0.5]  # A
+    ])
+    R = np.array([[0, 0.5, 0.5]])
+    calc_points = np.array([kp.K for kp in kpoints])
+
+    counts_ZA = count_states(
+        kpoints,
+        index_points,
+        is_C4z,
+        np.exp(-0.5j * np.pi * np.array([0.5, -0.5, 1.5, -1.5])),
+        occ,
+        calc_points=calc_points
+    )
+    counts_R = count_states(
+        kpoints,
+        index_points,
+        is_C2,
+        np.exp(-1j * np.pi * np.array(0.5, -0.5)),
+        occ,
+        calc_points=calc_points,
+        axis=2
+    )
+
+    return int(
+        (np.array([-0.25, 0.25, -0.75, 0.75]) * counts_ZA).sum() + 
+        0.5 * counts_R[0] - 0.5 * counts_R[1]
+    ) % 4
+
+#############################################
+
+def z4prime_135_487(kpoints, occ):
+    raise NotImplementedError("Indicator not implemented.")
+
+#############################################
+
+def z4Rprime_184_195(kpoints, occ):    
+    A =  np.array([[0, 0, 0.5]])
+    H =  np.array([[1/3, 1/3, 0.5]])
+    L =  np.array([[0.5, 0, 0.5]])
+    calc_points = np.array([kp.K for kp in kpoints])
+
+    counts_A =count_states(
+        kpoints,
+        A,
+        is_C6z,
+        np.exp(-1j * np.pi / 3 * np.array([0.5, -0.5, 1.5, -1.5, 2.5, -2.5])),
+        occ,
+        calc_points=calc_points
+    )
+    counts_H = count_states(
+        kpoints,
+        H,
+        is_C3z,
+        np.exp(-2j * np.pi / 3 * np.array([0.5, -0.5, 1.5])),
+        occ,
+        calc_points=calc_points
+    )
+    counts_L = count_states(
+        kpoints,
+        L,
+        is_C2,
+        np.exp(-0.5j * np.pi * np.array([0.5, -0.5])),
+        occ,
+        calc_points=calc_points,
+        axis=2
+    )
+
+    return int(
+        (np.array([-0.5, 0.5, -1.5, 1.5, -2.5, 2.5]) * counts_A).sum() +
+        (np.array([-1, 1, 3]) * counts_H).sum() +
+        (np.array([1.5, -1.5]) * counts_L).sum() 
+    ) % 6
+
+
+
+#############################################
+
+
 
