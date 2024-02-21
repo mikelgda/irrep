@@ -32,6 +32,8 @@ from .bandstructure import BandStructure
 from .utility import str2bool, str2list, short
 from . import __version__ as version
 
+from .symmetry_indicators import get_si_from_ssg
+
 
 class LoadContextFromConfig(click.Command):
     """
@@ -268,6 +270,12 @@ do not hesitate to contact the author:
     default=None,
     help="Path to magnetic moments file. One row per atom, three coordinates in Cartesian."
 )
+
+@click.option(
+    "-SIndicators",
+    default=None,
+    help="Number of occupied bands to compute the corresponding symmetry indicators."
+)
 def cli(
     ecut,
     fwav,
@@ -297,7 +305,8 @@ def cli(
     searchcell,
     correct_ecut0,
     trans_thresh,
-    magmom
+    magmom,
+    sindicators
 ):
     """
     Defines the "irrep" command-line tool interface.
@@ -502,3 +511,20 @@ def cli(
             sub.write_trace_all(degenthresh, fname=fname1)
 
     dumpfn(json_data,"irrep-output.json",indent=4)
+
+    if sindicators is not None:
+        print("\n\n")
+        try:
+            occ = int(sindicators)
+            si_list = get_si_from_ssg(bandstr.spacegroup.number)
+        
+            for si in si_list:
+                print(si, si(bandstr.kpoints, occ))
+
+        except ValueError:
+            print("Introduce a valid occupation for symmetry indicators"
+                  f" (you entered {sindicators})\n"
+                  "SYMMETRY INDICATORS NOT COMPUTED.\n\n")
+        except Exception as err:
+                print("There was an error computing a symmetry indicator:")
+                print("\t", err)

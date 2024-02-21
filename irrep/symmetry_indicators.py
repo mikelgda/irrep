@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 def is_inversion(sym):
     return (
@@ -324,7 +325,7 @@ def z4_2_5_47_249_83_45(kpoints, occ):
 
 #############################################
 
-def z22i_2_5_47_249_84_45(kpoints, occ, i):
+def z22i_2_5_47_249_83_45(kpoints, occ, i):
     assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     trims = list(filter(is_trim, kpoints))
     assert len(trims) == 8, "The number of TRIMs is not 8"
@@ -342,10 +343,10 @@ def z22i_2_5_47_249_84_45(kpoints, occ, i):
 
     return int(0.5 * total) % 2
 
-def z2Itriplet_2_5_47_249_84_45(kpoints, occ):
+def z2Itriplet_2_5_47_249_83_45(kpoints, occ):
     indices = []
     for i in range(3):
-        indices.append(z22i_2_5_47_249_84_45(kpoints, occ, i))
+        indices.append(z22i_2_5_47_249_83_45(kpoints, occ, i))
     return tuple(indices)
 
 #############################################
@@ -644,7 +645,7 @@ def delta4m_83_43(kpoints, occ):
 
 #############################################
 
-def z4mpiplus_84_43(kpoints, occ):
+def z4mpiplus_83_43(kpoints, occ):
     index_points = np.array([
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5]  # A
@@ -699,7 +700,7 @@ def z4mpiplus_84_43(kpoints, occ):
 
 #############################################
 
-def z4mpiplus_84_43(kpoints, occ):
+def z4mpiminus_83_43(kpoints, occ):
     index_points = np.array([
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5]  # A
@@ -714,7 +715,7 @@ def z4mpiplus_84_43(kpoints, occ):
         is_C2,
         np.exp(-1j * np.pi * np.array([0.5, -0.5])),
         is_mirror,
-        np.array([1j, 1j]),
+        np.array([-1j,-1j]),
         occ,
         calc_points=calc_points,
         args_filter={"axis": 2},
@@ -726,7 +727,7 @@ def z4mpiplus_84_43(kpoints, occ):
         is_C4z,
         np.exp(-0.5j * np.pi * np.array([1.5, -1.5])),
         is_mirror,
-        np.array([1j, 1j]),
+        np.array([-1j, -1j]),
         occ,
         calc_points=calc_points,
         args_count={"axis": 2}
@@ -737,7 +738,7 @@ def z4mpiplus_84_43(kpoints, occ):
         is_C2,
         np.exp(-1j * np.pi * np.array([0.5, -0.5])),
         is_mirror,
-        np.array([1j, 1j]),
+        np.array([-1j, -1j]),
         occ,
         calc_points=calc_points,
         args_filter={"axis": 2},
@@ -808,7 +809,7 @@ def z4m0plus_84_51(kpoints, occ):
         counts_GMM + counts_R[0] - counts_R[1]
     ) % 4
 
-
+#############################################
 
 def delta2m_84_51(kpoints, occ):
     return delta2m_10_42(kpoints, occ)
@@ -1097,7 +1098,7 @@ def delta6m_175_137(kpoints, occ):
         (np.array([-1.5, 1.5]) * counts_M).sum() 
     ) % 6
     
-##################def delta6m_175_137(kpoints, occ):
+#############################################
 def z6mpiplus_175_137(kpoints, occ):    
     A =  np.array([[0, 0, 0.5]])
     H =  np.array([[1/3, 1/3, 0.5]])
@@ -1245,7 +1246,7 @@ def z6m0plus_176_143(kpoints, occ):
 
 #############################################
 
-def z12_191_233(kpoints, occ):
+def z12_175_138_191_233(kpoints, occ):
 
     delta = delta6m_175_137(kpoints, occ)
 
@@ -1345,3 +1346,50 @@ def z4Rprime_184_195(kpoints, occ):
 
 
 
+SSG_INDICATORS = {
+    "2.4": [eta4I_2_4, z2Itriplet_2_4, etaprime2I_2_4],
+    "2.5" : [z4_2_5_47_249_83_45, z2Itriplet_2_5_47_249_83_45],
+    "3.1": [z2R_3_1],
+    "41.215": [z2R_41_215],
+    "10.42": [delta2m_10_42, z2mpiplus_10_42, z2mpiminus_10_42],
+    "27.81": [zprime2R_27_81_54_342_56_369],
+    "47.249": [z4_2_5_47_249_83_45, z2Itriplet_2_5_47_249_83_45],
+    "75.1": [z4R_75_1],
+    "54.342": [zprime2R_27_81_54_342_56_369],
+    "56.369": [zprime2R_27_81_54_342_56_369],
+    "60.424": [zprime2R_60_424],
+    "77.13": [zprime2R_77_13],
+    "81.33": [z4S_81_33, delta2S_81_33, z2_81_33],
+    "83.43": [delta4m_83_43, z4mpiplus_83_43, z4mpiminus_83_43],
+    "83.44": [z8_83_44_123_339],
+    "83.45": [z4_2_5_47_249_83_45, z2Itriplet_2_5_47_249_83_45],
+    "84.51": [z4m0plus_84_51, delta2m_84_51],
+    "103.199": [z4Rprime_103_199],
+    "110.249": [zprimeprime2R_110_249],
+    "123.339": [z8_83_44_123_339],
+    "135.487": [z4prime_135_487],
+    "147.13": [z3R_147_13],
+    "168.109": [z6R_168_109],
+    "174.133": [delta3m_174_133, z3mpiplus_174_133, z3mpiminus_174_133],
+    "175.137": [delta6m_175_137, z6mpiplus_175_137, z6mpiminus_175_137],
+    "175.138": [z12_175_138_191_233],
+    "176.143": [z6m0plus_176_143],
+    "176.144": [z12prime_176_144],
+    "184.195": [z4Rprime_184_195],
+    "191.233": [z12_175_138_191_233]
+}
+
+def get_si_from_ssg(sg_number):
+    root = os.path.dirname(__file__)
+    min_sg_number = 0
+    with open(root + "/minimal_ssg.data") as f:
+        for line in f:
+            ssg, minimal = line.strip().split(",")
+            if ssg == sg_number:
+                min_sg_number = minimal
+                break
+    
+    if min_sg_number == 0:
+        raise KeyError(f"Could not find the corresponding minimal group to {sg_number}")
+    else:
+        return SSG_INDICATORS[min_sg_number]
