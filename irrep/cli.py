@@ -518,13 +518,15 @@ def cli(
             occ = int(sindicators)
             si_list = get_si_from_ssg(bandstr.spacegroup.number)
         
-            for si in si_list:
-                print(si, si(bandstr.kpoints, occ))
+            print("Symmetry indicators:")
+            for si_name, si in si_list:
+                try:
+                    print(si_name, si(bandstr.kpoints, occ))
+                except Exception as err:
+                    print("There was an error computing a symmetry indicator:", si_name)
+                    print("\t", err)
 
         except ValueError:
             print("Introduce a valid occupation for symmetry indicators"
                   f" (you entered {sindicators})\n"
                   "SYMMETRY INDICATORS NOT COMPUTED.\n\n")
-        except Exception as err:
-                print("There was an error computing a symmetry indicator:")
-                print("\t", err)
