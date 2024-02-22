@@ -514,6 +514,7 @@ def cli(
 
     if sindicators is not None:
         print("\n\n")
+        irreps = json_data["characters_and_irreps"][0]["subspace"]["k-points"]
         try:
             occ = int(sindicators)
             si_list = get_si_from_ssg(bandstr.spacegroup.number)
@@ -521,7 +522,7 @@ def cli(
             print("Symmetry indicators:")
             for si_name, si in si_list:
                 try:
-                    print(si_name, si(bandstr.kpoints, occ))
+                    print(si_name, si(bandstr.kpoints, occ, irreps))
                 except Exception as err:
                     print("There was an error computing a symmetry indicator:", si_name)
                     print("\t", err)

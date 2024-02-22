@@ -137,7 +137,7 @@ def filter_count_states(
 
 #############################################
 
-def eta4I_2_4(kpoints, occ):
+def eta4I_2_4(kpoints, occ, irreps=None):
     assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     trims = list(filter(is_trim, kpoints))
     assert len(trims) == 8, "The number of TRIMs is not 8"
@@ -171,7 +171,8 @@ def z2Ii_2_4(kpoints, occ, i):
 
     return total % 2
 
-def z2Itriplet_2_4(kpoints, occ):
+def z2Itriplet_2_4(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     indices = []
     for i in range(3):
         indices.append(z2Ii_2_4(kpoints, occ, i))
@@ -179,12 +180,14 @@ def z2Itriplet_2_4(kpoints, occ):
 
 #############################################
 
-def etaprime2I_2_4(kpoints, occ):
+def etaprime2I_2_4(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     return int(eta4I_2_4(kpoints, occ) / 2) % 2
         
 #############################################
 
-def z2R_3_1(kpoints, occ):
+def z2R_3_1(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0.5, 0    ], # Z
         [0,   0.5, 0.5  ], # D
@@ -205,7 +208,8 @@ def z2R_3_1(kpoints, occ):
         
                   
             
-def z2R_41_215(kpoints, occ):
+def z2R_41_215(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     total = count_states(
         kpoints,
         np.array([[0,0,0]]),
@@ -219,7 +223,8 @@ def z2R_41_215(kpoints, occ):
 
 #############################################
 
-def delta2m_10_42(kpoints, occ):
+def delta2m_10_42(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points1 = np.array([
         [0,   0.5, 0    ], # Z
         [0,   0.5, 0.5  ], # D
@@ -264,7 +269,8 @@ def delta2m_10_42(kpoints, occ):
         
 #############################################
 
-def z2mpiplus_10_42(kpoints, occ):
+def z2mpiplus_10_42(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0.5, 0    ], # Z
         [0,   0.5, 0.5  ], # D
@@ -286,7 +292,8 @@ def z2mpiplus_10_42(kpoints, occ):
 
 #############################################
 
-def z2mpiminus_10_42(kpoints, occ):
+def z2mpiminus_10_42(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0.5, 0    ], # Z
         [0,   0.5, 0.5  ], # D
@@ -308,7 +315,7 @@ def z2mpiminus_10_42(kpoints, occ):
 
 #############################################
 
-def z4_2_5_47_249_83_45(kpoints, occ):
+def z4_2_5_47_249_83_45(kpoints, occ, irreps=None):
     assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     trims = list(filter(is_trim, kpoints))
     assert len(trims) == 8, "The number of TRIMs is not 8"
@@ -343,7 +350,8 @@ def z22i_2_5_47_249_83_45(kpoints, occ, i):
 
     return int(0.5 * total) % 2
 
-def z2Itriplet_2_5_47_249_83_45(kpoints, occ):
+def z2Itriplet_2_5_47_249_83_45(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     indices = []
     for i in range(3):
         indices.append(z22i_2_5_47_249_83_45(kpoints, occ, i))
@@ -351,7 +359,8 @@ def z2Itriplet_2_5_47_249_83_45(kpoints, occ):
 
 #############################################
 
-def z4R_75_1(kpoints, occ):
+def z4R_75_1(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5] # A
@@ -384,7 +393,8 @@ def z4R_75_1(kpoints, occ):
 
 #############################################
 
-def zprime2R_77_13(kpoints, occ):
+def zprime2R_77_13(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0,   0], # GM
         [0.5, 0.5, 0] # M
@@ -416,7 +426,8 @@ def zprime2R_77_13(kpoints, occ):
             0.5 * counts_X[0] + 0.5 * counts_X[1]
     ) % 2
 
-def zprime2R_27_81_54_342_56_369(kpoints, occ): #### CHECK DOUBLETS
+def zprime2R_27_81_54_342_56_369(kpoints, occ, irreps=None): #### CHECK DOUBLETS
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0,   -0.5], # Z
         [0,   0.5, -0.5], # T
@@ -434,16 +445,45 @@ def zprime2R_27_81_54_342_56_369(kpoints, occ): #### CHECK DOUBLETS
     )
     return total % 2
 
-def zprime2R_60_424(kpoints, occ):
-     raise NotImplementedError("Indicator not implemented.")
-     return etaprime2I_2_4(kpoints, occ) # TODO ADD m(GM3)
+def zprime2R_60_424(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
+    etaprime =  etaprime2I_2_4(kpoints, occ)
 
-def zprimeprime2R_110_249(kpoints, occ):
-    raise NotImplementedError("Indicator not implemented.")
+    for kp in irreps:
+        if kp["kpname"] == "GM":
+            ir_occ = np.cumsum(kp["dimensions"]["data"])
+            total = 0
+            for n, ir in zip(ir_occ, kp["irreps"]):
+                if n > occ:
+                    break
+                if "-GM3" in ir.keys():
+                    total += 1
+
+            return (etaprime + total) % 2
+
+    raise Exception("Your calculation does not include the Gamma point")
+                
+
+def zprimeprime2R_110_249(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
+    for kp in irreps:
+        if kp["kpname"] == "GM":
+            ir_occ = np.cumsum(kp["dimensions"]["data"])
+            total = 0
+            for n, ir in zip(ir_occ, kp["irreps"]):
+                if n > occ:
+                    break
+                if "-GM6" in ir.keys():
+                    total += 1
+
+            return total % 2
+
+    raise Exception("Your calculation does not include the Gamma point")
 
 #############################################
 
-def z4S_81_33(kpoints, occ):
+def z4S_81_33(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5] # A
@@ -475,7 +515,8 @@ def z4S_81_33(kpoints, occ):
 
 #############################################
 
-def delta2S_81_33(kpoints, occ):
+def delta2S_81_33(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5], # A
@@ -510,7 +551,8 @@ def delta2S_81_33(kpoints, occ):
 
 #############################################
 
-def z2_81_33(kpoints, occ):
+def z2_81_33(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5], # A
@@ -545,7 +587,8 @@ def z2_81_33(kpoints, occ):
 
 #############################################
 
-def delta4m_83_43(kpoints, occ):
+def delta4m_83_43(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points1 = np.array([
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5]  # A
@@ -645,7 +688,8 @@ def delta4m_83_43(kpoints, occ):
 
 #############################################
 
-def z4mpiplus_83_43(kpoints, occ):
+def z4mpiplus_83_43(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5]  # A
@@ -700,7 +744,8 @@ def z4mpiplus_83_43(kpoints, occ):
 
 #############################################
 
-def z4mpiminus_83_43(kpoints, occ):
+def z4mpiminus_83_43(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5]  # A
@@ -755,7 +800,8 @@ def z4mpiminus_83_43(kpoints, occ):
 
 #############################################
 
-def z4m0plus_84_51(kpoints, occ):
+def z4m0plus_84_51(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [0,   0,   0    ], # GM
         [0.5, 0.5, 0    ], # M
@@ -811,12 +857,13 @@ def z4m0plus_84_51(kpoints, occ):
 
 #############################################
 
-def delta2m_84_51(kpoints, occ):
+def delta2m_84_51(kpoints, occ, irreps=None):
     return delta2m_10_42(kpoints, occ)
 
 #############################################
 
-def z8_83_44_123_339(kpoints, occ):
+def z8_83_44_123_339(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     def njpm(jval, ival):
         index_points1 = np.array([
             [0,   0,   0  ], # GM
@@ -860,7 +907,8 @@ def z8_83_44_123_339(kpoints, occ):
     
 #############################################
 
-def z3R_147_13(kpoints, occ):
+def z3R_147_13(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [ 0,     0,   0.5], # A
         [ 1/3,   1/3, 0.5], # H
@@ -881,7 +929,8 @@ def z3R_147_13(kpoints, occ):
     
 #############################################
 
-def z6R_168_109(kpoints, occ):
+def z6R_168_109(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     A = np.array([[0,   0,   0.5]])
     H = np.array([[1/3, 1/3, 0.5]])
     L = np.array([[0.5, 0 ,  0.5]])
@@ -920,7 +969,8 @@ def z6R_168_109(kpoints, occ):
 
 #############################################
 
-def delta3m_174_133(kpoints, occ):
+def delta3m_174_133(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points1 = np.array([
         [ 0,    0,    0.5], # A
         [ 1/3,  1/3,  0.5], # H
@@ -962,7 +1012,8 @@ def delta3m_174_133(kpoints, occ):
 
 #############################################
 
-def z3mpiplus_174_133(kpoints, occ):
+def z3mpiplus_174_133(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [ 0,    0,    0.5], # A
         [ 1/3,  1/3,  0.5], # H
@@ -986,7 +1037,8 @@ def z3mpiplus_174_133(kpoints, occ):
 
 #############################################
 
-def z3mpiminus_174_133(kpoints, occ):
+def z3mpiminus_174_133(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     index_points = np.array([
         [ 0,    0,    0.5], # A
         [ 1/3,  1/3,  0.5], # H
@@ -1010,7 +1062,8 @@ def z3mpiminus_174_133(kpoints, occ):
 
 #############################################
 
-def delta6m_175_137(kpoints, occ):
+def delta6m_175_137(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     
     A =  np.array([[0, 0, 0.5]])
     H =  np.array([[1/3, 1/3, 0.5]])
@@ -1099,7 +1152,9 @@ def delta6m_175_137(kpoints, occ):
     ) % 6
     
 #############################################
-def z6mpiplus_175_137(kpoints, occ):    
+
+def z6mpiplus_175_137(kpoints, occ, irreps=None):    
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     A =  np.array([[0, 0, 0.5]])
     H =  np.array([[1/3, 1/3, 0.5]])
     L =  np.array([[0.5, 0, 0.5]])
@@ -1148,7 +1203,8 @@ def z6mpiplus_175_137(kpoints, occ):
 
 #############################################
 
-def z6mpiminus_175_137(kpoints, occ):    
+def z6mpiminus_175_137(kpoints, occ, irreps=None):    
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     A =  np.array([[0, 0, 0.5]])
     H =  np.array([[1/3, 1/3, 0.5]])
     L =  np.array([[0.5, 0, 0.5]])
@@ -1197,7 +1253,8 @@ def z6mpiminus_175_137(kpoints, occ):
 
 #############################################
 
-def z6m0plus_176_143(kpoints, occ):
+def z6m0plus_176_143(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     GM = np.array([[0, 0, 0]])
     K = np.array([[1/3, 1/3, 0]])
     M = np.array([[0.5, 0, 0]])
@@ -1246,7 +1303,8 @@ def z6m0plus_176_143(kpoints, occ):
 
 #############################################
 
-def z12_175_138_191_233(kpoints, occ):
+def z12_175_138_191_233(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
 
     delta = delta6m_175_137(kpoints, occ)
 
@@ -1254,7 +1312,8 @@ def z12_175_138_191_233(kpoints, occ):
 
 #############################################
 
-def z12prime_176_144(kpoints, occ):
+def z12prime_176_144(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
 
     z6 = z6m0plus_176_143(kpoints, occ)
 
@@ -1264,7 +1323,7 @@ def z12prime_176_144(kpoints, occ):
 
 #############################################
 
-def z4Rprime_103_199(kpoints, occ):
+def z4Rprime_103_199(kpoints, occ, irreps=None):
     index_points = np.array([
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5]  # A
@@ -1282,7 +1341,7 @@ def z4Rprime_103_199(kpoints, occ):
     )
     counts_R = count_states(
         kpoints,
-        index_points,
+        R,
         is_C2,
         np.exp(-1j * np.pi * np.array(0.5, -0.5)),
         occ,
@@ -1297,12 +1356,54 @@ def z4Rprime_103_199(kpoints, occ):
 
 #############################################
 
-def z4prime_135_487(kpoints, occ):
-    raise NotImplementedError("Indicator not implemented.")
+def z4prime_135_487(kpoints, occ, irreps=None):
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
+    found_GM = False
+    found_M = False
+    found_X = False
+    for kp in irreps:
+        if kp["kpname"] == "GM":
+            found_GM = True
+            ir_occ = np.cumsum(kp["dimensions"]["data"])
+            total_GM5 = 0
+            total_GM6 = 0
+            for n, ir in zip(ir_occ, kp["irreps"]):
+                if n > occ:
+                    break
+                if "-GM5" in ir.keys():
+                    total_GM5 += 1
+                elif "-GM6" in ir.keys():
+                    total_GM6 += 1
+        if kp["kpname"] == "M":
+            found_M = True
+            ir_occ = np.cumsum(kp["dimensions"]["data"])
+            total_M5 = 0
+            for n, ir in zip(ir_occ, kp["irreps"]):
+                if n > occ:
+                    break
+                if "-M5" in ir.keys():
+                    total_M5 += 1
+        if kp["kpname"] == "X":
+            found_X = True
+            ir_occ = np.cumsum(kp["dimensions"]["data"])
+            total_X3 = 0
+            for n, ir in zip(ir_occ, kp["irreps"]):
+                if n > occ:
+                    break
+                if "-X3" in ir.keys():
+                    total_X3 += 1
 
+    if found_GM and found_M and found_X:
+        return (
+            2 * total_GM5 - total_GM6 - total_M5 + 2 * total_X3
+        )
+    else:    
+        raise Exception("Your calculation does not include all the necessary "
+                        "points: GM, M & X")
 #############################################
 
-def z4Rprime_184_195(kpoints, occ):    
+def z4Rprime_184_195(kpoints, occ, irreps=None):    
+    assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     A =  np.array([[0, 0, 0.5]])
     H =  np.array([[1/3, 1/3, 0.5]])
     L =  np.array([[0.5, 0, 0.5]])

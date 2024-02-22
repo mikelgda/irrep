@@ -25,6 +25,7 @@ from .readfiles import record_abinit
 from .utility import compstr, is_round
 from scipy.io import FortranFile as FF
 from lazy_property import LazyProperty
+import re
 
 class Kpoint:
     """
@@ -1208,10 +1209,12 @@ class Kpoint:
             print("Gap with upper bands : ", self.upper - self.Energy[-1])
 
         firrep = open("irreps.dat", "a")
+        weight_pattern = re.compile(r"\w+\((\d+.?\d+?)\)")
         for e, ir in zip(E, irreps):
             for irrep in ir.split(","):
                 try:
-                    weight = abs(compstr(irrep.split("(")[1].strip(")")))
+                    weight = abs(compstr(weight_pattern.findall(irrep)[0]))
+                    # weight = abs(compstr(irrep.split("(")[1].strip(")")))
                     if weight > 0.3:
                         firrep.write(
                             preline
