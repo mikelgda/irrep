@@ -1566,6 +1566,6 @@ def get_si_from_ssg(sg_number):
                 break
     
     if min_sg_number == 0:
-        raise KeyError(f"Could not find the corresponding minimal group to {sg_number}")
+        raise KeyError(f"Could not find the minimal group corresponding to {sg_number}")
     else:
         return SSG_INDICATORS[min_sg_number]
