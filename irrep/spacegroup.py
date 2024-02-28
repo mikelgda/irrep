@@ -709,8 +709,8 @@ class SpaceGroup():
                                                                            3]) for i in range(3)]) * 2 * np.pi / np.linalg.det(self.Lattice)
         print(" Reciprocal lattice:\n", self.RecLattice)
 
-        time_reversals = [sym.time_reversal for sym in symmetries]
-        self.magnetic = any(time_reversals)
+        # time_reversals = [sym.time_reversal for sym in symmetries]
+        self.magnetic = (magnetic_moments != 0).any()
         if self.magnetic:
             self.symmetries = list(filter(lambda x: not x.time_reversal, symmetries))
             self.au_symmetries = list(filter(lambda x: x.time_reversal,  symmetries))
