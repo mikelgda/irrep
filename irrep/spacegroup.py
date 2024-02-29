@@ -710,6 +710,11 @@ class SpaceGroup():
         print(" Reciprocal lattice:\n", self.RecLattice)
 
         # time_reversals = [sym.time_reversal for sym in symmetries]
+        # self.magnetic = any(time_reversals)
+        # # Catch crystal with magnetic moment but Fedorov group
+        # # Fall back to original irrep tables
+        # if self.magnetic is False and "." in self.number:
+        #     self.number = self.number.split(".")[0]
         self.magnetic = (magnetic_moments != 0).any()
         if self.magnetic:
             self.symmetries = list(filter(lambda x: not x.time_reversal, symmetries))
@@ -764,7 +769,7 @@ class SpaceGroup():
                        "tables, try not specifying refUC and shiftUC."))
                 pass
         # Do the same with magnetic operations
-        if self.magnetic:
+        if self.magnetic and len(self.au_symmetries) > 0:
             try:
                 ind, dt, signs = self.match_symmetries(signs=self.spinor,
                                                     trans_thresh=trans_thresh,
