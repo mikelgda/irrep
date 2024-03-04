@@ -707,6 +707,10 @@ class SpaceGroup():
         self.RecLattice = np.array([np.cross(self.Lattice[(i + 1) %
                                                           3], self.Lattice[(i + 2) %
                                                                            3]) for i in range(3)]) * 2 * np.pi / np.linalg.det(self.Lattice)
+        print("refUC_tmp")
+        for line in refUC_tmp:
+            print(*line)
+        print("shiftUC_tmp", shiftUC_tmp)
         print(" Reciprocal lattice:\n", self.RecLattice)
 
         # time_reversals = [sym.time_reversal for sym in symmetries]
@@ -736,6 +740,12 @@ class SpaceGroup():
                                             search_cell=search_cell,
                                             trans_thresh=trans_thresh
                                             )
+
+        print("final refUC")
+        for line in self.refUC:
+            print(*line)
+        print("final shiftUC")
+        print(shiftUC)
 
         # Check matching of symmetries in refUC. If user set transf.
         # in the CLI and symmetries don't match, raise a warning.
@@ -1057,9 +1067,19 @@ class SpaceGroup():
         #        self.show()
         table = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
         tab = {}
+        print("refUC inv")
+        for line in np.linalg.inv(self.refUC):
+            print(*line)
+        refUC_kspace = np.linalg.inv(self.refUC.T)
+        print("refUC_kspace")
+        for line in refUC_kspace:
+            print(*line)
         for irr in table.irreps:
             if irr.kpname == kpname:
-                k1 = np.round(np.linalg.inv(self.refUC.T).dot(irr.k), 5) % 1
+                print("k1 = irr.k", irr.k)
+                k1 = np.round(refUC_kspace.dot(irr.k), 5) % 1
+                print(k1)
+                print("k2", K)
                 k2 = np.round(K, 5) % 1
                 if not all(np.isclose(k1, k2)):
                     raise RuntimeError(
@@ -1188,6 +1208,7 @@ class SpaceGroup():
                                     shiftUC,
                                     trans_thresh=trans_thresh
                                     )
+                print("SPGLIB TRANSFORMATION WORKED")
                 return refUC, shiftUC
             except RuntimeError:
                 pass
