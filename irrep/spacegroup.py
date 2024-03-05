@@ -1250,7 +1250,7 @@ class SpaceGroup():
                         print(('ShiftUC achieved in 2 steps:\n'
                                '  (1) Place origin of primitive cell on '
                                'inversion center: {}\n'
-                               '  (2) Move origin of convenctional cell to the '
+                               '  (2) Move origin of conventional cell to the '
                                'inversion-center: {}'
                                .format(0.5 * inv.translation, r_center)
                                )

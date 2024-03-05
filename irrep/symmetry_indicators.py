@@ -1557,7 +1557,7 @@ SSG_INDICATORS = {
 
 def get_si_from_ssg(sg_number):
     root = os.path.dirname(__file__)
-    min_sg_number = 0
+    min_sg_number = None
     with open(root + "/minimal_ssg.data") as f:
         for line in f:
             ssg, minimal = line.strip().split(",")
@@ -1565,7 +1565,7 @@ def get_si_from_ssg(sg_number):
                 min_sg_number = minimal
                 break
     
-    if min_sg_number == 0:
-        raise KeyError(f"Could not find the minimal group corresponding to {sg_number}")
+    if min_sg_number is None:
+        return None
     else:
         return SSG_INDICATORS[min_sg_number]
