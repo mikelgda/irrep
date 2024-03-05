@@ -1451,3 +1451,33 @@ class SpaceGroup():
                         )
         vecs = np.vstack([vecs + r for r in self.vecs_centering()])
         return vecs
+
+
+    def give_kpoints(self):
+        """
+        Give the kpoint coordinates of the symmetry tables transformed to 
+        the DFT calculation cell.
+
+        """
+
+        table = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
+        refUC_kspace = np.linalg.inv(self.refUC.T)
+
+        print("\nChange of coordinates from tables to DFT cell:\n")
+        print(
+            "\t\t| {: .2f} {: .2f} {: .2f} |\n".format(*refUC_kspace[0]) +
+            "\t\t| {: .2f} {: .2f} {: .2f} |\n".format(*refUC_kspace[1]) +
+            "\t\t| {: .2f} {: .2f} {: .2f} |\n\n".format(*refUC_kspace[2])\
+        )
+        _, kp_index = np.unique([irr.kpname for irr in table.irreps], return_index=True)
+        print("Coordinates in symmetry tables:\n")
+        for i in kp_index:
+            name = table.irreps[i].kpname
+            coords = table.irreps[i].k
+            print("\t {:<2} : {: .6f} {: .6f} {: .6f}".format(name, *coords))
+        print("\nCoordinates for DFT calculation:\n")
+        for i in kp_index:
+            name = table.irreps[i].kpname
+            coords = table.irreps[i].k
+            k_dft = np.round(refUC_kspace.dot(coords), 5) % 1
+            print("\t {:<2} : {: .6f} {: .6f} {: .6f}".format(name, *k_dft))

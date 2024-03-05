@@ -276,6 +276,14 @@ do not hesitate to contact the author:
     default=None,
     help="Number of occupied bands to compute the corresponding symmetry indicators."
 )
+
+@click.option(
+    "-giveKpointCoordinates",
+    flag_value=True,
+    default=False,
+    help="Output the k-point coordinates in the input cell to match the tables."
+)
+
 def cli(
     ecut,
     fwav,
@@ -306,7 +314,8 @@ def cli(
     correct_ecut0,
     trans_thresh,
     magmom,
-    sindicators
+    sindicators,
+    givekpointcoordinates,
 ):
     """
     Defines the "irrep" command-line tool interface.
@@ -395,6 +404,10 @@ def cli(
     )
 
     json_data ["spacegroup"] = bandstr.spacegroup.show(symmetries=symmetries)
+
+    if givekpointcoordinates:
+        bandstr.spacegroup.give_kpoints()
+        exit()
 
     if onlysym:
         exit()
