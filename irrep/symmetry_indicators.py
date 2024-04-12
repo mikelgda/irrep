@@ -1363,9 +1363,9 @@ def z4Rprime_103_199(kpoints, occ, irreps=None):
 
 def z4prime_135_487(kpoints, occ, irreps=None):
     assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
-    found_GM = False
-    found_M = False
-    found_X = False
+    found_GM = False # 0 0 0
+    found_M = False  # 1/2 1/2 0
+    found_X = False  # 0 1/2 0
     for kp in irreps:
         if kp["kpname"] == "GM":
             found_GM = True
@@ -1498,7 +1498,7 @@ SSG_INDICATORS = {
         ],
     "81.33": [
         ("z₄ₛ", z4S_81_33),
-        ("δ₂ₛ", delta2S_81_33, z2_81_33),
+        ("δ₂ₛ", delta2S_81_33),
         ("z₂", z2_81_33),
         ],
     "83.43": [
@@ -1586,17 +1586,178 @@ SSG_INDICATORS = {
         ]
 }
 
-def get_si_from_ssg(sg_number):
+SI_KPOINTS = {
+    "2.4": TRIM_POINTS.copy(),
+    "2.5" : TRIM_POINTS.copy(),
+    "3.1": np.array([
+        [0,   0.5, 0    ], # Z
+        [0,   0.5, 0.5  ], # D
+        [0.5, 0.5, 0    ], # C
+        [0.5, 0.5, 0.5  ] # E
+    ]),
+    "41.215": np.array([[0.0, 0.0, 0.0]]),
+    "10.42": TRIM_POINTS.copy(),
+    "27.81": np.array([
+        [0,   0,   -0.5], # Z
+        [0,   0.5, -0.5], # T
+        [0.5, 0,   -0.5], # U
+        [0.5, 0.5, -0.5]  # R
+    ]),
+    "47.249": TRIM_POINTS.copy(),
+    "75.1": np.array([
+        [0,   0,   0.5], # Z
+        [0.5, 0.5, 0.5], # A
+        [0.5, 0.5, 0.5]  # R
+    ]),
+    "54.342": TRIM_POINTS.copy(),
+    "56.369": TRIM_POINTS.copy(),
+    "60.424": TRIM_POINTS.copy(),
+    "77.13": np.array([
+        [0,   0,   0], # GM
+        [0.5, 0.5, 0], # M
+        [0, 0.5, 0]    # X
+    ]),
+    "81.33": np.array([
+        [0,   0,   0.5], # Z
+        [0.5, 0.5, 0.5], # A
+        [0,   0 ,  0  ], # GM
+        [0.5, 0.5, 0  ], # M
+        [0, 0.5, 0.5]    # R
+    ]),
+    "83.43": np.array([
+        [0,   0,   0.5], # Z
+        [0.5, 0.5, 0.5], # A
+        [0,   0,   0], # GM
+        [0.5, 0.5, 0],  # M
+        [0, 0.5, 0.5], # R
+        [0, 0.5, 0  ] # X
+    ]),
+    "83.44": TRIM_POINTS.copy(),
+    "83.45": TRIM_POINTS.copy(),
+    "84.51": TRIM_POINTS.copy(),
+    "87.76": TRIM_POINTS.copy(),
+    "88.81": TRIM_POINTS.copy(),
+    "103.199": np.array([
+        [0,   0,   0.5], # Z
+        [0.5, 0.5, 0.5], # A
+        [0, 0.5, 0.5]    # R
+    ]),
+    "110.249": np.array([0.0, 0.0, 0.0]),
+    "123.339": TRIM_POINTS.copy(),
+    "130.429": TRIM_POINTS.copy(),
+    "135.487": np.array([
+        [0.0, 0.0, 0.0], # GM
+        [0.5, 0.5, 0.0], # M
+        [0.0, 0.5, 0.0]  # X
+    ]),
+    "143.1": np.array([
+        [ 0,     0,   0.5], # A
+        [ 1/3,   1/3, 0.5], # H
+        [-1/3, -1/3, 0.5 ] # HA
+    ]),
+    "147.13": np.array([
+        [-1/3, -1/3, 0.5 ],
+        [ 0.0,  0.0, 0. ],
+        [ 0.0,  0.0, 0.5],
+        [ 0.0,  0.5, 0. ],
+        [ 0.0,  0.5, 0.5],
+        [ 1/3,  1/3, 0.5],
+        [ 0.5,  0. , 0.5],
+        [ 0.5,  0. , 0.0],
+        [ 0.5,  0.5, 0.0],
+        [ 0.5,  0.5, 0.5]
+    ]),
+    "168.109": np.array([
+        [0,   0,   0.5], # A
+        [1/3, 1/3, 0.5], # H
+        [0.5, 0 ,  0.5], # L
+    ]),
+    "174.133": np.array([
+        [ 0,    0,    0.5], # A
+        [ 1/3,  1/3,  0.5], # H
+        [-1/3, -1/3, -0.5], # HA
+        [ 0,    0,   0], # GM
+        [ 1/3,  1/3, 0], # K
+        [-1/3, -1/3, 0]  # KA
+    ]),
+    "175.137": np.array([
+        [0, 0, 0.5], # A
+        [1/3, 1/3, 0.5], # H
+        [0.5, 0, 0.5], # L
+        [0, 0, 0], # GM
+        [1/3, 1/3, 0], # K
+        [0.5, 0, 0], # M
+    ]),
+    "175.138": np.array([
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.5],
+        [0.0, 0.5, 0.0],
+        [0.0, 0.5, 0.5],
+        [1/3, 1/3, 0.0],
+        [1/3, 1/3, 0.5],
+        [0.5, 0.0, 0.0],
+        [0.5, 0.0, 0.5],
+        [0.5, 0.5, 0.0],
+        [0.5, 0.5, 0.5]
+    ]),
+    "176.143": np.array([
+        [-1/3, -1/3, -0.5],
+        [-1/3, -1/3,  0. ],
+        [ 0.0,  0.0,  0. ],
+        [ 0.0,  0.0,  0.5],
+        [ 1/3,  1/3,  0. ],
+        [ 1/3,  1/3,  0.5],
+        [ 0.5,  0.0,  0. ]
+    ]),
+    "176.144": np.array([
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.5],
+        [0.0, 0.5, 0. ],
+        [0.0, 0.5, 0.5],
+        [1/3, 1/3, 0.0],
+        [0.5, 0.0, 0. ],
+        [0.5, 0.0, 0.5],
+        [0.5, 0.5, 0.0],
+        [0.5, 0.5, 0.5]
+    ]),
+    "184.195": np.array([
+        [0, 0, 0.5], # A
+        [1/3, 1/3, 0.5], # H
+        [0.5, 0, 0.5], # L
+    ]),
+    "191.233": np.array([
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.5],
+        [0.0, 0.5, 0.0],
+        [0.0, 0.5, 0.5],
+        [1/3, 1/3, 0.0],
+        [1/3, 1/3, 0.5],
+        [0.5, 0.0, 0.0],
+        [0.5, 0.0, 0.5],
+        [0.5, 0.5, 0.0],
+        [0.5, 0.5, 0.5]
+    ])
+}
+
+def get_min_sg_mumber(sg_number):
     root = os.path.dirname(__file__)
-    min_sg_number = None
-    with open(root + "/minimal_ssg.data") as f:
+    with open(os.path.join(root, "minimal_ssg.data")) as f:
         for line in f:
             ssg, minimal = line.strip().split(",")
             if ssg == sg_number:
-                min_sg_number = minimal
-                break
-    
+                return minimal
+    return None
+
+def get_si_from_sg(sg_number):
+    min_sg_number = get_min_sg_mumber(sg_number)
     if min_sg_number is None:
         return None
     else:
         return SSG_INDICATORS[min_sg_number]
+
+def get_si_calculation_points(sg_number):
+    min_sg_number = get_min_sg_mumber(sg_number)
+    if min_sg_number is None:
+        return None
+    else:
+        return SI_KPOINTS[min_sg_number]

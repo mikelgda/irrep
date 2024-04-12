@@ -32,7 +32,7 @@ from .bandstructure import BandStructure
 from .utility import str2bool, str2list, short
 from . import __version__ as version
 
-from .symmetry_indicators import get_si_from_ssg
+from .symmetry_indicators import get_si_from_sg, get_si_calculation_points
 
 
 class LoadContextFromConfig(click.Command):
@@ -278,10 +278,16 @@ do not hesitate to contact the author:
 )
 
 @click.option(
-    "-giveKpointCoordinates",
+    "-giveHSKpoints",
     flag_value=True,
     default=False,
     help="Output the k-point coordinates in the input cell to match the tables."
+)
+@click.option(
+    "-giveSIKpoints",
+    flag_value=True,
+    default=False,
+    help="Output the k-point coordinates required for the symmetry indicators."
 )
 
 def cli(
@@ -315,7 +321,8 @@ def cli(
     trans_thresh,
     magmom,
     sindicators,
-    givekpointcoordinates,
+    givehskpoints,
+    givesikpoints,
 ):
     """
     Defines the "irrep" command-line tool interface.
@@ -383,6 +390,9 @@ def cli(
     else:
         magnetic_moments = None
 
+    if onlysym is False:
+        onlysym = givehskpoints or givesikpoints
+
     bandstr = BandStructure(
         fWAV=fwav,
         fWFK=fwfk,
@@ -405,10 +415,22 @@ def cli(
 
     json_data ["spacegroup"] = bandstr.spacegroup.show(symmetries=symmetries)
 
-    if givekpointcoordinates:
+    if givehskpoints:
+        print("\n########## High-symmetry k points ##########")
         bandstr.spacegroup.give_kpoints()
-        exit()
 
+    if givesikpoints:
+        si_kpoints_tables = get_si_calculation_points(bandstr.spacegroup.number)
+        si_kpoints_calc = bandstr.spacegroup.kpoints_from_reference(si_kpoints_tables)
+
+        print("\n########## k points for symmetry indicator calculations ##########")
+
+        print("Coordinates in standard cell:\n")
+        for k in si_kpoints_tables:
+            print("\t {: .6f} {: .6f} {: .6f}".format(*k))
+        print("\nCoordinates in DFT cell:\n")
+        for k in si_kpoints_calc:
+            print("\t {: .6f} {: .6f} {: .6f}".format(*k))
     if onlysym:
         exit()
 
@@ -530,7 +552,7 @@ def cli(
         irreps = json_data["characters_and_irreps"][0]["subspace"]["k-points"]
         try:
             occ = int(sindicators)
-            si_list = get_si_from_ssg(bandstr.spacegroup.number)
+            si_list = get_si_from_sg(bandstr.spacegroup.number)
 
             if si_list is None:
                 print("The SG group has all trivial symmetry indicators")

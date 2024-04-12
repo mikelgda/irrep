@@ -870,7 +870,7 @@ class SpaceGroup():
             if symmetries is None or symop.ind in symmetries:
                 json_data["symmetries"][symop.ind]=symop.show(refUC=self.refUC, shiftUC=self.shiftUC)
         
-        if self.magnetic is True:
+        if self.magnetic:
             print("")
             print("The space group also has the following antiunitary symmetries:")
             print("")   
@@ -1024,10 +1024,6 @@ class SpaceGroup():
 
         return np.array([R1.dot(b).dot(R1.T.conj()).dot(np.linalg.inv(
             a)).diagonal().mean().real.round() for a, b in zip(S1, S2)], dtype=int)
-
-    def __gen_refUC():
-        '''used somewhere?'''
-        nmax = 3
 
     def get_irreps_from_table(self, kpname, K):
         """
@@ -1481,3 +1477,17 @@ class SpaceGroup():
             coords = table.irreps[i].k
             k_dft = np.round(refUC_kspace.dot(coords), 5) % 1
             print("\t {:<2} : {: .6f} {: .6f} {: .6f}".format(name, *k_dft))
+    
+    def kpoints_from_reference(self, kpoints):
+        """Transforms kpoints form standard cell to calculation cell
+
+        Parameters
+        ----------
+        kpoints : np.NDArray
+            kpoints in standard cell
+        """
+        refUC_kspace = np.linalg.inv(self.refUC.T)
+
+        kpoints = np.array([refUC_kspace.dot(k) for k in kpoints]) % 1
+
+        return kpoints
