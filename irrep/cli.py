@@ -421,7 +421,7 @@ def cli(
 
     if givesikpoints:
         si_kpoints_tables = get_si_calculation_points(bandstr.spacegroup.number)
-        si_kpoints_calc = bandstr.spacegroup.kpoints_from_reference(si_kpoints_tables)
+        si_kpoints_calc = bandstr.spacegroup.kpoints_to_calculation_cell(si_kpoints_tables)
 
         print("\n########## k points for symmetry indicator calculations ##########")
 
@@ -548,25 +548,15 @@ def cli(
     dumpfn(json_data,"irrep-output.json",indent=4)
 
     if sindicators is not None:
+        for point in bandstr.kpoints:
+            print(point.K, point.K_std)
         print("\n\n")
         irreps = json_data["characters_and_irreps"][0]["subspace"]["k-points"]
         try:
             occ = int(sindicators)
-            si_list = get_si_from_sg(bandstr.spacegroup.number)
-
-            if si_list is None:
-                print("The SG group has all trivial symmetry indicators")
-            else:
-        
-                print("Symmetry indicators:")
-                for si_name, si in si_list:
-                    try:
-                        print(si_name, si(bandstr.kpoints, occ, irreps))
-                    except Exception as err:
-                        print("There was an error computing a symmetry indicator:", si_name)
-                        print("\t", err)
-
         except ValueError: # thrown by int(sindicators)
             print("Introduce a valid occupation for symmetry indicators"
                   f" (you entered {sindicators})\n"
                   "SYMMETRY INDICATORS NOT COMPUTED.\n\n")
+
+        si_results = bandstr.compute_symmetry_indicators(irreps, occ)

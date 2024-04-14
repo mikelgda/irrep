@@ -27,6 +27,7 @@ from .readfiles import AbinitHeader, Hartree_eV
 from .readfiles import WAVECARFILE
 from .kpoint import Kpoint
 from .spacegroup import SpaceGroup
+from .symmetry_indicators import get_si_from_sg
 
 
 class BandStructure:
@@ -312,6 +313,7 @@ class BandStructure:
             kplist -= 1
             kplist = np.array([k for k in kplist if k >= 0 and k < NK])
         #        print (kplist)
+        refUC_kspace = self.spacegroup.refUC.T
         self.kpoints = [
             Kpoint(
                 ik,
@@ -324,6 +326,7 @@ class BandStructure:
                 symmetries_SG=self.spacegroup.symmetries,
                 spinor=self.spinor,
                 WCF=WCF,
+                std_cell_transformation=refUC_kspace
             )
             for ik in kplist
         ]
@@ -451,6 +454,7 @@ class BandStructure:
         #        print ("kplist",kplist)
         self.kpoints = []
         flag = -1
+        refUC_kspace = self.spacegroup.refUC.T
         for ik in kplist:
             kp = Kpoint(
                 ik,
@@ -468,6 +472,7 @@ class BandStructure:
                 fWFK=fWFK,
                 flag=flag,
                 usepaw=usepaw,
+                std_cell_transformation=refUC_kspace
             )
             self.kpoints.append(kp)
             flag = ik
@@ -784,6 +789,7 @@ class BandStructure:
             raise RuntimeError("No bands to calculate")
 
         #        print ("eigenvalues are : ",eigenval)
+        refUC_kspace = self.spacegroup.refUC.T
         self.kpoints = [
             Kpoint(
                 ik - 1,
@@ -798,6 +804,7 @@ class BandStructure:
                 code="wannier",
                 eigenval=eigenval[ik - 1],
                 kpt=kpred[ik - 1],
+                std_cell_transformation=refUC_kspace
             )
             for ik in kplist
         ]
@@ -984,6 +991,7 @@ class BandStructure:
         #            print(kp.find('k_point').text)
         self.kpoints = []
         flag = -1
+        refUC_kspace = self.spacegroup.refUC.T
         for ik in kplist:
             kp = Kpoint(
                 ik,
@@ -999,7 +1007,8 @@ class BandStructure:
                 kptxml=kpall[ik],
                 prefix=prefix,
                 spin_channel=spin_channel,
-                IBstartE=IBstartE
+                IBstartE=IBstartE,
+                std_cell_transformation=refUC_kspace
             )
             self.kpoints.append(kp)
             flag = ik
@@ -1484,3 +1493,24 @@ class BandStructure:
         k[k > breakTHRESH] = 0.0
         K[1:] = np.cumsum(k)
         return K
+
+    def compute_symmetry_indicators(self, irreps, occ):
+        si_list = get_si_from_sg(self.spacegroup.number)
+
+        si_results = []
+
+        if si_list is None:
+            print("The SG group has all trivial symmetry indicators.")
+        else:
+            print("Symmetry indicators:")
+            for si_name, si in si_list:
+                try:
+                    print(si_name, si(self.kpoints, occ, irreps))
+                    si_value = si(self.kpoints, occ, irreps)
+                    si_results.append((si_name, si_value))
+                except Exception as err:
+                    print("There was an error computing a symmetry indicator:", si_name)
+                    print("\t", err)
+                    si_results.append((si_name, None))
+
+        return si_results

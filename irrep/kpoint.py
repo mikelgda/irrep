@@ -89,6 +89,9 @@ class Kpoint:
         Only used with Quantum Espresso. Index of first band in particular spin 
         channel. If `spin_channel` is 'dw', `IBstartE` is equal to the number of 
         bands in spin-up channel.
+    std_cell_transformation: array, default=None
+        Transformation matrix to standard cell such that the coordiantes in the
+        standard cell are compute via a .dot()
     
     Attributes
     ----------
@@ -146,7 +149,7 @@ class Kpoint:
         """
         symmetries = {}
         #        print ("calculating symmetry eigenvalues for E={0}, WF={1} SG={2}".format(self.Energy,self.WF.shape,symmetries_SG) )
-        if not (self.symmetries_SG is None):
+        if  self.symmetries_SG is not None:
             for symop in self.symmetries_SG:
                 try:
                     symmetries[symop] = symm_eigenvalues(
@@ -185,7 +188,8 @@ class Kpoint:
         usepaw=0,
         eigenval=None,
         spin_channel=None,
-        IBstartE=0
+        IBstartE=0,
+        std_cell_transformation=None
     ):
         self.spinor = spinor
         self.ik0 = ik + 1  # the index in the WAVECAR (count start from 1)
@@ -227,6 +231,11 @@ class Kpoint:
         self.WF /= (
             np.sqrt(np.abs(np.einsum("ij,ij->i", self.WF.conj(), self.WF)))
         ).reshape(self.Nband, 1)
+
+        if std_cell_transformation is not None:
+            self.K_std = std_cell_transformation.dot(self.K) % 1
+        else:
+            self.K_std = None
 
     def copy_sub(self, E, WF):
         """
