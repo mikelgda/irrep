@@ -214,3 +214,16 @@ def short(x, nd=3):
     if abs(x.real) < 10 ** (-nd):
         return fmt.format(x.imag) + "j"
     return short(x.real, nd) + short(1j * x.imag)
+
+def matrix_pprint(matrix, fmt=None, delimeter="|"):
+    output = ""
+    row_length = matrix.shape[1]
+    if fmt is None:
+        fmt = " .5f"
+    else:
+        fmt = " " + fmt if fmt[0] != " " else fmt
+    row_format = delimeter + ("{:{ffmt}} " * row_length) + delimeter + "\n"
+    for row in matrix:
+        output += row_format.format(*row, ffmt=fmt)
+
+    return output

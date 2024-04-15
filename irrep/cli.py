@@ -32,7 +32,7 @@ from .bandstructure import BandStructure
 from .utility import str2bool, str2list, short
 from . import __version__ as version
 
-from .symmetry_indicators import get_si_from_sg, get_si_calculation_points
+from .symmetry_indicators import get_si_calculation_points
 
 
 class LoadContextFromConfig(click.Command):

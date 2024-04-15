@@ -23,7 +23,7 @@ import spglib
 from irreptables import IrrepTable
 from scipy.optimize import minimize
 import os
-from .utility import str_
+from .utility import str_, matrix_pprint
 
 pauli_sigma = np.array(
     [[[0, 1], [1, 0]], [[0, -1j], [1j, 0]], [[1, 0], [0, -1]]])
@@ -630,11 +630,11 @@ class SpaceGroup():
         print('')
         print(
             'Primitive vectors : \n',
-            cell[0],
-            '\n Atomic positions: \n',
-            cell[1],
-            '\n Atom type indices: \n',
-            cell[2])
+            matrix_pprint(cell[0]),
+            '\nAtomic positions: \n',
+            matrix_pprint(cell[1]),
+            '\nAtom type indices:\n\t',
+            (cell[2]), sep="")
         if magnetic_moments is None:
             dataset = spglib.get_symmetry_dataset(cell)
             symmetries = [
@@ -707,11 +707,7 @@ class SpaceGroup():
         self.RecLattice = np.array([np.cross(self.Lattice[(i + 1) %
                                                           3], self.Lattice[(i + 2) %
                                                                            3]) for i in range(3)]) * 2 * np.pi / np.linalg.det(self.Lattice)
-        print("refUC_tmp")
-        for line in refUC_tmp:
-            print(*line)
-        print("shiftUC_tmp", shiftUC_tmp)
-        print(" Reciprocal lattice:\n", self.RecLattice)
+        print("\nReciprocal lattice:\n", matrix_pprint(self.RecLattice), sep="")
 
         # time_reversals = [sym.time_reversal for sym in symmetries]
         # self.magnetic = any(time_reversals)
@@ -740,12 +736,6 @@ class SpaceGroup():
                                             search_cell=search_cell,
                                             trans_thresh=trans_thresh
                                             )
-
-        print("final refUC")
-        for line in self.refUC:
-            print(*line)
-        print("final shiftUC")
-        print(shiftUC)
 
         # Check matching of symmetries in refUC. If user set transf.
         # in the CLI and symmetries don't match, raise a warning.
