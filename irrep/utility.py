@@ -222,8 +222,19 @@ def matrix_pprint(matrix, fmt=None, delimeter="|"):
         fmt = " .5f"
     else:
         fmt = " " + fmt if fmt[0] != " " else fmt
-    row_format = delimeter + ("{:{ffmt}} " * row_length) + delimeter + "\n"
+    row_format = delimeter + ("{:{fmt}} " * row_length) + delimeter + "\n"
     for row in matrix:
-        output += row_format.format(*row, ffmt=fmt)
+        output += row_format.format(*row, fmt=fmt)
 
     return output
+
+def vector_pprint(vector, fmt=None):
+    if fmt is None:
+        fmt = " .5f"
+    else:
+        fmt = " " + fmt if fmt[0] != " " else fmt
+
+    return ("[" + ("{:{fmt}} " * 3) + "]").format(*vector, fmt=fmt)
+
+
+ 

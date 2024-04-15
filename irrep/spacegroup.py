@@ -715,7 +715,10 @@ class SpaceGroup():
         # # Fall back to original irrep tables
         # if self.magnetic is False and "." in self.number:
         #     self.number = self.number.split(".")[0]
-        self.magnetic = (magnetic_moments != 0).any()
+        if magnetic_moments is None:
+            self.magnetic = False
+        else:
+            self.magnetic = (magnetic_moments != 0).any()
         if self.magnetic:
             self.symmetries = list(filter(lambda x: not x.time_reversal, symmetries))
             self.au_symmetries = list(filter(lambda x: x.time_reversal,  symmetries))

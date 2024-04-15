@@ -22,7 +22,7 @@ import copy
 from .gvectors import calc_gvectors, symm_eigenvalues, NotSymmetryError, symm_matrix, sortIG
 from .readfiles import Hartree_eV
 from .readfiles import record_abinit
-from .utility import compstr, is_round
+from .utility import compstr, is_round, vector_pprint
 from scipy.io import FortranFile as FF
 from lazy_property import LazyProperty
 import re
@@ -1139,11 +1139,11 @@ class Kpoint:
 
         # Header of the block
         print(("\n\n k-point {0:3d} : {1} (in DFT cell)\n"
-               "               {2} (after cell trasformation)\n\n"
+               "               {2} (after cell transformation)\n\n"
                " number of states : {3}\n"
                .format(self.ik0,
-                       np.round(self.K, 5),
-                       np.round(k_refUC,5),
+                       vector_pprint(self.K), #np.round(self.K, 5),
+                       vector_pprint(k_refUC), #np.round(k_refUC,5),
                        self.Nband
                        )
               ))

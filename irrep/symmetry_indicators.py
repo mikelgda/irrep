@@ -8,7 +8,7 @@ def is_inversion(sym):
     )
 
 def is_trim(kp):
-    return (-kp.K_std % 1 == kp.K_std).all()
+    return (-kp.K % 1 == kp.K).all()
 
 def is_C2(sym, axis, t=(0,0,0)):
     c2 = -np.eye(3)
@@ -79,21 +79,25 @@ TRIM_POINTS = np.array([
 
 def count_states(kpoints, index_points, op_filter, eigs, occ, calc_points=None, **op_args):
     if calc_points is None:
-        calc_points = np.array([kp.K_std for kp in kpoints])
+        calc_points = np.array([kp.K for kp in kpoints])
+
+    print(calc_points)
 
     totals = np.zeros(len(eigs), dtype=int)
     for q in index_points:
-            loc = np.where(np.isclose((calc_points - q) % 1, 0.0).all(1))[0]
-            if len(loc) == 0:
-                raise Exception(f"{q=} was not found in the calculation.")
-            kp = kpoints[loc[0]]
-            for sym in kp.symmetries.keys():
-                if op_filter(sym, **op_args):
-                    op = sym
-            op_vals = kp.symmetries[op]
+        print(q)
+        loc = np.where(np.isclose((calc_points - q) % 1, 0.0).all(1))[0]
+        if len(loc) == 0:
+            print(q, "not found")
+            raise Exception(f"{q=} was not found in the calculation.")
+        kp = kpoints[loc[0]]
+        for sym in kp.symmetries.keys():
+            if op_filter(sym, **op_args):
+                op = sym
+        op_vals = kp.symmetries[op]
 
-            for i, eig in enumerate(eigs):
-                totals[i] += np.isclose(op_vals[:occ], eig).sum()
+        for i, eig in enumerate(eigs):
+            totals[i] += np.isclose(op_vals[:occ], eig).sum()
 
     return totals
 
@@ -110,7 +114,7 @@ def filter_count_states(
         args_count={}
 ):
     if calc_points is None:
-        calc_points = np.array([kp.K_std for kp in kpoints])
+        calc_points = np.array([kp.K for kp in kpoints])
 
     totals = np.zeros(len(eigs_count), dtype=int)
     for q in index_points:
@@ -141,6 +145,8 @@ def eta4I_2_4(kpoints, occ, irreps=None):
     assert kpoints[0].Energy.shape[0] >= occ, "Occupation is higher than computed bands"
     trims = list(filter(is_trim, kpoints))
     assert len(trims) == 8, "The number of TRIMs is not 8"
+
+    print(kpoints, occ)
     
     total = count_states(
         trims,
@@ -239,7 +245,7 @@ def delta2m_10_42(kpoints, occ, irreps=None):
         [0,   0, 0.5  ], # B
         [0.5, 0, 0    ] # Y
     ])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
     
     counts1 = filter_count_states(
         kpoints,
@@ -370,7 +376,7 @@ def z4R_75_1(kpoints, occ, irreps=None):
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5] # A
     ])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_ZA = count_states(
         kpoints,
@@ -404,7 +410,7 @@ def zprime2R_77_13(kpoints, occ, irreps=None):
         [0,   0,   0], # GM
         [0.5, 0.5, 0] # M
     ])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_GMM = count_states(
         kpoints,
@@ -493,7 +499,7 @@ def z4S_81_33(kpoints, occ, irreps=None):
         [0,   0,   0.5], # Z
         [0.5, 0.5, 0.5] # A
     ])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_ZA = count_states(
         kpoints,
@@ -528,7 +534,7 @@ def delta2S_81_33(kpoints, occ, irreps=None):
         [0,   0 ,  0  ], # GM
         [0.5, 0.5, 0  ]  # M
     ])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_ZA = count_states(
         kpoints,
@@ -564,7 +570,7 @@ def z2_81_33(kpoints, occ, irreps=None):
         [0,   0 ,  0  ], # GM
         [0.5, 0.5, 0  ]  # M
     ])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_C2 = count_states(
         kpoints,
@@ -605,7 +611,7 @@ def delta4m_83_43(kpoints, occ, irreps=None):
     R = np.array([[0, 0.5, 0.5]])
     X = np.array([[0, 0.5, 0  ]])
 
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_ZA_C2 = filter_count_states(
         kpoints,
@@ -701,7 +707,7 @@ def z4mpiplus_83_43(kpoints, occ, irreps=None):
     ])
     R = np.array([[0, 0.5, 0.5]])
 
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_ZA_C2 = filter_count_states(
         kpoints,
@@ -757,7 +763,7 @@ def z4mpiminus_83_43(kpoints, occ, irreps=None):
     ])
     R = np.array([[0, 0.5, 0.5]])
 
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_ZA_C2 = filter_count_states(
         kpoints,
@@ -812,7 +818,7 @@ def z4m0plus_84_51(kpoints, occ, irreps=None):
         [0.5, 0.5, 0    ], # M
     ])
     X = np.array([[0, 0.5, 0]])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_GMM_C2 = filter_count_states(
         kpoints,
@@ -904,7 +910,7 @@ def z8_83_44_123_339(kpoints, occ, irreps=None):
 
         return counts1 + counts2
 
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     return int(
         1.5 * njpm(1.5, 1) - 1.5 * njpm(1.5, -1) - 0.5 * njpm(0.5, 1) + 0.5 * njpm(0.5, -1)
@@ -939,7 +945,7 @@ def z6R_168_109(kpoints, occ, irreps=None):
     A = np.array([[0,   0,   0.5]])
     H = np.array([[1/3, 1/3, 0.5]])
     L = np.array([[0.5, 0 ,  0.5]])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
     
     counts_A = count_states(
         kpoints,
@@ -986,7 +992,7 @@ def delta3m_174_133(kpoints, occ, irreps=None):
         [ 1/3,  1/3, 0], # K
         [-1/3, -1/3, 0]  # KA
     ])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts1 = filter_count_states(
         kpoints,
@@ -1076,7 +1082,7 @@ def delta6m_175_137(kpoints, occ, irreps=None):
     GM = np.array([[0, 0, 0]])
     K =  np.array([[1/3, 1/3, 0]])
     M =  np.array([[0.5, 0, 0]])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_A = filter_count_states(
         kpoints,
@@ -1163,7 +1169,7 @@ def z6mpiplus_175_137(kpoints, occ, irreps=None):
     A =  np.array([[0, 0, 0.5]])
     H =  np.array([[1/3, 1/3, 0.5]])
     L =  np.array([[0.5, 0, 0.5]])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_A = filter_count_states(
         kpoints,
@@ -1213,7 +1219,7 @@ def z6mpiminus_175_137(kpoints, occ, irreps=None):
     A =  np.array([[0, 0, 0.5]])
     H =  np.array([[1/3, 1/3, 0.5]])
     L =  np.array([[0.5, 0, 0.5]])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_A = filter_count_states(
         kpoints,
@@ -1263,7 +1269,7 @@ def z6m0plus_176_143(kpoints, occ, irreps=None):
     GM = np.array([[0, 0, 0]])
     K = np.array([[1/3, 1/3, 0]])
     M = np.array([[0.5, 0, 0]])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_GM = filter_count_states(
         kpoints,
@@ -1334,7 +1340,7 @@ def z4Rprime_103_199(kpoints, occ, irreps=None):
         [0.5, 0.5, 0.5]  # A
     ])
     R = np.array([[0, 0.5, 0.5]])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_ZA = count_states(
         kpoints,
@@ -1412,7 +1418,7 @@ def z4Rprime_184_195(kpoints, occ, irreps=None):
     A =  np.array([[0, 0, 0.5]])
     H =  np.array([[1/3, 1/3, 0.5]])
     L =  np.array([[0.5, 0, 0.5]])
-    calc_points = np.array([kp.K_std for kp in kpoints])
+    calc_points = np.array([kp.K for kp in kpoints])
 
     counts_A =count_states(
         kpoints,
