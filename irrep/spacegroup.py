@@ -1056,19 +1056,10 @@ class SpaceGroup():
         #        self.show()
         table = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
         tab = {}
-        print("refUC inv")
-        for line in np.linalg.inv(self.refUC):
-            print(*line)
         refUC_kspace = np.linalg.inv(self.refUC.T)
-        print("refUC_kspace")
-        for line in refUC_kspace:
-            print(*line)
         for irr in table.irreps:
             if irr.kpname == kpname:
-                print("k1 = irr.k", irr.k)
                 k1 = np.round(refUC_kspace.dot(irr.k), 5) % 1
-                print(k1)
-                print("k2", K)
                 k2 = np.round(K, 5) % 1
                 if not all(np.isclose(k1, k2)):
                     raise RuntimeError(
