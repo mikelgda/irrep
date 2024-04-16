@@ -1219,6 +1219,8 @@ class Kpoint:
             else:
                 print("number of inversion-odd states : ", NBANDINV)
             print("Gap with upper bands : ", self.upper - self.Energy[-1])
+        else: 
+            NBANDINV = 0
 
         firrep = open("irreps.dat", "a")
         weight_pattern = re.compile(r"\w+\((\d+.?\d+?)\)")
