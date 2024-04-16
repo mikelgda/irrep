@@ -81,14 +81,10 @@ def count_states(kpoints, index_points, op_filter, eigs, occ, calc_points=None, 
     if calc_points is None:
         calc_points = np.array([kp.K for kp in kpoints])
 
-    print(calc_points)
-
     totals = np.zeros(len(eigs), dtype=int)
     for q in index_points:
-        print(q)
         loc = np.where(np.isclose((calc_points - q) % 1, 0.0).all(1))[0]
         if len(loc) == 0:
-            print(q, "not found")
             raise Exception(f"{q=} was not found in the calculation.")
         kp = kpoints[loc[0]]
         for sym in kp.symmetries.keys():
@@ -146,8 +142,6 @@ def eta4I_2_4(kpoints, occ, irreps=None):
     trims = list(filter(is_trim, kpoints))
     assert len(trims) == 8, "The number of TRIMs is not 8"
 
-    print(kpoints, occ)
-    
     total = count_states(
         trims,
         TRIM_POINTS,

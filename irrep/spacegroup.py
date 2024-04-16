@@ -1452,12 +1452,16 @@ class SpaceGroup():
         table = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
         refUC_kspace = np.linalg.inv(self.refUC.T)
 
-        print("\nChange of coordinates from tables to DFT cell:\n")
-        print(
-            "\t\t| {: .2f} {: .2f} {: .2f} |\n".format(*refUC_kspace[0]) +
-            "\t\t| {: .2f} {: .2f} {: .2f} |\n".format(*refUC_kspace[1]) +
-            "\t\t| {: .2f} {: .2f} {: .2f} |\n\n".format(*refUC_kspace[2])\
-        )
+        matrix_format = ("\t\t| {: .2f} {: .2f} {: .2f} |\n" 
+                         "\t\t| {: .2f} {: .2f} {: .2f} |\n" 
+                         "\t\t| {: .2f} {: .2f} {: .2f} |\n\n")
+
+        print("\nChange of coordinates from conventional to DFT cell:\n")
+        print(matrix_format.format(*refUC_kspace.ravel()))
+
+        print("\nChange of coordinates from DFT to conventional cell:\n")
+        print(matrix_format.format(*np.linalg.inv(refUC_kspace).ravel()))
+
         _, kp_index = np.unique([irr.kpname for irr in table.irreps], return_index=True)
         print("Coordinates in symmetry tables:\n")
         for i in kp_index:
