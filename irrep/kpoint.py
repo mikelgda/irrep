@@ -189,7 +189,8 @@ class Kpoint:
         eigenval=None,
         spin_channel=None,
         IBstartE=0,
-        std_cell_transformation=None
+        std_cell_transformation=None,
+        magnetic=False
     ):
         self.spinor = spinor
         self.ik0 = ik + 1  # the index in the WAVECAR (count start from 1)
@@ -236,6 +237,8 @@ class Kpoint:
             self.K_std = std_cell_transformation.dot(self.K) % 1
         else:
             self.K_std = None
+        
+        self.magnetic = magnetic
 
     def copy_sub(self, E, WF):
         """
@@ -1208,13 +1211,13 @@ class Kpoint:
         if isyminv is None:
             print("no inversion")
             NBANDINV = 0
-        else:
+        elif not self.magnetic:
             print("inversion is #", isyminv)
             NBANDINV = int(round(sum(1 - self.symmetries[sym[isyminv]].real) / 2))
             if self.spinor:
-                print("number of inversions-odd Kramers pairs : ", int(NBANDINV / 2))
+                print("number of inversion-odd Kramers pairs : ", int(NBANDINV / 2))
             else:
-                print("number of inversions-odd states : ", NBANDINV)
+                print("number of inversion-odd states : ", NBANDINV)
             print("Gap with upper bands : ", self.upper - self.Energy[-1])
 
         firrep = open("irreps.dat", "a")

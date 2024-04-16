@@ -326,7 +326,8 @@ class BandStructure:
                 symmetries_SG=self.spacegroup.symmetries,
                 spinor=self.spinor,
                 WCF=WCF,
-                std_cell_transformation=refUC_kspace
+                std_cell_transformation=refUC_kspace,
+                magnetic=self.spacegroup.magnetic
             )
             for ik in kplist
         ]
@@ -472,7 +473,8 @@ class BandStructure:
                 fWFK=fWFK,
                 flag=flag,
                 usepaw=usepaw,
-                std_cell_transformation=refUC_kspace
+                std_cell_transformation=refUC_kspace,
+                magnetic=self.spacegroup.magnetic
             )
             self.kpoints.append(kp)
             flag = ik
@@ -804,7 +806,8 @@ class BandStructure:
                 code="wannier",
                 eigenval=eigenval[ik - 1],
                 kpt=kpred[ik - 1],
-                std_cell_transformation=refUC_kspace
+                std_cell_transformation=refUC_kspace,
+                magnetic=self.spacegroup.magnetic
             )
             for ik in kplist
         ]
@@ -1008,7 +1011,8 @@ class BandStructure:
                 prefix=prefix,
                 spin_channel=spin_channel,
                 IBstartE=IBstartE,
-                std_cell_transformation=refUC_kspace
+                std_cell_transformation=refUC_kspace,
+                magnetic=self.spacegroup.magnetic
             )
             self.kpoints.append(kp)
             flag = ik
@@ -1122,7 +1126,7 @@ class BandStructure:
                 Up = min(Up, up)
                 Low = max(Low, low)
 
-        if self.spinor:
+        if self.spinor and not self.spacegroup.magnetic:
             print(
                 "number of inversion-odd Kramers pairs IN THE LISTED KPOINTS: ",
                 int(NBANDINV / 2),
