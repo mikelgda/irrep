@@ -649,7 +649,7 @@ class SpaceGroup():
                     dataset['rotations'])]
             return (symmetries, 
                     dataset['international'],
-                    dataset['number'], 
+                    str(dataset['number']), 
                     cell[0], 
                     dataset['transformation_matrix'],
                     dataset['origin_shift']
