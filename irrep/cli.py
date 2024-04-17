@@ -421,21 +421,18 @@ def cli(
 
     if givesikpoints:
         print("\n########## k points for symmetry indicator calculations ##########")
-        if magnetic_moments is None:
-            print("\nPlease input magnetic moments for SI calculation.")
+        si_kpoints_tables = get_si_calculation_points(bandstr.spacegroup.number)
+        if si_kpoints_tables is None:
+            print("\nAll the symemtry indicators are trivial.")
         else:
-            si_kpoints_tables = get_si_calculation_points(bandstr.spacegroup.number)
-            if si_kpoints_tables is None:
-                print("\nAll the symemtry indicators are trivial.")
-            else:
-                si_kpoints_calc = bandstr.spacegroup.kpoints_to_calculation_cell(si_kpoints_tables)
+            si_kpoints_calc = bandstr.spacegroup.kpoints_to_calculation_cell(si_kpoints_tables)
 
-                print("Coordinates in standard cell:\n")
-                for k in si_kpoints_tables:
-                    print("\t {: .6f} {: .6f} {: .6f}".format(*k))
-                print("\nCoordinates in DFT cell:\n")
-                for k in si_kpoints_calc:
-                    print("\t {: .6f} {: .6f} {: .6f}".format(*k))
+            print("Coordinates in standard cell:\n")
+            for k in si_kpoints_tables:
+                print("\t {: .6f} {: .6f} {: .6f}".format(*k))
+            print("\nCoordinates in DFT cell:\n")
+            for k in si_kpoints_calc:
+                print("\t {: .6f} {: .6f} {: .6f}".format(*k))
     if onlysym:
         exit()
 
@@ -553,18 +550,15 @@ def cli(
     dumpfn(json_data,"irrep-output.json",indent=4)
 
     if sindicators is not None:
-        if magnetic_moments is None:
-            print("Please input magnetic moments for symmetry indicators calculation.")
-        else:
-            for point in bandstr.kpoints:
-                print(point.K, point.K_std)
-            print("\n\n")
-            irreps = json_data["characters_and_irreps"][0]["subspace"]["k-points"]
-            try:
-                occ = int(sindicators)
-            except ValueError: # thrown by int(sindicators)
-                print("Introduce a valid occupation for symmetry indicators"
-                    f" (you entered {sindicators})\n"
-                    "SYMMETRY INDICATORS NOT COMPUTED.\n\n")
+        for point in bandstr.kpoints:
+            print(point.K, point.K_std)
+        print("\n\n")
+        irreps = json_data["characters_and_irreps"][0]["subspace"]["k-points"]
+        try:
+            occ = int(sindicators)
+        except ValueError: # thrown by int(sindicators)
+            print("Introduce a valid occupation for symmetry indicators"
+                f" (you entered {sindicators})\n"
+                "SYMMETRY INDICATORS NOT COMPUTED.\n\n")
 
-            si_results = bandstr.compute_symmetry_indicators(irreps, occ)
+        si_results = bandstr.compute_symmetry_indicators(irreps, occ)

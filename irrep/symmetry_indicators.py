@@ -87,9 +87,13 @@ def count_states(kpoints, index_points, op_filter, eigs, occ, calc_points=None, 
         if len(loc) == 0:
             raise Exception(f"{q=} was not found in the calculation.")
         kp = kpoints[loc[0]]
+        op = None
         for sym in kp.symmetries.keys():
             if op_filter(sym, **op_args):
                 op = sym
+        if op is None:
+            raise Exception(f"Couldn't find the required symmetries for {q} ({op_filter})")
+
         op_vals = kp.symmetries[op]
 
         for i, eig in enumerate(eigs):
@@ -118,11 +122,18 @@ def filter_count_states(
             if len(loc) == 0:
                 raise Exception(f"{q=} was not found in the calculation.")
             kp = kpoints[loc[0]]
+            sym_filter = None
+            sym_count = None
             for sym in kp.symmetries.keys():
                 if op_filter(sym, **args_filter):
                     sym_filter = sym
                 if op_count(sym, **args_count):
                     sym_count = sym
+            if sym_filter is None: 
+                raise Exception(f"Couldn't find the required symmetries for {q} ({op_filter})")
+            elif sym_count is None:
+                raise Exception(f"Couldn't find the required symmetries for {q} ({op_count})")
+            
             
             filter_vals = kp.symmetries[sym_filter][:occ]
             count_vals = kp.symmetries[sym_count][:occ]
@@ -1274,7 +1285,8 @@ def z6m0plus_176_143(kpoints, occ, irreps=None):
         np.array([1j, 1j, 1j, 1j, 1j]),
         occ,
         calc_points=calc_points,
-        args_count={"axis": 2}
+        args_count={"axis": 2, "t": (0,0,0.5)},
+        args_filter={"t": (0,0,0.5)}
     )
     counts_K = filter_count_states(
         kpoints,
@@ -1740,11 +1752,13 @@ SI_KPOINTS = {
 }
 
 def get_min_sg_mumber(sg_number):
+    if not isinstance(sg_number, str): # regular SG number is an int
+        sg_number = str(sg_number)
     root = os.path.dirname(__file__)
     with open(os.path.join(root, "minimal_ssg.data")) as f:
         for line in f:
-            ssg, minimal = line.strip().split(",")
-            if ssg == sg_number:
+            sg, minimal = line.strip().split(",")
+            if sg == sg_number:
                 return minimal
     return None
 
