@@ -23,7 +23,7 @@ import spglib
 from irreptables import IrrepTable
 from scipy.optimize import minimize
 import os
-from .utility import str_, matrix_pprint
+from .utility import str_, matrix_pprint, compute_rec_lattice
 
 pauli_sigma = np.array(
     [[[0, 1], [1, 0]], [[0, -1j], [1j, 0]], [[1, 0], [0, -1]]])
@@ -704,9 +704,10 @@ class SpaceGroup():
          self.Lattice, 
          refUC_tmp, 
          shiftUC_tmp) = self._findsym(inPOSCAR, cell, magnetic_moments)
-        self.RecLattice = np.array([np.cross(self.Lattice[(i + 1) %
-                                                          3], self.Lattice[(i + 2) %
-                                                                           3]) for i in range(3)]) * 2 * np.pi / np.linalg.det(self.Lattice)
+        # self.RecLattice = np.array([np.cross(self.Lattice[(i + 1) %
+        #                                                   3], self.Lattice[(i + 2) %
+        #                                                                    3]) for i in range(3)]) * 2 * np.pi / np.linalg.det(self.Lattice)
+        self.RecLattice = compute_rec_lattice(self.Lattice)
         print("\nReciprocal lattice:\n", matrix_pprint(self.RecLattice), sep="")
 
         # time_reversals = [sym.time_reversal for sym in symmetries]

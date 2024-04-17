@@ -22,7 +22,7 @@ import functools
 import numpy as np
 import numpy.linalg as la
 
-from .utility import str2bool, BOHR
+from .utility import str2bool, BOHR, compute_rec_lattice
 from .readfiles import AbinitHeader, Hartree_eV
 from .readfiles import WAVECARFILE
 from .kpoint import Kpoint
@@ -286,17 +286,19 @@ class BandStructure:
         self.Ecut0 = Ecut0
 
         self.Lattice = np.array(tmp[3:12]).reshape(3, 3)
-        self.RecLattice = (
-            np.array(
-                [
-                    np.cross(self.Lattice[(i + 1) % 3], self.Lattice[(i + 2) % 3])
-                    for i in range(3)
-                ]
-            )
-            * 2
-            * np.pi
-            / np.linalg.det(self.Lattice)
-        )
+        # self.RecLattice = (
+        #     np.array(
+        #         [
+        #             np.cross(self.Lattice[(i + 1) % 3], self.Lattice[(i + 2) % 3])
+        #             for i in range(3)
+        #         ]
+        #     )
+        #     * 2
+        #     * np.pi
+        #     / np.linalg.det(self.Lattice)
+        # )
+
+        self.RecLattice = compute_rec_lattice(self.Lattice)
 
         print(
             "WAVECAR contains {0} k-points and {1} bands.\nSaving {2} bands starting from {3} in the output".format(
@@ -428,17 +430,18 @@ class BandStructure:
 
         self.Lattice = header.rprimd
         print("lattice vectors:\n", self.Lattice)
-        self.RecLattice = (
-            np.array(
-                [
-                    np.cross(self.Lattice[(i + 1) % 3], self.Lattice[(i + 2) % 3])
-                    for i in range(3)
-                ]
-            )
-            * 2
-            * np.pi
-            / np.linalg.det(self.Lattice)
-        )
+        # self.RecLattice = (
+        #     np.array(
+        #         [
+        #             np.cross(self.Lattice[(i + 1) % 3], self.Lattice[(i + 2) % 3])
+        #             for i in range(3)
+        #         ]
+        #     )
+        #     * 2
+        #     * np.pi
+        #     / np.linalg.det(self.Lattice)
+        # )
+        self.RecLattice = compute_rec_lattice(self.Lattice)
 
         print(
             "WFK contains {0} k-points and {1} bands.\n Saving {2} bands starting from {3} in the output".format(
@@ -739,17 +742,18 @@ class BandStructure:
                         xred = xred.dot(np.linalg.inv(self.Lattice))
 
         #        print ("lattice vectors:\n",self.Lattice)
-        self.RecLattice = (
-            np.array(
-                [
-                    np.cross(self.Lattice[(i + 1) % 3], self.Lattice[(i + 2) % 3])
-                    for i in range(3)
-                ]
-            )
-            * 2
-            * np.pi
-            / np.linalg.det(self.Lattice)
-        )
+        # self.RecLattice = (
+        #     np.array(
+        #         [
+        #             np.cross(self.Lattice[(i + 1) % 3], self.Lattice[(i + 2) % 3])
+        #             for i in range(3)
+        #         ]
+        #     )
+        #     * 2
+        #     * np.pi
+        #     / np.linalg.det(self.Lattice)
+        # )
+        self.RecLattice = compute_rec_lattice(self.Lattice)
 
         self.spacegroup = SpaceGroup(
             cell=(self.Lattice, xred, typat),
@@ -951,17 +955,18 @@ class BandStructure:
             Ecut = Ecut0
 
         self.Ecut = Ecut
-        self.RecLattice = (
-            np.array(
-                [
-                    np.cross(self.Lattice[(i + 1) % 3], self.Lattice[(i + 2) % 3])
-                    for i in range(3)
-                ]
-            )
-            * 2
-            * np.pi
-            / np.linalg.det(self.Lattice)
-        )
+        # self.RecLattice = (
+        #     np.array(
+        #         [
+        #             np.cross(self.Lattice[(i + 1) % 3], self.Lattice[(i + 2) % 3])
+        #             for i in range(3)
+        #         ]
+        #     )
+        #     * 2
+        #     * np.pi
+        #     / np.linalg.det(self.Lattice)
+        # )
+        self.RecLattice = compute_rec_lattice(self.Lattice)
         
         if EF.lower() == "auto":
             try:

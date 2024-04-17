@@ -236,5 +236,7 @@ def vector_pprint(vector, fmt=None):
 
     return ("[" + ("{:{fmt}} " * 3) + "]").format(*vector, fmt=fmt)
 
+def compute_rec_lattice(lattice):
+    return 2 * np.pi * np.linalg.inv(lattice.T)
 
  
