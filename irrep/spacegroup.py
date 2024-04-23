@@ -759,7 +759,7 @@ class SpaceGroup():
         except RuntimeError:
             if search_cell:  # symmetries must match to identify irreps
                 raise RuntimeError((
-                    "refUC and shiftUC don't transform the cellto one where "
+                    "refUC and shiftUC don't transform the cell to one where "
                     "symmetries are identical to those read from tables. "
                     "Try without specifying refUC and shiftUC."
                     ))
