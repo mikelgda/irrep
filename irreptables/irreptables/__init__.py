@@ -408,3 +408,15 @@ class IrrepTable:
         for irr in self.irreps:
             irr.show()
 
+def load_ebr_data(sg, kind="double"):
+    import json
+    assert kind == "double" or kind == "single", f"Invalid EBR table type: {kind}"
+    with open(
+        "{root}/ebr_tables/{sg}_ebrs.json".format(
+            sg=sg,
+            root=os.path.dirname(__file__)
+        )
+    ) as f:
+        data = json.load(f)
+    
+    return data[kind]

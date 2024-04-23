@@ -872,6 +872,8 @@ class SpaceGroup():
                 if symmetries is None or symop.ind in symmetries:
                     json_data["au_symmetries"][symop.ind] = symop.show(refUC=self.refUC, shiftUC=self.shiftUC)
 
+        return self.number
+
 #  def show2(self,refUC=None,shiftUC=np.zeros(3)):
 #    print('')
 #    print("\n ---------- INFORMATION ABOUT THE SPACE GROUP ---------- \n")

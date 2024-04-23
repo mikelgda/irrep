@@ -33,6 +33,7 @@ from .utility import str2bool, str2list, short
 from . import __version__ as version
 
 from .symmetry_indicators import get_si_calculation_points
+from .ebrs import compute_ebr_decomposition
 
 
 class LoadContextFromConfig(click.Command):
@@ -289,6 +290,12 @@ do not hesitate to contact the author:
     default=False,
     help="Output the k-point coordinates required for the symmetry indicators."
 )
+@click.option(
+    "-EBRs",
+    flag_value=True,
+    default=False,
+    help="Compute EBR decomposition for the calculated bands. Requires calculating irreps."
+    )
 
 def cli(
     ecut,
@@ -323,6 +330,7 @@ def cli(
     sindicators,
     givehskpoints,
     givesikpoints,
+    ebrs
 ):
     """
     Defines the "irrep" command-line tool interface.
@@ -562,3 +570,14 @@ def cli(
                 "SYMMETRY INDICATORS NOT COMPUTED.\n\n")
 
         si_results = bandstr.compute_symmetry_indicators(irreps, occ)
+    
+    if ebrs:
+        print("\n\n")
+        print("################### EBR decomposition ###################\n")
+        ebr_decomp = compute_ebr_decomposition(json_data, spinor)
+        if (ebr_decomp != 0).any():
+            print("The set of bands is topological")
+            print(ebr_decomp)
+        else:
+            print("The bands are trivial according to MTQC.")
+
