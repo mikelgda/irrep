@@ -33,7 +33,7 @@ from .utility import str2bool, str2list, short
 from . import __version__ as version
 
 from .symmetry_indicators import get_si_calculation_points
-from .ebrs import compute_ebr_decomposition
+from .ebrs import show_ebr_decomposition
 
 
 class LoadContextFromConfig(click.Command):
@@ -572,12 +572,5 @@ def cli(
         si_results = bandstr.compute_symmetry_indicators(irreps, occ)
     
     if ebrs:
-        print("\n\n")
-        print("################### EBR decomposition ###################\n")
-        ebr_decomp = compute_ebr_decomposition(json_data, spinor)
-        if (ebr_decomp != 0).any():
-            print("The set of bands is topological")
-            print(ebr_decomp)
-        else:
-            print("The bands are trivial according to MTQC.")
+        show_ebr_decomposition(json_data, spinor)        
 

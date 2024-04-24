@@ -196,7 +196,7 @@ def short(x, nd=3):
     """
     Format `float` or `complex` number.
 
-    Parameter
+    Parameters
     ---------
     x : int, float or complex
         Number to format.
@@ -215,28 +215,73 @@ def short(x, nd=3):
         return fmt.format(x.imag) + "j"
     return short(x.real, nd) + short(1j * x.imag)
 
-def matrix_pprint(matrix, fmt=None, delimeter="|"):
+def matrix_pprint(matrix, fmt=None, delimiter="|"):
+    """
+    Format an homogeneous array into a delimited matrix for printing
+
+    Parameters
+    ---------
+    matrix : array
+        Array to format
+    fmt : str, default None
+        Format of the elements. Numeric types are always sign-padded
+    delimiter : string, default '|'
+        Delimiter for the matrix bounds
+
+    Returns
+    -------
+    str
+        formatted matrix string
+    """
     output = ""
     row_length = matrix.shape[1]
     if fmt is None:
         fmt = " .5f"
     else:
         fmt = " " + fmt if fmt[0] != " " else fmt
-    row_format = delimeter + ("{:{fmt}} " * row_length) + delimeter + "\n"
+    row_format = delimiter + ("{:{fmt}} " * row_length) + delimiter + "\n"
     for row in matrix:
         output += row_format.format(*row, fmt=fmt)
 
     return output
 
 def vector_pprint(vector, fmt=None):
+    """
+    Format an homogeneous list or array as a vector for printing
+
+    Parameters
+    ---------
+    vector : array or list
+        Vector to format
+    fmt : str, default None
+        Format of the elements. Numeric types are always sign-padded
+
+    Returns
+    -------
+    str
+        formatted vector string
+    """
     if fmt is None:
         fmt = " .5f"
-    else:
+    elif "s" not in fmt:
         fmt = " " + fmt if fmt[0] != " " else fmt
 
-    return ("[" + ("{:{fmt}} " * 3) + "]").format(*vector, fmt=fmt)
+    return ("[" + ("{:{fmt}} " * len(vector)) + "]").format(*vector, fmt=fmt)
 
 def compute_rec_lattice(lattice):
+    """
+    Vectorized way of computing the reciprocal lattice vectors
+
+    Parameters
+    ---------
+    vector : array
+        3x3 matrix with the cell vectors along the rows
+
+    Returns
+    -------
+    array
+        3x3 matrix with the reciprocal lattice vectors along the rows
+    """
     return 2 * np.pi * np.linalg.inv(lattice.T)
 
  
