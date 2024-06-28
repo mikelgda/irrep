@@ -272,11 +272,11 @@ do not hesitate to contact the author:
     help="Path to magnetic moments file. One row per atom, three coordinates in Cartesian."
 )
 
-@click.option(
-    "-SIndicators",
-    default=None,
-    help="Number of occupied bands to compute the corresponding symmetry indicators."
-)
+# @click.option(
+#     "-SIndicators",
+#     default=None,
+#     help="Number of occupied bands to compute the corresponding symmetry indicators."
+# )
 
 @click.option(
     "-giveHSKpoints",
@@ -284,12 +284,12 @@ do not hesitate to contact the author:
     default=False,
     help="Output the k-point coordinates in the input cell to match the tables."
 )
-@click.option(
-    "-giveSIKpoints",
-    flag_value=True,
-    default=False,
-    help="Output the k-point coordinates required for the symmetry indicators."
-)
+# @click.option(
+#     "-giveSIKpoints",
+#     flag_value=True,
+#     default=False,
+#     help="Output the k-point coordinates required for the symmetry indicators."
+# )
 @click.option(
     "-EBRs",
     flag_value=True,
@@ -327,9 +327,9 @@ def cli(
     correct_ecut0,
     trans_thresh,
     magmom,
-    sindicators,
+    # sindicators,
     givehskpoints,
-    givesikpoints,
+    # givesikpoints,
     ebrs
 ):
     """
@@ -557,19 +557,19 @@ def cli(
 
     dumpfn(json_data,"irrep-output.json",indent=4)
 
-    if sindicators is not None:
-        for point in bandstr.kpoints:
-            print(point.K, point.K_std)
-        print("\n\n")
-        irreps = json_data["characters_and_irreps"][0]["subspace"]["k-points"]
-        try:
-            occ = int(sindicators)
-        except ValueError: # thrown by int(sindicators)
-            print("Introduce a valid occupation for symmetry indicators"
-                f" (you entered {sindicators})\n"
-                "SYMMETRY INDICATORS NOT COMPUTED.\n\n")
+    # if sindicators is not None:
+    #     for point in bandstr.kpoints:
+    #         print(point.K, point.K_std)
+    #     print("\n\n")
+    #     irreps = json_data["characters_and_irreps"][0]["subspace"]["k-points"]
+    #     try:
+    #         occ = int(sindicators)
+    #     except ValueError: # thrown by int(sindicators)
+    #         print("Introduce a valid occupation for symmetry indicators"
+    #             f" (you entered {sindicators})\n"
+    #             "SYMMETRY INDICATORS NOT COMPUTED.\n\n")
 
-        si_results = bandstr.compute_symmetry_indicators(irreps, occ)
+    #     si_results = bandstr.compute_symmetry_indicators(irreps, occ)
     
     if ebrs:
         show_ebr_decomposition(json_data, spinor)        
