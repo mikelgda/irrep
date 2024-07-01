@@ -79,6 +79,7 @@ class BandStructure:
         Threshold to compare translational parts of symmetries.
     degen_thresh : float, default=1e-8
         Threshold to determine the degeneracy of energy levels.
+    magnetic_moments : 
 
     Attributes
     ----------
@@ -140,7 +141,8 @@ class BandStructure:
         shiftUC = None,
         search_cell = False,
         trans_thresh=1e-5,
-        degen_thresh=1e-8
+        degen_thresh=1e-8,
+        magnetic_moments=None
     ):
 
         code = code.lower()
@@ -220,7 +222,9 @@ class BandStructure:
                               refUC=refUC,
                               shiftUC=shiftUC,
                               search_cell=search_cell,
-                              trans_thresh=trans_thresh)
+                              trans_thresh=trans_thresh,
+                              magnetic_moments=magnetic_moments
+                              )
         if onlysym:
             return
 

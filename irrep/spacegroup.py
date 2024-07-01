@@ -22,6 +22,7 @@ from scipy.linalg import expm
 import spglib
 from irreptables import IrrepTable
 from scipy.optimize import minimize
+import os
 from .utility import str_
 
 pauli_sigma = np.array(
@@ -468,6 +469,7 @@ class SpaceGroup():
         It is `True` if kpnames was specified in CLI.
     trans_thresh : float, default=1e-5
         Threshold used to compare translational parts of symmetries.
+    magnetic_moments : 
 
     Attributes
     ----------
@@ -475,7 +477,10 @@ class SpaceGroup():
         `True` if wave-functions are spinors (SOC), `False` if they are scalars.
     symmetries : list
         Each element is an instance of class `SymmetryOperation` corresponding 
-        to a symmetry in the point group of the space-group.
+        to a unitary symmetry in the point group of the space-group.
+    au_symmetries : list
+        Each element is an instance of class `SymmetryOperation` corresponding 
+        to an antiunitary symmetry in the point group of the space-group.
     symmetries_tables : list
         Attribute `symmetries` of class `IrrepTable`. Each component is an 
         instance of class `SymopTable` corresponding to a symmetry operation
@@ -504,6 +509,7 @@ class SpaceGroup():
     shiftUC : array, default=None
         Translation taking the origin of the unit cell used in the DFT 
         calculation to that of the standard setting.
+    magnetic : bool
 
     Notes
     -----
@@ -522,24 +528,89 @@ class SpaceGroup():
             refUC=None,
             shiftUC=None,
             search_cell=False,
-            trans_thresh=1e-5
+            trans_thresh=1e-5,
+            magnetic_moments=None
             ):
+
         self.spinor = spinor
         self.Lattice = cell[0]
         self.positions = cell[1]
         self.typat = cell[2]
-        (self.symmetries, 
-         self.name, 
-         self.number, 
-         refUC_tmp, 
-         shiftUC_tmp) = self._findsym(cell)
-        self.RecLattice = np.array([np.cross(self.Lattice[(i + 1) %
-                                                          3], self.Lattice[(i + 2) %
-                                                                           3]) for i in range(3)]) * 2 * np.pi / np.linalg.det(self.Lattice)
-        self.order = len(self.symmetries)
+
+        # Calculate reciprocal lattice vectors of DFT setting
+        self.RecLattice = np.zeros((3,3), dtype=float)
+        for i in range(3):
+            self.RecLattice[i] = np.array(np.cross(self.Lattice[(i + 1) %3],
+                                                   self.Lattice[(i + 2) %3]))
+        self.RecLattice *= (2.0 * np.pi / np.linalg.det(self.Lattice))
+
+        if magnetic_moments is None:
+            dataset = spglib.get_symmetry_dataset(cell)
+            symmetries = []
+            for isym, rot in enumerate(dataset['rotations']):
+                symmetries.append(SymmetryOperation(
+                                      rot,
+                                      dataset['translations'][isym],
+                                      cell[0],
+                                      ind=isym + 1,
+                                      spinor=self.spinor))
+            (self.name,
+             self.number,
+             refUC_tmp,
+             shiftUC_tmp) = (dataset['international'],
+                             dataset['number'],
+                             dataset['transformation_matrix'],
+                             dataset['origin_shift'])
+
+        else:
+            dataset = spglib.get_magnetic_symmetry_dataset((*cell,
+                                                            magnetic_moments))
+            if dataset is None:                                                 
+                raise ValueError("No magnetic space group could be detected!")  
+            symmetries = []
+            for isym, rot in enumerate(dataset['rotations']):
+                symmetries.append(SymmetryOperation(
+                                   rot,
+                                   dataset['translations'][i],
+                                   cell[0],
+                                   ind=isym+1,
+                                   spinor=self.spinor,
+                                   time_reversal=dataset["time_reversals"][i]))
+
+                                                                                
+            uni_number = dataset["uni_number"]                                  
+            root = os.path.dirname(__file__)                                    
+                                                                                
+            with open(root + "/msg_numbers.data", 'r') as f:                    
+                self.number, self.name = f.readlines()[uni_number].strip().split(" ") 
+                                                                                
+            (refUC_tmp,
+             shiftUC_tmp) = (dataset['transformation_matrix'],
+                             dataset['origin_shift'])
+
+        # Make sure provided magnetic moments are not zero
+        if magnetic_moments is None:
+            self.magnetic = False
+        else:
+            self.magnetic = (magnetic_moments != 0).any()
+
+        if not self.magnetic:
+            self.symmetries = symmetries  # unitary syms
+            self.au_symmetries = []  # antinunitary syms
+        else:
+            self.symmetries = list(filter(lambda x: not x.time_reversal,
+                                          symmetries))
+            self.au_symmetries = list(filter(lambda x: x.time_reversal,
+                                             symmetries))
+
+        self.order = len(self.symmetries)  # To be redefined?
+
+        # Load symmetries from the space group's table
+        irreptable = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
+        self.symmetries_table = irreptable.symmetries
+        self.au_symmetries_table = irreptable.au_symmetries
 
         # Determine refUC and shiftUC according to entries in CLI
-        self.symmetries_tables = IrrepTable(self.number, self.spinor).symmetries
         self.refUC, self.shiftUC = self.determine_basis_transf(
                                             refUC_cli=refUC, 
                                             shiftUC_cli=shiftUC,
@@ -580,61 +651,6 @@ class SpaceGroup():
                        "tables. If you want to achieve the same cell as in "
                        "tables, try not specifying refUC and shiftUC."))
                 pass
-
-    def _findsym(self, cell):
-        """
-        Finds the space-group and constructs a list of symmetry operations
-        
-        Parameters
-        ----------
-        cell : list
-            `cell[0]` is a 3x3 array where cartesian coordinates of basis 
-            vectors **a**, **b** and **c** are given in rows. `cell[1]` is an array
-            where each row contains the direct coordinates of an ion's position. 
-            `cell[2]` is an array where each element is a number identifying the 
-            atomic species of an ion. See `cell` parameter of function 
-            `get_symmetry` in 
-            `Spglib <https://spglib.github.io/spglib/python-spglib.html#get-symmetry>`_.
-        
-        Returns
-        -------
-        list
-            Each element is an instance of class `SymmetryOperation` corresponding 
-            to a symmetry in the point group of the space-group.
-        str
-            Symbol of the space-group in Hermann-Mauguin notation. 
-        int
-            Number of the space-group.
-        array
-            3x3 array where cartesian coordinates of basis  vectors **a**, **b** 
-            and **c** are given in rows. 
-        array
-            3x3 array describing the transformation of vectors defining the 
-            unit cell to the convenctional setting.
-        array
-            Translation taking the origin of the unit cell used in the DFT 
-            calculation to that of the standard setting of spglib. It may not be
-            the shift taking to the convenctional cell of tables; indeed, in 
-            centrosymmetric groups they adopt origin choice 1 of ITA, rather 
-            than choice 2 (BCS).
-        """
-        dataset = spglib.get_symmetry_dataset(cell)
-        symmetries = [
-            SymmetryOperation(
-                rot,
-                dataset['translations'][i],
-                cell[0],
-                ind=i + 1,
-                spinor=self.spinor) for i,
-            rot in enumerate(
-                dataset['rotations'])]
-
-        return (symmetries, 
-                dataset['international'],
-                dataset['number'], 
-                dataset['transformation_matrix'],
-                dataset['origin_shift']
-                )
 
     def json(self, symmetries=None):
         '''
@@ -1131,19 +1147,29 @@ class SpaceGroup():
             refUC = self.refUC
         if shiftUC is None:
             shiftUC = self.shiftUC
+
+        symmetries = self.symmetries.copy()
+        symmetries_tables = self.symmetries_table.copy()
+        indices = [i for i in range(self.order)]
+        if self.magnetic:
+            symmetries += self.au_symmetries
+            symmetries_tables += self.au_symmetries_table
+            indices *= 2  # indices that will be assigned to symmetries
+
         ind = []
         dt = []
-        for j, sym in enumerate(self.symmetries):
+
+        for j, sym in enumerate(symmetries):
             R = sym.rotation_refUC(refUC)
             t = sym.translation_refUC(refUC, shiftUC)
             found = False
-            for i, sym2 in enumerate(self.symmetries_tables):
+            for i, sym2 in enumerate(symmetries_tables):
                 t1 = refUC.dot(sym2.t - t) % 1
                 #t1 = np.dot(sym2.t - t, refUC) % 1
                 t1[1 - t1 < trans_thresh] = 0
                 if np.allclose(R, sym2.R):
                     if np.allclose(t1, [0, 0, 0], atol=trans_thresh):
-                        ind.append(i)
+                        ind.append(indices[i])  # au symmetries labeled from 0
                         dt.append(sym2.t - t)
                         found = True
                         break
