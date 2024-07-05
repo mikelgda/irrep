@@ -52,13 +52,24 @@ class SymopTable:
         numbers = line.split()
         self.R = np.array(numbers[:9], dtype=int).reshape(3, 3)
         self.t = np.array(numbers[9:12], dtype=float)
-        if len(numbers) > 12:
+
+        # Parse spin rotation matrix
+        line_length = len(numbers)
+        if line_length > 13:  # double-valued group
             self.S = (
                 np.array(numbers[12:16], dtype=float)
                 * np.exp(1j * np.pi * np.array(numbers[16:20], dtype=float))
             ).reshape(2, 2)
-        else:
+        else:  # single-valued group
             self.S = np.eye(2)
+        
+        if line_length == 13:  # scalar-valued magnetic
+            self.time_reversal = False if int(numbers[12]) == 1 else True
+        elif line_length == 21:  # double-valued magnetic
+            self.time_reversal = False if int(numbers[20]) == 1 else True
+        else:  # no need for magnetic treatment
+            self.time_reversal = False
+
 
     def str(self, spinor=True):
         """
@@ -316,15 +327,22 @@ class IrrepTable:
         irrep of the little group of a maximal k-point.
     """
 
-    def __init__(self, SGnumber, spinor, name=None):
+    def __init__(self, SGnumber, spinor, name=None, magnetic=False):
         self.number = SGnumber
         self.spinor = spinor
         if name is None:
-            name = "{root}/tables/irreps-SG={SG}-{spinor}.dat".format(
-                SG=self.number,
-                spinor="spin" if self.spinor else "scal",
-                root=os.path.dirname(__file__),
-            )
+            if magnetic is False:
+                name = "{root}/tables/irreps-SG={SG}-{spinor}.dat".format(
+                    SG=self.number,
+                    spinor="spin" if self.spinor else "scal",
+                    root=os.path.dirname(__file__),
+                )
+            else:
+                name = "{root}/correptables/irreps-SG={SG}-{spinor}.dat".format(
+                    SG=self.number,
+                    spinor="spin" if self.spinor else "scal",
+                    root=os.path.dirname(__file__),
+                )
             logger.debug("reading from a standard irrep table <{0}>".format(name))
         else:
             logger.debug("reading from a user-defined irrep table <{0}>".format(name))
@@ -342,17 +360,20 @@ class IrrepTable:
             elif l[0].lower() == "spinor":
                 assert str2bool(l[1]) == self.spinor
             elif l[0].lower() == "symmetries":
-                print("Reading symmetries from tables")
-                self.symmetries = []
-                while len(self.symmetries) < self.nsym:
+                print(f"\nReading symmetries from tables for SG {self.number}")
+                symmetries = []
+                while len(symmetries) < self.nsym:
                     l = lines.pop()
                     # logger.debug(l)
                     try:
-                        self.symmetries.append(SymopTable(l))
+                        symmetries.append(SymopTable(l))
                     except Exception as err:
                         logger.debug(err)
                         pass
                 break
+        
+        self.symmetries = list(filter(lambda x: not x.time_reversal, symmetries))
+        self.au_symmetries = list(filter(lambda x: x.time_reversal, symmetries))
 
         logger.debug("symmetries are:\n" + "\n".join(s.str() for s in self.symmetries))
 
