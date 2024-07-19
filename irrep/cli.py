@@ -326,6 +326,13 @@ def cli(
     if kpnames:
         kpnames = kpnames.split(",")
 
+    # Decide if wave functions should be kept in memory after calculating trace
+    if isymsep or wcc or zak:
+        save_wf = True
+    else:
+        save_wf = False
+
+    # Read magnetic moments from a file
     if magmom is not None:
         try:
             magnetic_moments = np.loadtxt(magmom)
@@ -346,6 +353,7 @@ def cli(
         IBend=ibend,
         kplist=kpoints,
         spinor=spinor,
+        calculate_traces=True,
         code=code,
         EF=ef,
         onlysym=onlysym,
@@ -353,7 +361,8 @@ def cli(
         shiftUC = shiftuc,
         search_cell = searchcell,
         degen_thresh=degenthresh,
-        magnetic_moments=magnetic_moments
+        magnetic_moments=magnetic_moments,
+        save_wf=save_wf
     )
 
     bandstr.spacegroup.show()

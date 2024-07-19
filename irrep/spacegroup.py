@@ -625,8 +625,8 @@ class SpaceGroup():
 
         # Load symmetries from the space group's table
         irreptable = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
-        self.symmetries_table = irreptable.symmetries
-        self.au_symmetries_table = irreptable.au_symmetries
+        self.symmetries_tables = irreptable.symmetries
+        self.au_symmetries_tables = irreptable.au_symmetries
 
         # Determine refUC and shiftUC according to entries in CLI
         self.refUC, self.shiftUC = self.determine_basis_transf(
@@ -1217,10 +1217,10 @@ class SpaceGroup():
 
         if au_symmetries:
             symmetries = self.au_symmetries
-            symmetries_tables = self.au_symmetries_table
+            symmetries_tables = self.au_symmetries_tables
         else:
             symmetries = self.symmetries
-            symmetries_tables = self.symmetries_table
+            symmetries_tables = self.symmetries_tables
 
         for j, sym in enumerate(symmetries):
             R = sym.rotation_refUC(refUC)

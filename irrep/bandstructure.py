@@ -79,6 +79,12 @@ class BandStructure:
         Threshold to compare translational parts of symmetries.
     degen_thresh : float, default=1e-8
         Threshold to determine the degeneracy of energy levels.
+    calculate_traces : bool
+        If `True`, traces of symmetries will be calculated. Useful to icreate 
+        instances of `BandStructure` faster.
+    save_wf : bool
+        Whether wave functions should be kept as attribute after calculating 
+        traces.
     magnetic_moments : 
 
     Attributes
@@ -134,6 +140,7 @@ class BandStructure:
         kplist=None,
         spinor=None,
         code="vasp",
+        calculate_traces=False,
         EF='0.0',
         onlysym=False,
         spin_channel=None,
@@ -142,7 +149,8 @@ class BandStructure:
         search_cell = False,
         trans_thresh=1e-5,
         degen_thresh=1e-8,
-        magnetic_moments=None
+        magnetic_moments=None,
+        save_wf=True
     ):
 
         code = code.lower()
@@ -343,14 +351,17 @@ class BandStructure:
                 upper=upper,
                 num_bands=NBout,
                 RecLattice=self.RecLattice,
+                calculate_traces=calculate_traces,
                 symmetries_SG=self.spacegroup.symmetries,
                 spinor=self.spinor,
                 degen_thresh=degen_thresh,
                 refUC=self.spacegroup.refUC,
                 shiftUC=self.spacegroup.shiftUC,
-                symmetries_tables=self.spacegroup.symmetries_tables
+                symmetries_tables=self.spacegroup.symmetries_tables,
+                save_wf=save_wf
                 )
             self.kpoints.append(kp)
+        del WF
 
     @property
     def num_k(self):
@@ -407,7 +418,7 @@ class BandStructure:
 
             # Print gap with respect to next band
             if not np.isnan(KP.upper):
-                print("Gap with upper bands: ", KP.upper - KP.Energy[-1])
+                print("Gap with upper bands: ", KP.upper - KP.Energy_mean[-1])
         
         # Print total number of band inversions
         if self.spinor:
@@ -478,7 +489,7 @@ class BandStructure:
 
         gap = np.inf
         for KP in self.kpoints:
-            gap = min(gap, KP.upper-KP.Energy[-1])
+            gap = min(gap, KP.upper-KP.Energy_mean[-1])
         return gap
 
     @property
@@ -496,7 +507,7 @@ class BandStructure:
         max_lower = -np.inf  # largest energy of bands in the set
         for KP in self.kpoints:
             min_upper = min(min_upper, KP.upper)
-            max_lower = max(max_lower, KP.Energy[-1])
+            max_lower = max(max_lower, KP.Energy_mean[-1])
         return min_upper - max_lower
 
     @property
@@ -775,7 +786,7 @@ class BandStructure:
             count = 0
             for iset, deg in enumerate(kp.degeneracies):
                 for i in range(deg):
-                    energies_expanded[count,ik] = kp.Energy[iset]
+                    energies_expanded[count,ik] = kp.Energy_mean[iset]
                     count += 1
 
         # Write energies of each band
