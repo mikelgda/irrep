@@ -21,7 +21,7 @@ import numpy as np
 import numpy.linalg as la
 import copy
 from .gvectors import symm_eigenvalues, symm_matrix
-from .utility import compstr, is_round, format_matrix
+from .utility import compstr, is_round, format_matrix, vector_pprint
 
 class Kpoint:
     """
@@ -689,8 +689,8 @@ class Kpoint:
                "               {2} (after cell trasformation)\n\n"
                " number of states : {3}\n"
                .format(self.ik0,
-                       np.round(self.k, 5),
-                       np.round(self.k_refUC, 5),
+                       vector_pprint(np.round(self.k, 5)),
+                       vector_pprint(np.round(self.k_refUC, 5)),
                        self.num_bands)
               ))
 

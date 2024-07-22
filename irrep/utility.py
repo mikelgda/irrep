@@ -250,3 +250,27 @@ def format_matrix(A):
         + "\n"
         for a in A
     )
+
+
+def vector_pprint(vector, fmt=None):
+    """
+    Format an homogeneous list or array as a vector for printing
+
+    Parameters
+    ---------
+    vector : array or list
+        Vector to format
+    fmt : str, default None
+        Format of the elements. Numeric types are always sign-padded
+
+    Returns
+    -------
+    str
+        formatted vector string
+    """
+    if fmt is None:
+        fmt = " .5f"
+    elif "s" not in fmt:
+        fmt = " " + fmt if fmt[0] != " " else fmt
+
+    return ("[" + ("{:{fmt}} " * len(vector)) + "]").format(*vector, fmt=fmt)

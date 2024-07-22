@@ -325,6 +325,7 @@ class IrrepTable:
     irreps : list
         Each component is an instance of class `IrRep` corresponding to an 
         irrep of the little group of a maximal k-point.
+    magnetic :
     """
 
     def __init__(self, SGnumber, spinor, name=None, magnetic=False):

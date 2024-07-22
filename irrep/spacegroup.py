@@ -974,7 +974,7 @@ class SpaceGroup():
             given in parameter `kpname`.
         """
 
-        table = IrrepTable(self.number, self.spinor)
+        table = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
         tab = {}
         for irr in table.irreps:
             if irr.kpname == kpname:
