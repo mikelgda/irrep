@@ -233,6 +233,8 @@ class BandStructure:
                               trans_thresh=trans_thresh,
                               magnetic_moments=magnetic_moments
                               )
+        self.magnetic = self.spacegroup.magnetic
+
         if onlysym:
             return
 
@@ -408,7 +410,7 @@ class BandStructure:
                 print("\nInvariant under inversion: No")
             else:
                 print("\nInvariant under inversion: Yes")
-                if self.spinor:
+                if self.spinor and not self.magnetic:
                     print("Number of inversions-odd Kramers pairs : {}"
                           .format(int(KP.num_bandinvs / 2))
                           )
@@ -421,15 +423,16 @@ class BandStructure:
                 print("Gap with upper bands: ", KP.upper - KP.Energy_mean[-1])
         
         # Print total number of band inversions
-        if self.spinor:
+        if self.spinor and not self.magnetic:
             print("\nTOTAL number of inversions-odd Kramers pairs : {}"
                   .format(int(self.num_bandinvs/2)))
         else:
             print("TOTAL number of inversions-odd states : {}"
                   .format(self.num_bandinvs))
         
-        print('Z2 invariant: {}'.format(int(self.num_bandinvs/2 % 2)))
-        print('Z4 invariant: {}'.format(int(self.num_bandinvs/2 % 4)))
+        if not self.magnetic:
+            print('Z2 invariant: {}'.format(int(self.num_bandinvs/2 % 2)))
+            print('Z4 invariant: {}'.format(int(self.num_bandinvs/2 % 4)))
 
         # Print indirect gap and smalles direct gap
         print('Indirect gap: {}'.format(self.gap_indirect))
@@ -468,7 +471,7 @@ class BandStructure:
         json_data['indirect gap (eV)'] =  self.gap_indirect
         json_data['Minimal direct gap (eV)'] =  self.gap_direct
 
-        if self.spinor:
+        if self.spinor and not self.magnetic:
             json_data["number of inversion-odd Kramers pairs"]  = int(self.num_bandinvs / 2)
             json_data["Z4"] = int(self.num_bandinvs / 2) % 4,
         else:
@@ -626,6 +629,11 @@ class BandStructure:
         # Print description of symmetry used for separation
         symop = self.spacegroup.symmetries[isymop - 1]
         symop.show()
+
+        # to do: allow for separation in terms of antiunitary symmetries
+        if isymop > self.spacegroup.order:
+            raise RuntimeError("Separation in terms of antiunitary symmetries "
+                               "not implemented for now.")
 
         # Separate each k-point
         kpseparated = [

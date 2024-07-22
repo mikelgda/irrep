@@ -724,7 +724,8 @@ class SpaceGroup():
              "spinor": self.spinor,
              "num symmetries": self.order,
              "cells match": cells_match,
-             "symmetries": {}
+             "symmetries": {},
+             "magnetic": self.magnetic
              }
 
         for sym in self.symmetries:
