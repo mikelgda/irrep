@@ -687,7 +687,7 @@ class SpaceGroup():
             except RuntimeError:
                 if search_cell:  # symmetries must match to identify irreps
                     raise RuntimeError((
-                        "refUC and shiftUC don't transform the cellto one where "
+                        "refUC and shiftUC don't transform the cell to one where "
                         "symmetries are identical to those read from tables. "
                         "Try without specifying refUC and shiftUC."
                         ))
@@ -1279,7 +1279,7 @@ class SpaceGroup():
                  parameters")
 
         if signs:
-            S1 = [sym.spinor_rotation for sym in self.symmetries]
+            S1 = [sym.spinor_rotation for sym in symmetries]
             S2 = [self.symmetries_tables[i].S for i in ind]
             signs_array = self.__match_spinor_rotations(S1, S2)
         else:
