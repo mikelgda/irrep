@@ -166,7 +166,8 @@ class Kpoint:
         refUC=np.eye(3),
         shiftUC=np.zeros(3),
         symmetries_tables=None,  # calculate_traces needs it
-        save_wf=True
+        save_wf=True,
+        magnetic=False
     ):
         self.spinor = spinor
         self.ik0 = ik + 1  # the index in the WAVECAR (count start from 1)
@@ -180,7 +181,7 @@ class Kpoint:
         self.ig = ig
         self.upper = upper
 
-        self.k_refUC = np.dot(refUC.T, self.k)
+        self.k_refUC = np.dot(refUC.T, self.k) % 1
         self.WF /= (
             np.sqrt(np.abs(np.einsum("ij,ij->i", self.WF.conj(), self.WF)))
         ).reshape(self.num_bands, 1)

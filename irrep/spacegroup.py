@@ -589,11 +589,11 @@ class SpaceGroup():
             for isym, rot in enumerate(dataset['rotations']):
                 symmetries.append(SymmetryOperation(
                                    rot,
-                                   dataset['translations'][i],
+                                   dataset['translations'][isym],
                                    cell[0],
                                    ind=isym+1,
                                    spinor=self.spinor,
-                                   time_reversal=dataset["time_reversals"][i]))
+                                   time_reversal=dataset["time_reversals"][isym]))
 
                                                                                 
             uni_number = dataset["uni_number"]                                  
