@@ -656,7 +656,7 @@ class SpaceGroup():
         except RuntimeError:
             if search_cell:  # symmetries must match to identify irreps
                 raise RuntimeError((
-                    "refUC and shiftUC don't transform the cellto one where "
+                    "refUC and shiftUC don't transform the cell to one where "
                     "symmetries are identical to those read from tables. "
                     "Try without specifying refUC and shiftUC."
                     ))
@@ -798,7 +798,6 @@ class SpaceGroup():
                 symop.show(refUC=self.refUC, shiftUC=self.shiftUC)
 
         if self.magnetic:
-            print('barruan')
             for symop in self.au_symmetries:
                 if symmetries is None or symop.ind in symmetries:
                     symop.show(refUC=self.refUC, shiftUC=self.shiftUC)
@@ -1269,11 +1268,16 @@ class SpaceGroup():
                      "rotational part. \nR(found) = \n{} \nt(found) = {}"
                      .format(R, t))
 
-        if (len(set(ind)) != len(self.symmetries)):
+        if self.au_symmetries:
+            order = len(self.au_symmetries)
+        else:
+            order = len(self.symmetries)
+        if len(set(ind)) != order:
             raise RuntimeError(
                 "Error in matching symmetries detected by spglib with the \
                  symmetries in the tables. Try to modify the refUC and shiftUC \
                  parameters")
+
         if signs:
             S1 = [sym.spinor_rotation for sym in self.symmetries]
             S2 = [self.symmetries_tables[i].S for i in ind]
