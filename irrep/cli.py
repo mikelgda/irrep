@@ -410,6 +410,16 @@ def cli(
     else :
         json_data["separated by symmetry"]=False
         
+    
+    if symmetryindicators:
+        print("\n\n------- SYMMETRY INDICATORS -------")
+        si_results = compute_symmetry_indicators(json_data)
+
+        print("\nComputed symmetry indicators:")
+        for si_name, si_value in si_results:
+            print("  {}: {}".format(si_name, si_value))
+
+        json_data["symmetry_indicators"] = si_results
 
     dumpfn(json_data,"irrep-output.json",indent=4)
 
@@ -461,11 +471,3 @@ def cli(
             else:
                 fname = "bands-{0}.dat".format(suffix)
             sub.write_plotfile(fname)
-    
-    if symmetryindicators:
-        print("\n\n------- SYMMETRY INDICATORS -------")
-        si_results = compute_symmetry_indicators(json_data)
-
-        print("\nComputed symmetry indicators:")
-        for si_name, si_value in si_results:
-            print("  {}: {}".format(si_name, si_value))
