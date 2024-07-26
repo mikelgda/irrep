@@ -379,7 +379,8 @@ class BandStructure:
 
         for ik, KP in enumerate(self.kpoints):
             
-            if kpnames is not None:
+            # only identify irreps of named points
+            if kpnames[ik] is not None:
                 irreps = self.spacegroup.get_irreps_from_table(kpnames[ik], KP.k)
             else:
                 irreps = None
@@ -531,7 +532,10 @@ class BandStructure:
 
         file = open('irreps.dat', 'w')
         for KP in self.kpoints:
-            KP.write_irrepsfile(file)
+            # skip points whose irreps were not identified
+            if not KP.onlytraces:
+                KP.write_irrepsfile(file)
+
         file.close()
 
 

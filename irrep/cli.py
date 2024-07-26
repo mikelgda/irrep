@@ -25,7 +25,7 @@ import click
 from monty.serialization import dumpfn, loadfn
 
 from .bandstructure import BandStructure
-from .utility import str2list, short
+from .utility import str2list, short, process_kpnames
 from . import __version__ as version
 
 
@@ -315,7 +315,8 @@ def cli(
     if isymsep:
         isymsep = str2list(isymsep)
     if kpnames:
-        kpnames = kpnames.split(",")
+        # kpnames = kpnames.split(",")
+        kpnames = process_kpnames(kpnames)
 
     if isymsep or wcc or zak:
         save_wf = True
@@ -369,7 +370,7 @@ def cli(
     # Temporary, until we make it valid for isymsep
     json_data = {}
     json_data ["spacegroup"] = bandstr.spacegroup.json(symmetries=symmetries)
-    json_bandstr = bandstr.json()
+    json_bandstr = bandstr.json(kpnames=kpnames)
     json_data['characters and irreps'] = [{"subspace": json_bandstr}]
 
     # Separate in terms of symmetry eigenvalues

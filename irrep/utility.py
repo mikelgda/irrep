@@ -250,3 +250,9 @@ def format_matrix(A):
         + "\n"
         for a in A
     )
+
+def process_kpnames(kpnames):
+    kpnames = kpnames.split(",")
+    kpnames = [s if s != "-" else None for s in kpnames]
+
+    return kpnames
