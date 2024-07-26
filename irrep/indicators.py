@@ -32,7 +32,7 @@ def count_trims(kpoints):
     return is_trim(kpoints).sum()
 
 
-def check_kpoints(kpoints, check_trims=True):
+def check_kpoints(kpoints):
     """Performs checks on the kpoints to see if any are repeated."""
     seen = []
     repeated = []
@@ -48,20 +48,10 @@ def check_kpoints(kpoints, check_trims=True):
             elif not check_vector_in_array(k, repeated):
                 repeated.append(k)
 
-    if check_trims:
-        seen = np.array(seen)
-        trim_count = count_trims(seen)
-
-        if len(repeated) > 0:
-            return np.array(repeated), trim_count
-        else:
-            return None, trim_count
+    if len(repeated) > 0:
+        return np.array(repeated)
     else:
-
-        if len(repeated) > 0:
-            return np.array(repeated)
-        else:
-            return None
+        return None
 
 
 def is_inversion(matrix):
@@ -147,7 +137,7 @@ def filter_irreps(irreps, precision=1e-4):
     return irrep_list
 
 
-def get_irreps_info(data, with_character=None):
+def get_irreps_info(data):
     """Extracts relevant information for SI calculation from irrep's JSON.
 
     Parameters
@@ -292,6 +282,62 @@ def compute_invariant(irrep_counts, irrep_names, factors, mod):
     else:
         return total % mod
 
+def compute_symmetry_indicators(json_data):
+    sg_number = json_data["spacegroup"]["number"]
+
+    kpoints = get_kpoint_coordinates_from_json(json_data, refUC=False)
+    repeated = check_kpoints(kpoints)
+
+    si_results = []
+
+    irrep_counts = count_irreps(get_irreps_info(json_data), by_point=False)
+
+    if len(repeated) > 0:
+        print("Some k-points are repeated. Please remove duplicates to compute symmetry indicators.")
+        for kpoint in kpoints:
+            print("\t {: .5f} {: .5f} {:.5f}".format(*kpoint))
+
+        return
+    
+    inversion_index = sg_has_inversion(json_data)
+    if inversion_index is not None:
+        character_info = get_character_info(json_data, inversion_index)
+        trim_number = len(character_info)
+        if trim_number != 8:
+            print("Could not compute inversion-related SIs. Wrong number of TRIMs ({})".format(trim_number))
+        else:
+            # z2w_j triplet
+            triplet_names = [f"z2w_{j}" for j in range(1,4)]
+            for z2_name, z2_value in zip(triplet_names, z2w_triplet(character_info)):
+                si_results.append((z2_name, z2_value))
+            # z4 
+            z4_value = z4(character_info)
+            si_results.append(("z4", z4_value))
+            # z12 indices need z4 value
+            if sg_number in [175, 191, 192]:
+                z12_value = z12(irrep_counts, z4_value)
+                si_results.append(("z12", z12_value))
+            elif sg_number in [176, 193, 194]:
+                z12_value = z12prime(irrep_counts, z4_value)
+                si_results.append(("z12'", z12_value))
+
+    s4_index = sg_has_S4(json_data)
+    if s4_index is not None:
+        character_info = get_character_info(json_data, s4_index)
+        s4_kpoints = len(character_info)
+        if s4_kpoints != 4:
+            print("Could not compute z2 index. Missing {} S4-symmetric k-points".format(4-s4_kpoints))
+        else:
+            si_results.append(("z2", z2(character_info)))
+
+    # SG-specific indicators
+    si_list = SI_FROM_SG.get(sg_number, [])
+    for si_name, si_function in si_list:
+        si_results.append((si_name, si_function(irrep_counts)))
+
+    return si_results
+
+#### SI DEFINITIONS ####
 
 def z2w_j(character_info, j=1):
     i = j - 1
@@ -417,7 +463,7 @@ def z3mpi(irrep_counts):
     return compute_invariant(irrep_counts, irrep_names, factors, mod)
 
 
-def z6m0(irrep_counts):
+def z6m0_175(irrep_counts):
     # "-GM7#-GM8", "-GM12#-GM9", "-GM10#-GM11", "-GM13#-GM14", \
     # "-GM15#-GM18", "-GM16#-GM17", "-K7#-K8", "-K12#-K9", "-K10#-K11", \
     # "-M3#-M4", "-M5#-M6"
@@ -440,7 +486,7 @@ def z6m0(irrep_counts):
     return compute_invariant(irrep_counts, irrep_names, factors, mod)
 
 
-def zm6pi(irrep_counts):
+def z6mpi_175(irrep_counts):
     # "-A7#-A8", "-A12#-A9", "-A10#-A11", "-A13#-A14", "-A15#-A18",
     # "-A16#-A17", "-H7#-H8", "-H12#-H9", "-H10#-H11", "-L3#-L4", "-L5#-L6"
     irrep_names = [
@@ -461,6 +507,8 @@ def zm6pi(irrep_counts):
 
     return compute_invariant(irrep_counts, irrep_names, factors, mod)
 
+def z6m0_176(irrep_counts):
+    return z6m0_175(irrep_counts)
 
 def z8_83(irrep_counts):
     # 1/2+ (-): "-GM6-GM8", "-M6-M8", "-Z6-Z8", "-A6-A8", "-X3-X4", "-R3-R4"
@@ -850,3 +898,104 @@ def z8_229(irrep_counts):
     mod = 8
 
     return compute_invariant(irrep_counts, irrep_names, factors, mod)
+
+
+def z12(irrep_counts, z4_value):
+    z6m = z6m0_175(irrep_counts) + z6mpi_175(irrep_counts)
+    return (z6m + 3 * ((z6m - z4_value) % 4)) % 12
+
+
+def z12prime(irrep_counts, z4_value):
+    z6m = z6m0_176(irrep_counts)
+    return (z6m + 3 * ((z6m - z4_value) % 4)) % 12
+
+#### SG TO SI MAPPING ####
+
+
+SI_FROM_SG = {
+    83: [
+        ("z4m_pi", z4mpi_83),
+        ("z8", z8_83)
+    ],
+    87: [
+        ("z8", z8_87)
+    ],
+    123: [
+        ("z4m_pi", z4mpi_83),
+        ("z8", z8_83)
+    ],
+    124: [
+        ("z8", z8_83)
+    ],
+    127: [
+        ("z4m_pi", z4mpi_83),
+        ("z8", z8_83)
+    ],
+    128: [
+        ("z8", z8_83)
+    ],
+    139: [
+        ("z8", z8_87)
+    ],
+    140: [
+        ("z8", z8_87)
+    ],
+    174: [
+        ("z3m_0", z3m0),
+        ("z3m_pi", z3mpi)
+    ],
+    175: [
+        ("z6m_0", z6m0_175),
+        ("z6m_pi", z6mpi_175),
+        #("z12", z12) manual
+    ],
+    176: [
+        ("z6m_0", z6m0_176),
+        #("z12'", z12prime) manual
+    ],
+    187: [
+        ("z3m_0", z3m0),
+        ("z3m_pi", z3mpi)
+    ],
+    188: [
+        ("z3m0", z3m0)
+    ],
+    189: [
+        ("z3m_0", z3m0),
+        ("z3m_pi", z3mpi)
+    ],
+    190: [
+        ("z3m_0", z3m0)
+    ],
+    191: [
+        ("z6m_0", z6m0_175),
+        ("z6m_pi", z6mpi_175),
+        #("z12", z12) manual
+    ],
+    192: [
+        ("z6m0", z6m0_175),
+        ("Z6m_pi", z6mpi_175),
+        #("z12", z12) manual
+    ],
+    193: [
+        ("z6m_0", z6m0_176),
+        #("z12'", z12prime) manual
+    ],
+    194: [
+        ("z6m_0", z6m0_176),
+        #("z12'", z12prime) manual
+    ],
+    221: [
+        ("z4m_pi", z4mpi_221),
+        ("z8", z8_221)
+    ],
+    225: [
+        ("z8", z8_225)
+    ],
+    226: [
+        ("z8", z8_226)
+    ],
+    229: [
+        ("z8", z8_229)
+    ]
+}
