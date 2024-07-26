@@ -48,10 +48,8 @@ def check_kpoints(kpoints):
             elif not check_vector_in_array(k, repeated):
                 repeated.append(k)
 
-    if len(repeated) > 0:
-        return np.array(repeated)
-    else:
-        return None
+
+    return np.array(repeated)
 
 
 def is_inversion(matrix):
@@ -86,7 +84,7 @@ def sg_has_inversion(data):
     symmetries = data["spacegroup"]["symmetries"]
 
     for num, sym in symmetries.items():
-        rotation = np.array(sym["rotation matrix refUC"]["data"])
+        rotation = np.array(sym["rotation matrix refUC"])
         if is_inversion(rotation):
             return int(num)
     return None
@@ -107,9 +105,9 @@ def get_kpoint_coordinates_from_json(data, refUC=False):
     kpoint_list = []
     for kpoint in data["characters and irreps"][0]["subspace"]["k points"]:
         if refUC:
-            kpoint_list.append(kpoint["k_refUC"]["data"])
+            kpoint_list.append(kpoint["k_refUC"])
         else:
-            kpoint_list.append(kpoint["k"]["data"])
+            kpoint_list.append(kpoint["k"])
 
     return np.array(kpoint_list)
 
@@ -157,10 +155,10 @@ def get_irreps_info(data):
     irrep_info = {}
     for kpoint in kpoints:
         kpoint_list = []
-        energies = kpoint["energies_mean"]["data"]
-        dims = kpoint["dimensions"]["data"]
-        coords = kpoint["k"]["data"]
-        coords_refUC = kpoint["k_refUC"]["data"]
+        energies = kpoint["energies_mean"]#
+        dims = kpoint["dimensions"]
+        coords = kpoint["k"]
+        coords_refUC = kpoint["k_refUC"]
         name = kpoint["kpname"]
 
         if name is None:
@@ -180,12 +178,9 @@ def get_character_info(data, symop_index):
     char_info = {}
     unknown_index = 0
     for kpoint in kpoints:
-        kpoint_list = []
-        characters = kpoint["characters"]["data"]
-        real_part = characters[0]
-        imag_part = characters[1]
-        coords = kpoint["k"]["data"]
-        coords_refUC = kpoint["k_refUC"]["data"]
+        characters = kpoint["characters"]
+        coords = kpoint["k"]
+        coords_refUC = kpoint["k_refUC"]
         name = kpoint["kpname"]
         if name is None:
             name = f"unknown{unknown_index}"
@@ -195,11 +190,9 @@ def get_character_info(data, symop_index):
         except ValueError:
             continue
 
-        for real, imag in zip(real_part, imag_part):
-            char = np.round(complex(real[op_index], imag[op_index]), 3)
-            kpoint_list.append(char)
-
-        kpoint_list = np.array(kpoint_list)
+        kpoint_list = np.array([
+            np.round(energy_chars[op_index], 3) for energy_chars in characters
+            ])
 
         char_info[name] = {
             "k": coords,
@@ -333,7 +326,11 @@ def compute_symmetry_indicators(json_data):
     # SG-specific indicators
     si_list = SI_FROM_SG.get(sg_number, [])
     for si_name, si_function in si_list:
-        si_results.append((si_name, si_function(irrep_counts)))
+        try:
+            si_results.append((si_name, si_function(irrep_counts)))
+        except Exception as err:
+            print("There was a problem computing the symmetry indicator", si_name)
+            print(err)
 
     return si_results
 

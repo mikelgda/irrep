@@ -28,6 +28,8 @@ from .bandstructure import BandStructure
 from .utility import str2list, short, process_kpnames
 from . import __version__ as version
 
+from .indicators import compute_symmetry_indicators
+
 
 class LoadContextFromConfig(click.Command):
     """
@@ -252,6 +254,12 @@ do not hesitate to contact the author:
           "Default: 1e-5"
           )
 )
+@click.option("-symmetryIndicators",
+    type=bool,
+    flag_value=True,
+    default=False,
+    help=("Compute symmetry indicators for selected bands.")
+)
 def cli(
     ecut,
     fwav,
@@ -279,7 +287,8 @@ def cli(
     config,
     searchcell,
     correct_ecut0,
-    trans_thresh
+    trans_thresh,
+    symmetryindicators
 ):
     """
     Defines the "irrep" command-line tool interface.
@@ -452,3 +461,11 @@ def cli(
             else:
                 fname = "bands-{0}.dat".format(suffix)
             sub.write_plotfile(fname)
+    
+    if symmetryindicators:
+        print("\n\n------- SYMMETRY INDICATORS -------")
+        si_results = compute_symmetry_indicators(json_data)
+
+        print("\nComputed symmetry indicators:")
+        for si_name, si_value in si_results:
+            print("  {}: {}".format(si_name, si_value))
