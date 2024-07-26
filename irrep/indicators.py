@@ -263,7 +263,7 @@ def compute_invariant(irrep_counts, irrep_names, factors, mod):
         result of the computation
     """
 
-    counts = np.array([irrep_counts[name] for name in irrep_names])
+    counts = np.array([irrep_counts.get(name, 0.0) for name in irrep_names])
     if factors is None:
         total = counts.sum()
     else:
@@ -898,7 +898,7 @@ def z8_229(irrep_counts):
 
 
 def z12(irrep_counts, z4_value):
-    z6m = z6m0_175(irrep_counts) + z6mpi_175(irrep_counts)
+    z6m = (z6m0_175(irrep_counts) + z6mpi_175(irrep_counts)) % 6
     return (z6m + 3 * ((z6m - z4_value) % 4)) % 12
 
 
