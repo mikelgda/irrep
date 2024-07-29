@@ -21,7 +21,8 @@ import numpy as np
 import numpy.linalg as la
 import copy
 from .gvectors import symm_eigenvalues, symm_matrix
-from .utility import compstr, is_round, format_matrix, vector_pprint
+from .utility import (compstr, is_round, format_matrix, log_message, 
+                      vector_pprint)
 
 class Kpoint:
     """
@@ -82,6 +83,8 @@ class Kpoint:
     save_wf : bool
         Whether wave functions should be kept as attribute after calculating 
         traces.
+    v : int
+        Verbosity level. Default set to minimalistic printing
     
     Attributes
     ----------
@@ -105,8 +108,12 @@ class Kpoint:
         to short plane-waves based on energy (ascending order). Fitfth 
         (sixth) row contains the index of the first (last) plane-wave with 
         the same energy as the plane-wave of the current column.
-    K : array, shape=(3,)
+    k : array, shape=(3,)
         Direct coordinates of the k point in the DFT cell setting.
+    K : array, shape=(3,)
+        Property getter for `self.k`. NEEDED TO PRESERVE COMPATIBILITY WITH
+        BANDUPPY<=0.3.3. DO NOT CHANGE UNLESS NECESSARY. NOTIFY THE DEVELOPERS 
+        IF ANY CHANGES ARE MADE.
     k_refUC : array, shape=(3,)
         Direct coordinates of the k point in the reference cell setting.
     Energy_raw : array
@@ -167,6 +174,7 @@ class Kpoint:
         shiftUC=np.zeros(3),
         symmetries_tables=None,  # calculate_traces needs it
         save_wf=True,
+        v=0,
         magnetic=False
     ):
         self.spinor = spinor
@@ -212,7 +220,7 @@ class Kpoint:
 
         # Calculate traces
         if calculate_traces:
-            self.char, self.char_refUC, self.Energy_mean = self.calculate_traces(refUC, shiftUC, symmetries_tables, degen_thresh)
+            self.char, self.char_refUC, self.Energy_mean = self.calculate_traces(refUC, shiftUC, symmetries_tables, v)
 
             # Determine number of band inversions based on parity
             found = False
@@ -238,14 +246,18 @@ class Kpoint:
         """Getter for the redfuced coordinates of the k-point
         needed to keep compatibility with banduppy
         
-        ACCESSED BY BANDUPPY, AVOID CHANGING UNLESS NECESSARY
+        ACCESSED BY BANDUPPY.NEEDED TO PRESERVE COMPATIBILITY WITH 
+        BANDUPPY<=0.3.3. AVOID CHANGING UNLESS NECESSARY.
         """
         return self.k
     
     def k_close_mod1(self, kpt, prec=1e-6):
         """
-        Check if the k-point is close to another k-point modulo 1. (in reduced coordinates)
-        ACCESSED BY BANDUPPY, AVOID CHANGING UNLESS NECESSARY
+        Check if the k-point is close to another k-point modulo 1. (in reduced 
+        coordinates)
+
+        ACCESSED BY BANDUPPY. AVOID CHANGING UNLESS NECESSARY. NOTIFY 
+        DEVELOPERS IF ANY CHANGE IS MADE.
 
         Parameters
         ----------
@@ -254,7 +266,7 @@ class Kpoint:
         prec : float, default=1e-6
             Threshold to consider the k-points as equal.
         """
-        return is_round(self.k - kpt, prec = 1e-6)
+        return is_round(self.k - kpt, prec = prec)
 
     def copy_sub(self, E, WF, inds):
         """
@@ -324,7 +336,7 @@ class Kpoint:
             W - weight of the band(s) projected onto the PBZ kpoint.
             Sx, Sy, Sz - Spin components projected onto the PBZ kpoint.
         """
-        if not is_round(kptPBZ.dot(supercell.T) - self.k, prec=1e-5):
+        if not self.k_close_mod1(kptPBZ.dot(supercell.T), prec=1e-5):
             raise RuntimeError(
                 "unable to unfold {} to {}, withsupercell={}".format(
                     self.k, kptPBZ, supercell
@@ -426,7 +438,7 @@ class Kpoint:
                 result.append((b1, b2, E, (W,)))
         return result
 
-    def Separate(self, symop, degen_thresh, groupKramers=True):
+    def Separate(self, symop, degen_thresh, groupKramers=True, v=0):
         """
         Separate the band structure in a particular k-point according to the 
         eigenvalues of a symmetry operation.
@@ -439,6 +451,8 @@ class Kpoint:
             Energy threshold used to determine degeneracy of energy-levels.
         groupKramers : bool, default=True
             If `True`, states will be coupled by pairs of Kramers.
+        v : int, default=0
+            Verbosity level. Default set to minimalistic printing
 
         Returns
         -------
@@ -453,11 +467,9 @@ class Kpoint:
         norms = self.WF.conj().dot(self.WF.T)
         check = np.max(abs(norms - np.eye(norms.shape[0])))
         if check > 1e-5:
-            print(
-                "orthogonality (largest of diag. <psi_nk|psi_mk>): {0:7.5} > 1e-5   \n".format(
-                    check
-                )
-            )
+            msg = ("orthogonality (largest of diag. <psi_nk|psi_mk>): "
+                   "{0:7.5} > 1e-5   \n".format(check))
+            log_message(msg, v, 1)
 
         S = symm_matrix(
             self.k,
@@ -477,10 +489,12 @@ class Kpoint:
             Sblock[b1:b2, b1:b2] = 0
         check = np.max(abs(Sblock))
         if check > 0.1:
-            print(("WARNING: matrix of symmetry has non-zero elements between "
-                   "states of different energy:  \n", check))
-            print("Printing matrix of symmetry at k={}".format(self.k))
-            print(format_matrix(Sblock))
+            msg = ("WARNING: matrix of symmetry has non-zero elements between "
+                   "states of different energy:  \n", check)
+            log_message(msg, v, 1)
+            msg = (f"Printing matrix of symmetry at k={self.k}")
+            log_message(msg, v, 1)
+            log_message(format_matrix(Sblock), v, 1)
 
         # Calculate eigenvalues and eigenvectors in each block
         eigenvalues = []
@@ -505,7 +519,7 @@ class Kpoint:
 
         # Check unitarity of the symmetry
         if np.abs((np.abs(w) - 1.0)).max() > 1e-4:
-            print("WARNING : some eigenvalues are not unitary :{0} ".format(w))
+            log_message(f"WARNING: some eigenvalues are not unitary: {w}",v,1)
         if np.abs((np.abs(w) - 1.0)).max() > 3e-1:
             raise RuntimeError(" some eigenvalues are not unitary :{0} ".format(w))
         w /= np.abs(w)
@@ -528,7 +542,6 @@ class Kpoint:
             if len(borders) > 0:
                 for b1, b2 in zip(borders, borders[1:]):
                     v1 = v[:, b1:b2]
-                    print(w[b1:b2].mean())
                     subspaces[w[b1:b2].mean()] = self.copy_sub(E=Eloc[b1:b2], WF=v1.T.dot(self.WF), inds=inds_states[b1:b2])
             else:
                 v1 = v
@@ -556,7 +569,7 @@ class Kpoint:
 
         return subspaces
 
-    def calculate_traces(self, refUC, shiftUC, symmetries_tables, degen_thresh=1e-8):
+    def calculate_traces(self, refUC, shiftUC, symmetries_tables, v=0):
         '''
         Calculate traces of symmetry operations
 
@@ -608,7 +621,8 @@ class Kpoint:
         # Check that number of irreps is int
         Nirrep = np.linalg.norm(char.sum(axis=1)) ** 2 / char.shape[0]
         if abs(Nirrep - round(Nirrep)) > 1e-2:
-            print("WARNING - non-integer number of states : {0}".format(Nirrep))
+            msg = f"WARNING - non-integer number of states : {Nirrep}"
+            log_message(msg, v, 2)
         Nirrep = int(round(Nirrep))
 
         # Sum traces of degenerate states. Rows (cols) correspond to states (syms)

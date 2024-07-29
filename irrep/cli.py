@@ -25,7 +25,7 @@ import click
 from monty.serialization import dumpfn, loadfn
 
 from .bandstructure import BandStructure
-from .utility import str2list, short
+from .utility import str2list, short, log_message
 from . import __version__ as version
 
 
@@ -128,6 +128,12 @@ do not hesitate to contact the author:
     help="Prefix used for Quantum Espresso calculations (data should be in prefix.save) or seedname of Wannier90 files. ",
 )
 @click.option(
+    "-from_sym_file",
+    type=str,
+    help="if present, the symmetry operations will be read from this file, instead of those computed by spglib",
+)
+
+@click.option(
     "-IBstart",
     type=int,
     default=0,
@@ -191,6 +197,19 @@ do not hesitate to contact the author:
     flag_value=True,
     default=False,
     help="Only calculate the symmetry operations",
+)
+@click.option(
+    "-writesym",
+    flag_value=True,
+    default=False,
+    help="write the prefix.sym file needed for the Wannier90 sitesym calculations",
+)
+@click.option(
+    "-alat",
+    type=float,
+    default=None,
+    help="for writesym - the alat parameter. For QE, it is read from the prefix.save/data-file-schema.xml"
+    "For other codes needs to be provided. (To be honest, the .sym file is useless for other codes for now, but still ..)",
 )
 @click.option("-ZAK", flag_value=True, default=False, help="Calculate Zak phase")
 @click.option(
@@ -258,8 +277,16 @@ do not hesitate to contact the author:
     help=("Path to magnetic moments' file. One row per atom, three "
           "coordinates in Cartesian.")
 )
-
-
+@click.option("-v",
+              count=True,
+              default=1,
+              help=("Verbosity flag. -vv: very detailed info, recommended "
+                    "when you get an error. -v (default for CLI): info about "
+                    "some decissions taken internaly through the code's "
+                    "execution, recommended when the code runs without "
+                    "errors, but the result is not what you expected. If you "
+                    "don't set this tag, you will get the basic info.")
+)
 def cli(
     ecut,
     fwav,
@@ -276,6 +303,9 @@ def cli(
     shiftuc,
     isymsep,
     onlysym,
+    writesym,
+    alat,
+    from_sym_file,
     zak,
     wcc,
     plotbands,
@@ -288,7 +318,8 @@ def cli(
     searchcell,
     correct_ecut0,
     trans_thresh,
-    magmom
+    magmom,
+    v
 ):
     """
     Defines the "irrep" command-line tool interface.
@@ -304,17 +335,20 @@ def cli(
     # Warning about kpnames
     if kpnames is not None:
         searchcell = True
+
     elif not searchcell:
-        print(("Warning: transformation to the convenctional unit "
+        msg = ("Warning: transformation to the convenctional unit "
                "cell will not be calculated, nor its validity checked "
                "(if given). See the description of flag -searchcell "
                "on:\n"
                "irrep --help"
-               ))
-        print(("Warning: -kpnames not specified. Only traces of "
+               )
+        log_message(msg, v, 1)
+        msg = ("Warning: -kpnames not specified. Only traces of "
                "symmetry operations will be calculated. Remember that "
                "-kpnames must be specified to identify irreps"
-               ))
+               )
+        log_message(msg, v, 1)
 
     # parse input arguments into lists if supplied
     if symmetries:
@@ -362,10 +396,15 @@ def cli(
         search_cell = searchcell,
         degen_thresh=degenthresh,
         magnetic_moments=magnetic_moments,
-        save_wf=save_wf
+        save_wf=save_wf,
+        v=v,
+        from_sym_file=from_sym_file
     )
 
     bandstr.spacegroup.show()
+
+    if writesym:
+        bandstr.spacegroup.write_sym_file(filename=prefix+".sym", alat=alat)
 
     if onlysym:
         exit()
@@ -376,7 +415,7 @@ def cli(
                 )
 
     # Identify irreps. If kpnames wasn't set, all will be labelled as None
-    bandstr.identify_irreps(kpnames)
+    bandstr.identify_irreps(kpnames, v=v)
 
     # Temporary, until we make it valid for isymsep
     bandstr.write_characters()
@@ -404,7 +443,7 @@ def cli(
         for isym in isymsep:
             print("\n-------- SEPARATING BY SYMMETRY # {} --------".format(isym))
             for s_old, bs in subbands.items():
-                separated = bs.Separate(isym, degen_thresh=degenthresh, groupKramers=groupkramers)
+                separated = bs.Separate(isym, degen_thresh=degenthresh, groupKramers=groupkramers, v=v)
                 for s_new, bs_separated in separated.items():
                     tmp_subbands[tuple(list(s_old) + [s_new])] = bs_separated
             subbands = tmp_subbands

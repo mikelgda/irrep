@@ -252,6 +252,24 @@ def format_matrix(A):
     )
 
 
+def log_message(msg, verbosity, level):
+    '''
+    Logger to decide if a message is printed or not
+
+    Parameters
+    ----------
+    msg : str
+        Message to print
+    verbosity : int
+        Verbosity set for the current run of the code
+    level : int
+        If `verbosity >= level`, the message will be printed
+    '''
+
+    if verbosity >= level:
+        print(msg)
+
+
 def vector_pprint(vector, fmt=None):
     """
     Format an homogeneous list or array as a vector for printing
