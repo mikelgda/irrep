@@ -1387,7 +1387,7 @@ class SpaceGroup():
 
         if signs:
             S1 = [sym.spinor_rotation for sym in symmetries]
-            S2 = [self.symmetries_tables[i].S for i in ind]
+            S2 = [symmetries_tables[i].S for i in ind]
             signs_array = self.__match_spinor_rotations(S1, S2)
         else:
             signs_array = np.ones(len(ind), dtype=int)
