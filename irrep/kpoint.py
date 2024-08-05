@@ -790,6 +790,8 @@ class Kpoint:
         '''
 
         json_data = {}
+        json_data['k'] = self.k
+        json_data['k_refUC'] = self.k_refUC
 
         indices_symmetries = [sym.ind for sym in self.little_group]
         json_data ['symmetries'] = list(indices_symmetries)
