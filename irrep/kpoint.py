@@ -637,14 +637,11 @@ class Kpoint:
 
         # Transfer traces in calculational cell to refUC
         char_refUC = char.copy()
-        if (not np.allclose(refUC, np.eye(3, dtype=float)) or
-            not np.allclose(shiftUC, np.zeros(3, dtype=float))):
-            # Calculational and reference cells are not identical
-            for i,sym in enumerate(self.little_group):
-                dt = (symmetries_tables[sym.ind-1].t 
-                      - sym.translation_refUC(refUC, shiftUC))
-                char_refUC[:,i] *= (sym.sign 
-                                     * np.exp(-2j*np.pi*dt.dot(self.k_refUC)))
+        for i,sym in enumerate(self.little_group):
+            dt = (symmetries_tables[sym.ind-1].t 
+                  - sym.translation_refUC(refUC, shiftUC))
+            char_refUC[:,i] *= (sym.sign 
+                                 * np.exp(-2j*np.pi*dt.dot(self.k_refUC)))
 
         return char, char_refUC, Energy_mean
 
@@ -660,7 +657,7 @@ class Kpoint:
             Each key is the label of an irrep, each value another `dict`. Keys 
             of every secondary `dict` are indices of symmetries (starting from 
             1 and following order of operations in tables of BCS) and 
-            values are traces of symmetries.
+            values are traces of symmetries. Traces are in DFT cell.
         '''
 
         self.onlytraces = irreptable is None
