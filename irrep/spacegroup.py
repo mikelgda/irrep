@@ -224,8 +224,28 @@ class SymmetryOperation():
         t_ref = np.linalg.inv(refUC).dot(t_ref)
         return t_ref
 
+    def spinrotation_refUC(self, U):
+        """
+        Calculate spin representation matrix in reference cell
 
-    def show(self, refUC=np.eye(3), shiftUC=np.zeros(3)):
+        Parameters
+        ----------
+        U : array
+            Unitary transformation of spin quantization axis from spglib's 
+            choice to reference cell's choice
+
+        Returns
+        -------
+        array
+            Spin representation matrix in reference cell
+        """
+
+        S = U.conj().transpose() @ self.spinor_rotation @ U
+        S *= self.sign
+        return S
+
+
+    def show(self, refUC=np.eye(3), shiftUC=np.zeros(3), U=np.eye(2)):
         """
         Print description of symmetry operation.
         
@@ -237,6 +257,9 @@ class SymmetryOperation():
         shiftUC : array, default=np.zeros(3)
             Translation taking the origin of the unit cell used in the DFT 
             calculation to that of the standard setting.
+        U : array, default=np.zeros(2)
+            Unitary transformation of spin quantization axis from spglib's 
+            choice to reference cell's choice
         """
 
         def parse_row_transform(mrow):
@@ -332,7 +355,7 @@ class SymmetryOperation():
                            for s, row, t in zip(["spinor rot. (refUC) : |",
                                                  " " * 22 + "|",
                                                  ], 
-                                                 self.spinor_rotation*self.sign, 
+                                                 self.spinrotation_refUC(U), 
                                                  [" |", " |"]
                                                )
                            ]
@@ -718,9 +741,11 @@ class SpaceGroup():
         # Otherwise, transf. was calculated automatically and 
         # matching of symmetries was checked in determine_basis_transf
         try:
-            ind, dt, signs = self.match_symmetries(signs=self.spinor,
+            ind, dt, signs, U = self.match_symmetries(signs=self.spinor,
                                                    trans_thresh=trans_thresh
                                                    )
+            self.spin_transf = U
+
             # Sort symmetries like in tables
             args = np.argsort(ind)
             for i,i_ind in enumerate(args):
@@ -749,7 +774,7 @@ class SpaceGroup():
         # Do the same with magnetic operations
         if self.magnetic and len(self.au_symmetries) > 0:
             try:
-                ind, dt, signs = self.match_symmetries(signs=self.spinor,
+                ind, dt, signs, U = self.match_symmetries(signs=self.spinor,
                                                        trans_thresh=trans_thresh,
                                                        au_symmetries=True
                                                        )
@@ -873,12 +898,12 @@ class SpaceGroup():
 
         for symop in self.symmetries:
             if symmetries is None or symop.ind in symmetries:
-                symop.show(refUC=self.refUC, shiftUC=self.shiftUC)
+                symop.show(refUC=self.refUC, shiftUC=self.shiftUC, U=self.spin_transf)
 
         if self.magnetic:
             for symop in self.au_symmetries:
                 if symmetries is None or symop.ind in symmetries:
-                    symop.show(refUC=self.refUC, shiftUC=self.shiftUC)
+                    symop.show(refUC=self.refUC, shiftUC=self.shiftUC, U=self.spin_transf)
 
     def write_sym_file(self, filename, alat=None):
         """
@@ -1036,9 +1061,11 @@ class SpaceGroup():
                 "the accurcy is only {0}. Is this good?".format(r))
 
         R1 = RR(res.x)
+        print('R1')
+        print(R1.round(4))
+        signs = np.array([R1.dot(b).dot(R1.T.conj()).dot(np.linalg.inv(a)).diagonal().mean().real.round() for a, b in zip(S1, S2)], dtype=int) 
 
-        return np.array([R1.dot(b).dot(R1.T.conj()).dot(np.linalg.inv(
-            a)).diagonal().mean().real.round() for a, b in zip(S1, S2)], dtype=int)
+        return signs, R1
 
     def get_irreps_from_table(self, kpname, K, v=0):
         """
@@ -1205,7 +1232,7 @@ class SpaceGroup():
             # Check if the shift given by spglib works
             shiftUC = -refUC.dot(shiftUC_lib)
             try:
-                ind, dt, signs = self.match_symmetries(
+                ind, dt, signs, U = self.match_symmetries(
                                     refUC,
                                     shiftUC,
                                     trans_thresh=trans_thresh
@@ -1224,7 +1251,7 @@ class SpaceGroup():
                 for r_center in self.vecs_centering():
                     shiftUC = shiftUC_lib + refUC.dot(r_center)
                     try:
-                        ind, dt, signs = self.match_symmetries(
+                        ind, dt, signs, U = self.match_symmetries(
                                             refUC,
                                             shiftUC,
                                             trans_thresh=trans_thresh
@@ -1242,7 +1269,7 @@ class SpaceGroup():
                 for r_center in self.vecs_inv_centers():
                     shiftUC = 0.5 * inv.translation + refUC.dot(0.5 * r_center)
                     try:
-                        ind, dt, signs = self.match_symmetries(
+                        ind, dt, signs, U = self.match_symmetries(
                                             refUC,
                                             shiftUC,
                                             trans_thresh=trans_thresh
@@ -1388,10 +1415,11 @@ class SpaceGroup():
         if signs:
             S1 = [sym.spinor_rotation for sym in symmetries]
             S2 = [symmetries_tables[i].S for i in ind]
-            signs_array = self.__match_spinor_rotations(S1, S2)
+            signs_array, U = self.__match_spinor_rotations(S1, S2)
         else:
             signs_array = np.ones(len(ind), dtype=int)
-        return ind, dt, signs_array
+            U = None
+        return ind, dt, signs_array, U
 
     def vecs_centering(self):
         """ 

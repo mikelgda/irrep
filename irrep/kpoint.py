@@ -642,6 +642,7 @@ class Kpoint:
                   - sym.translation_refUC(refUC, shiftUC))
             char_refUC[:,i] *= (sym.sign 
                                  * np.exp(-2j*np.pi*dt.dot(self.k_refUC)))
+            print(f"i:{i}, isym:{sym.ind}, sign: {sym.sign}, phase: {dt.dot(self.k_refUC)}")
 
         return char, char_refUC, Energy_mean
 
