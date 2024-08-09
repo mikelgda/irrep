@@ -14,16 +14,12 @@
 ##  e-mail: stepan.tsirkin@physik.uzh.ch                         #
 ##################################################################
 
-__version__="1.0.3"
+__version__="1.1.0"
 
-import copy
 import os
-import sys
 import logging
-
 import numpy as np
-
-from irrep.utility import str2bool, str2list_space, str_
+from irrep.utility import str2bool, str2list_space, str_, log_message
 
 # using a logger to print useful information during debugging,
 # set to logging.INFO to disable debug messages
@@ -56,23 +52,24 @@ class SymopTable:
         numbers = line.split()
         self.R = np.array(numbers[:9], dtype=int).reshape(3, 3)
         self.t = np.array(numbers[9:12], dtype=float)
-        # len is 13 if time reversal is specified
-        # len is > 13 everytime there is spin
+
+        # Parse spin rotation matrix
         line_length = len(numbers)
-        if line_length > 13:
+        if line_length > 13:  # double-valued group
             self.S = (
                 np.array(numbers[12:16], dtype=float)
                 * np.exp(1j * np.pi * np.array(numbers[16:20], dtype=float))
             ).reshape(2, 2)
-        else:
+        else:  # single-valued group
             self.S = np.eye(2)
         
-        if line_length == 13:
+        if line_length == 13:  # scalar-valued magnetic
             self.time_reversal = False if int(numbers[12]) == 1 else True
-        elif line_length == 21:
+        elif line_length == 21:  # double-valued magnetic
             self.time_reversal = False if int(numbers[20]) == 1 else True
-        else:
+        else:  # no need for magnetic treatment
             self.time_reversal = False
+
 
     def str(self, spinor=True):
         """
@@ -225,6 +222,8 @@ class Irrep:
         info about the space-group and irreps.
     k_point : class instance, default=None
         Instance of class `KPoint`.
+    v : int, default=0
+        Verbosity level. Default set to minimalistic printing
 
     Attributes
     ----------
@@ -246,7 +245,7 @@ class Irrep:
         and the corresponding value is the trace of that symmetry in the irrep.
     """
 
-    def __init__(self, line, k_point):
+    def __init__(self, line, k_point, v=0):
         logger.debug("reading irrep line <{0}> for KP=<{1}> ".format(line, k_point.str()))
         self.k = k_point.k
         self.kpname = k_point.name
@@ -263,7 +262,7 @@ class Irrep:
                 * np.array(line[2 + self.nsym : 2 + 2 * self.nsym], dtype=float)
             )
         self.characters = {k_point.isym[i]: ch[i] for i in range(self.nsym)}
-        logger.debug("the irrep {0}  ch= {1}".format(self.name, self.characters))
+        log_message(f"## Irrep {self.name}\nCharacter:\n{self.characters}", v, 2)
         assert len(self.characters) == self.nsym
 
     def show(self):
@@ -309,6 +308,8 @@ class IrrepTable:
         Name of the file from which info about the space-group and irreps 
         should be read. If `None`, the code will try to open a file already 
         included in it.
+    v : int, default=0
+        Verbosity level. Default set to minimalistic printing
 
     Attributes
     ----------
@@ -328,9 +329,10 @@ class IrrepTable:
     irreps : list
         Each component is an instance of class `IrRep` corresponding to an 
         irrep of the little group of a maximal k-point.
+    magnetic :
     """
 
-    def __init__(self, SGnumber, spinor, name=None, magnetic=False):
+    def __init__(self, SGnumber, spinor, name=None, v=0, magnetic=False):
         self.number = SGnumber
         self.spinor = spinor
         if name is None:
@@ -341,16 +343,18 @@ class IrrepTable:
                     root=os.path.dirname(__file__),
                 )
             else:
-                name = "{root}/correptables/tables/irreps-SG={SG}-{spinor}.dat".format(
+                name = "{root}/correptables/irreps-SG={SG}-{spinor}.dat".format(
                     SG=self.number,
                     spinor="spin" if self.spinor else "scal",
                     root=os.path.dirname(__file__),
                 )
-                
-            logger.debug("reading from a standard irrep table <{0}>".format(name))
+            msg = f"Reading standard irrep table <{name}>"
+            log_message(msg, v, 2)
         else:
-            logger.debug("reading from a user-defined irrep table <{0}>".format(name))
+            msg = f"Reading a user-defined irrep table <{name}>"
+            log_message(msg, v, 2)
 
+        log_message("\n---------- DATA FROM THE TABLE ----------\n", v, 2)
         lines = open(name).readlines()[-1::-1]
         while len(lines) > 0:
             l = lines.pop().strip().split("=")
@@ -364,7 +368,7 @@ class IrrepTable:
             elif l[0].lower() == "spinor":
                 assert str2bool(l[1]) == self.spinor
             elif l[0].lower() == "symmetries":
-                print("Reading symmetries from tables")
+                log_message("Reading symmetries from tables", v, 2)
                 symmetries = []
                 while len(symmetries) < self.nsym:
                     l = lines.pop()
@@ -372,27 +376,34 @@ class IrrepTable:
                     try:
                         symmetries.append(SymopTable(l))
                     except Exception as err:
-                        logger.debug(err)
+                        log_message(err, v, 2)
                         pass
                 break
+        
         self.symmetries = list(filter(lambda x: not x.time_reversal, symmetries))
         self.au_symmetries = list(filter(lambda x: x.time_reversal, symmetries))
 
-        logger.debug("symmetries are:\n" + "\n".join(s.str() for s in self.symmetries))
+        msg = "Symmetries are:\n" + "\n".join(s.str() for s in self.symmetries)
+        log_message(msg, v, 2)
 
         self.irreps = []
         while len(lines) > 0:
             l = lines.pop().strip()
             try:
                 kp = KPoint(line=l)
-                logger.debug("kpoint successfully read:", kp.str())
+                msg = f"k-point successfully read:\n{kp.str()}"
+                log_message(msg, v, 2)
             except Exception as err:
-                logger.debug("error while reading k-point <{0}>".format(l), err)
                 try:
-                    self.irreps.append(Irrep(line=l, k_point=kp))
+                    self.irreps.append(Irrep(line=l, k_point=kp, v=v))
                 except Exception as err:
-                    logger.debug("error while reading irrep <{0}>".format(l), err)
-                    pass
+                    if len(l.split()) > 0:
+                        msg = ("WARNING: could not parse k-point nor irrep from the "
+                               "following line <\n{}>"
+                               .format(l))
+                        log_message(msg, v, 2)
+                    else:
+                        pass
 
     def show(self):
         '''

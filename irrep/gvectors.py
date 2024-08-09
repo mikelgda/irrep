@@ -19,6 +19,7 @@
 import numpy as np
 import numpy.linalg as la
 from .readfiles import Hartree_eV
+from .utility import log_message
 
 
 class NotSymmetryError(RuntimeError):
@@ -40,11 +41,12 @@ def calc_gvectors(
     K,
     RecLattice,
     Ecut,
-    nplane=np.Inf,
+    nplane=np.inf,
     Ecut1=-1,
     thresh=1e-3,
     spinor=True,
     nplanemax=10000,
+    v=0
 ):
     """ 
     Generates G-vectors taking part in the plane-wave expansion of 
@@ -61,7 +63,7 @@ def calc_gvectors(
     Ecut : float
         Plane-wave cutoff (in eV) used in the DFT calulation. Always read from 
         DFT files.
-    nplane : int, default=np.Inf
+    nplane : int, default=np.inf
         Number of plane-waves in the expansion of wave-functions (read from DFT 
         files). Only significant for VASP. 
     Ecut1 : float, default=Ecut
@@ -85,6 +87,10 @@ def calc_gvectors(
         the same energy as the plane-wave of the current column.
     
 """
+
+    msg = ('Generating plane waves at k: ({} )'
+           .format(' '.join([f'{x:6.3f}' for x in K])))
+    log_message(msg, v, 2)
     if Ecut1 <= 0:
         Ecut1 = Ecut
     B = RecLattice
@@ -96,9 +102,8 @@ def calc_gvectors(
     for N in range(nplanemax):
         flag = True
         if N % 10 == 0:
-            print(N, len(igall))
-        # if len(igall) >= nplane / (2 if spinor else 1):
-        #     break
+            msg = f'Cycle {N:>3d}: number of plane waves = {len(igall):>10d}'
+            log_message(msg, v, 2)
         if len(igall) >= nplane / 2:    # Only enters if vasp
             if spinor:
                 break
@@ -127,9 +132,7 @@ def calc_gvectors(
         memory[-1] = flag
 
     ncnt = len(igall)
-    #    print ("\n".join("{0:+4d}  {1:4d} {2:4d}  |  {3:6d}".format(ig[0],ig[1],ig[2],np.abs(ig).sum()) for ig in igall) )
-    #    print (len(igall),len(set(igall)))
-    if nplane < np.Inf: # vasp
+    if nplane < np.inf: # vasp
         if spinor:
             if 2 * ncnt != nplane:
                 raise RuntimeError(
@@ -147,16 +150,11 @@ def calc_gvectors(
     igall = np.array(igall, dtype=int)
     ng = igall.max(axis=0) - igall.min(axis=0)
     igall1 = igall % ng[None, :]
-    #    print ("ng=",ng)
-    #    print ("igall1=",igall1)
     igallsrt = np.argsort((igall1[:, 2] * ng[1] + igall1[:, 1]) * ng[0] + igall1[:, 0])
-    #    print (igallsrt)
     igall1 = igall[igallsrt]
     Eg = np.array(Eg)[igallsrt]
-    #    print (igall1)
     igall = np.zeros((ncnt, 6), dtype=int)
     igall[:, :3] = igall1
-    #    print (igall)
     igall[:, 3] = np.arange(ncnt)
     igall = igall[Eg <= Ecut1]
     Eg = Eg[Eg <= Ecut1]
@@ -229,7 +227,6 @@ def sortIG(ik, kg, kpt, CG, RecLattice, Ecut0, Ecut, spinor):
     )
     assert Ecut0 * 1.000000001 > np.max(eKG)
     sel = np.where(eKG < Ecut)[0]
-    npw1 = sel.shape[0]
 
     KG = KG[sel]
     kg = kg[sel]
@@ -281,15 +278,9 @@ def transformed_g(kpt, ig, RecLattice, A):
     rotind : array
         `rotind[i]`=`j` if `A`*`ig[:,i]`==`ig[:,j]`.
 """
-    #    Btrr=RecLattice.dot(A).dot(np.linalg.inv(RecLattice))
-    #    Btr=np.array(np.round(Btrr),dtype=int) # The transformed rec. lattice expressed in the basis of the original rec. lattice
-    #    if np.sum(np.abs(Btr-Btrr))>1e-6:
-    #        raise NotSymmetryError("The lattice is not invariant under transformation \n {0}".format(A))
     B = np.linalg.inv(A).T
     kpt_ = B.dot(kpt)
     dkpt = np.array(np.round(kpt_ - kpt), dtype=int)
-    #    print ("Transformation\n",A)
-    #    print ("kpt ={0} -> {1}".format(kpt,kpt_))
     if not np.isclose(dkpt, kpt_ - kpt).all():
         raise NotSymmetryError(
             "The k-point {0} is transformed to non-equivalent point {1}  under transformation\n {2}".format(
@@ -299,8 +290,6 @@ def transformed_g(kpt, ig, RecLattice, A):
 
     igTr = B.dot(ig[:3, :]) + dkpt[:, None]  # the transformed
     igTr = np.array(np.round(igTr), dtype=int)
-    #    print ("the original g-vectors :\n",ig)
-    #    print ("the transformed g-vectors :\n",igTr)
     ng = ig.shape[1]
     rotind = -np.ones(ng, dtype=int)
     for i in range(ng):
@@ -317,9 +306,7 @@ def transformed_g(kpt, ig, RecLattice, A):
                     "obtained when transforming the g-vector ig[{i}]={ig} "
                     .format(i=i, ig=ig[:3,i] +
                     "with the matrix {B}, where B=inv(A).T with A={A}"
-                    .format(B=B, A=A) +
-                    "other g-vectors with the same energy:\n{other}"
-                    .format(other)
+                    .format(B=B, A=A)
                 )
             )
     return rotind
@@ -432,7 +419,6 @@ def symm_matrix(
     if spinor:
         WF1 = np.stack([WF[:, igrot], WF[:, igrot + npw1]], axis=2).conj()
         WF2 = np.stack([WF[:, :npw1], WF[:, npw1:]], axis=2)
-        #        print (WF1.shape,WF2.shape,multZ.shape,S.shape)
         return np.einsum("mgs,ngt,g,st->mn", WF1, WF2, multZ, S)
     else:
         return np.einsum("mg,ng,g->mn", WF[:, igrot].conj(), WF, multZ)

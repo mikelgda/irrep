@@ -1,9 +1,7 @@
-import setuptools, sys
+import setuptools
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
-
-import irrep
 
 setuptools.setup(
     name="irrep",
@@ -15,16 +13,16 @@ setuptools.setup(
     install_requires=[
         "numpy",
         "scipy>=1.0",
-        "spglib>=2.1",
-        "lazy_property",
+        "spglib>=1.14",
         "Click",
         "monty",
         "ruamel.yaml",
         "irreptables",
-        "fortio"
+        "fortio",
+        "packaging"
     ],
     include_package_data=False,
-    url="https://github.com/stepan-tsirkin/irrep",
+    url="https://github.com/irreducible-representations/irrep.git",
     packages=["irrep"],
     classifiers=[
         "Programming Language :: Python :: 3",
