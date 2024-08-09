@@ -324,6 +324,7 @@ class SymmetryOperation():
                     [parse_row_transform(r) for r in matrix]
                     ) + "]"
 
+
         if write_ref:
             matrix = np.transpose(np.linalg.inv(R))
             if self.time_reversal:
@@ -722,6 +723,19 @@ class SpaceGroup():
         self.au_symmetries_tables = irreptable.au_symmetries
 
 
+        time_reversals = [sym.time_reversal for sym in symmetries]
+        self.magnetic = any(time_reversals)
+        if self.magnetic:
+            self.symmetries = list(filter(lambda x: not x.time_reversal, symmetries))
+            self.au_symmetries = list(filter(lambda x: x.time_reversal,  symmetries))
+        else:
+            self.symmetries = symmetries
+            self.au_symmetries = []
+        
+        irr_table = IrrepTable(self.number, self.spinor, magnetic=self.magnetic)
+        self.name = irr_table.name
+
+
         # Determine refUC and shiftUC according to entries in CLI
         irreptable = IrrepTable(self.number, self.spinor, magnetic=self.magnetic, v=v)
         self.symmetries_tables = irreptable.symmetries
@@ -770,6 +784,38 @@ class SpaceGroup():
                        "tables, try not specifying refUC and shiftUC.")
                 log_message(msg, v, 1)
                 pass
+        # Do the same with magnetic operations
+        if self.magnetic:
+            try:
+                ind, dt, signs = self.match_symmetries(signs=self.spinor,
+                                                    trans_thresh=trans_thresh,
+                                                    au_symmetries=True
+                                                    )
+                # Sort symmetries like in tables
+                args = np.argsort(ind)
+                for i,i_ind in enumerate(args):
+                    self.au_symmetries[i_ind].ind = i+1
+                    self.au_symmetries[i_ind].sign = signs[i_ind]
+                    self.au_symmetries.append(self.au_symmetries[i_ind])
+                self.au_symmetries = self.au_symmetries[i+1:]
+            except RuntimeError:
+                if search_cell:  # symmetries must match to identify irreps
+                    raise RuntimeError((
+                        "refUC and shiftUC don't transform the cellto one where "
+                        "symmetries are identical to those read from tables. "
+                        "Try without specifying refUC and shiftUC."
+                        ))
+                elif refUC is not None or shiftUC is not None:
+                    # User specified refUC or shiftUC in CLI. He/She may
+                    # want the traces in a cell that is not neither the
+                    # one in tables nor the DFT one
+                    print(("WARNING: refUC and shiftUC don't transform the cell to "
+                        "one where symmetries are identical to those read from "
+                        "tables. If you want to achieve the same cell as in "
+                        "tables, try not specifying refUC and shiftUC."))
+                    pass
+        
+
 
         # Do the same with magnetic operations
         if self.magnetic and len(self.au_symmetries) > 0:
@@ -1348,7 +1394,6 @@ class SpaceGroup():
 
         ind = []
         dt = []
-
         if au_symmetries:
             symmetries = self.au_symmetries
             symmetries_tables = self.au_symmetries_tables

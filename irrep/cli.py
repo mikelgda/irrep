@@ -377,6 +377,18 @@ def cli(
     else:
         magnetic_moments = None
 
+    if magmom is not None:
+        try:
+            magnetic_moments = np.loadtxt(magmom)
+        except FileNotFoundError as e:
+            print(f"The magnetic moments file was not found: {magmom}")
+            raise e
+        except ValueError as e:
+            print(f"Error reading magnetic moments file {magmom}")
+            raise e
+    else:
+        magnetic_moments = None
+
     bandstr = BandStructure(
         fWAV=fwav,
         fWFK=fwfk,

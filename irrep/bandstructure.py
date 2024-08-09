@@ -237,7 +237,7 @@ class BandStructure:
             Energies = parser.parse_energies()
 
         else:
-            raise RuntimeError("Unknown/unsupported code :{}".format(code))
+            raise RuntimeError(f"Unknown/unsupported code :{code}")
 
         self.spacegroup = SpaceGroup(
                               cell=(self.Lattice, positions, typat),
