@@ -414,7 +414,7 @@ class BandStructure:
                 degen_thresh=degen_thresh,
                 refUC=self.spacegroup.refUC,
                 shiftUC=self.spacegroup.shiftUC,
-                symmetries_tables=self.spacegroup.symmetries_tables,
+                symmetries_tables=self.spacegroup.u_symmetries_tables,
                 save_wf=save_wf,
                 verbosity=verbosity,
                 calculate_traces=calculate_traces,
@@ -429,7 +429,7 @@ class BandStructure:
                 upper=upper,
                 num_bands=NBout,
                 RecLattice=self.RecLattice,
-                symmetries_SG=self.spacegroup.symmetries,
+                symmetries_SG=self.spacegroup.u_symmetries,
                 spinor=self.spinor,
                 kwargs_kpoint=self.kwargs_kpoint,
                 normalize=normalize,
@@ -956,7 +956,7 @@ class BandStructure:
         #  by the isym-th symmetry operation.
         #
         # This is consistent with w90 documentations, but seemd to be opposite to what pw2wannier90 does
-        symmetries = self.spacegroup.symmetries + self.spacegroup.au_symmetries
+        symmetries = self.spacegroup.symmetries
 
         kpoints_mod1 = UniqueListMod1(kpoints)
         assert len(kpoints_mod1) == len(kpoints)
