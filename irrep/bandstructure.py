@@ -956,7 +956,7 @@ class BandStructure:
         #  by the isym-th symmetry operation.
         #
         # This is consistent with w90 documentations, but seemd to be opposite to what pw2wannier90 does
-        symmetries = self.spacegroup.symmetries
+        symmetries = self.spacegroup.u_symmetries
 
         kpoints_mod1 = UniqueListMod1(kpoints)
         assert len(kpoints_mod1) == len(kpoints)
