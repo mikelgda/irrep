@@ -440,7 +440,7 @@ class SymmetryOperation():
                 "    ".join("  ".join(str_(x) for x in X) for X in (np.abs(S.reshape(-1)), np.angle(S.reshape(-1)) / np.pi)))
                 +f"\n time-reversal : {self.time_reversal} \n")
 
-    def str2(self, refUC=np.eye(3), shiftUC=np.zeros(3), write_tr=False):
+    def str2(self, refUC=np.eye(3), shiftUC=np.zeros(3), U=None, write_tr=False):
         """
         Print matrix of a symmetry operation in the format: 
         {{R|t}}-> R11,R12,...,R23,R33,t1,t2,t3 and, when SOC was included, the 
@@ -462,18 +462,15 @@ class SymmetryOperation():
         str
             Description to print.
         """
-        if refUC is None:
-            refUC = np.eye(3, dtype=int)
-        if shiftUC is None:
-            shiftUC = np.zeros(3, dtype=float)
-# this method for Bilbao server
-#       refUC - row-vectors, expressing the reference unit cell vectors in terms of the lattice used in calculation
-#        print ( "symmetry # ",self.ind )
-        R = self.rotation
-        t = self.translation
-#        np.savetxt(stdout,np.hstack( (R,t[:,None])),fmt="%8.5f" )
-        S = self.spinor_rotation
+
+        R = self.rotation_refUC(refUC=refUC)
+        t = self.translation_refUC(refUC=refUC, shiftUC=shiftUC)
+        if U is None:
+            S = self.spinor_rotation
+        else:
+            S = self.spinrotation_refUC(U)
         tr = -1 if self.time_reversal else 1
+
         if write_tr:
             return ("   ".join(" ".join("{0:2d}".format(x) for x in r) for r in R) + "     " + " ".join("{0:10.6f}".format(x) for x in t) + (
                 ("      " + "    ".join("  ".join("{0:10.6f}".format(x) for x in (X.real, X.imag)) for X in S.reshape(-1))) if S is not None else "") + " " +str(tr) + "\n")
@@ -1026,7 +1023,10 @@ class SpaceGroup():
         res = f" {self.size}\n"
         # In the following lines, one symmetry operation for each operation of the point group n"""
         for symop in self.symmetries:
-            res += symop.str2(refUC=self.refUC, shiftUC=self.shiftUC, write_tr=self.magnetic)
+            if self.magnetic:
+                res += symop.str2(refUC=self.refUC, shiftUC=self.shiftUC, U=self.spin_transf, write_tr=True)
+            else:
+                res += symop.str2()
         return(res)
 
     def str(self):
